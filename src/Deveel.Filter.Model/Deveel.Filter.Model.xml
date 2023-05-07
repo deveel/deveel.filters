@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Deveel.Filter.Model</name>
+    </assembly>
+    <members>
+        <member name="T:Deveel.Filters.Filter">
+            <summary>
+            Represents a filter that can be used to restrict
+            the result of a query.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.Filter.FilterType">
+            <summary>
+            Gets the type of filter.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.Filter.IsEmpty">
+            <summary>
+            Gets a value indicating if this filter is empty.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.Filter.Empty">
+            <summary>
+            An empty filter that has no effect on the result.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.Filter.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Deveel.Filters.FilterException">
+            <summary>
+            An exception thrown when a filter is not valid.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterException.#ctor">
+            <summary>
+            Constructs the exception.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterException.#ctor(System.String)">
+            <summary>
+            Constructs the exception with the given message.
+            </summary>
+            <param name="message">The message of the exception.</param>
+        </member>
+        <member name="M:Deveel.Filters.FilterException.#ctor(System.String,System.Exception)">
+            <summary>
+            Constructs the exception with the given message and inner exception.
+            </summary>
+            <param name="message">The message of the exception.</param>
+            <param name="innerException">The inner exception of this exception.</param>
+        </member>
+        <member name="T:Deveel.Filters.FilterType">
+            <summary>
+            Enumerates the types of filters that are known
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.Equals">
+            <summary>
+            A filter that compares two parties for equality
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.NotEquals">
+            <summary>
+            A filter that compares two parties for inequality
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.GreaterThan">
+            <summary>
+            Compares two parties to determine if the first part is greater 
+            than the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.GreaterThanOrEqual">
+            <summary>
+            Compares two parties to determine if the first part is greater
+            or equal to the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.LessThan">
+            <summary>
+            Compares two parties to determine if the first part is less than
+            the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.LessThanOrEqual">
+            <summary>
+            Compares two parties to determine if the first part is less than
+            or equal to the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.And">
+            <summary>
+            A logical AND between two filters
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.Or">
+            <summary>
+            A logical OR between two filters
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.Not">
+            <summary>
+            An unary filter that negates the result of another filter
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.Function">
+            <summary>
+            The invocation of a function that returns a boolean value
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.Constant">
+            <summary>
+            A constant and immutable value.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterType.Variable">
+            <summary>
+            The reference to a variable in the filter context.
+            </summary>
+        </member>
+        <member name="T:Deveel.Filters.FunctionFilter">
+            <summary>
+            The invocation to a function that returns a
+            boolean for filtering
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilter.FunctionName">
+            <summary>
+            Gets the name of the function to invoke, that is
+            defined by the object refereced by <see cref="P:Deveel.Filters.FunctionFilter.Variable"/>
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilter.Variable">
+            <summary>
+            Gets the variable that references the object that
+            defines the function to invoke
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilter.Arguments">
+            <summary>
+            Gets the arguments to pass to the function.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilter.FilterType">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>
