@@ -144,10 +144,19 @@ namespace Deveel.Filters {
 				yield return new ValidationResult("The filter type is not specified");
 
 			if (filterType == FilterType.Not && not == null)
-				yield return new ValidationResult("The NOT filter is not specified");
+				yield return new ValidationResult("The NOT filter is not specified", new[] {nameof(Not)});
 
-			if (filterType == FilterType.Variable && variableName == null)
-				yield return new ValidationResult("The variable name is not specified");
+			if (filterType == FilterType.Variable && String.IsNullOrWhiteSpace(variableName))
+				yield return new ValidationResult("The variable name is not specified", new[] {nameof(Ref)});
+
+			if (binaryFilter != null) {
+				var binaryValidationResults = new List<ValidationResult>();
+				var filterContext = new ValidationContext(binaryFilter);
+				if (!Validator.TryValidateObject(binaryFilter, filterContext, binaryValidationResults, true)) {
+					foreach (var result in binaryValidationResults)
+						yield return result;
+				}
+			}
 
 			var results = ValidateModel(validationContext);
 

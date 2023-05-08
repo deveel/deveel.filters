@@ -1,0 +1,43 @@
+name: "Deveel Filters CI/CD"
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: "Build and Publish"
+    
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+  
+      - name: "Setup .NET Core"
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: "Restore"
+        run: dotnet restore
+
+      - name: "Build"
+        run: dotnet build -c Release --no-restore
+
+      - name: "Test"
+        run: dotnet test -c Release --no-restore --no-build --verbosity normal
+
+      - name: "Pack"
+        run: dotnet pack -c Release --no-restore --no-build --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
+
+      - name: "Push PAckages to GitHub Nuget"
+        run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }}
+
+  clean:
+    name: Celaning Old Packages  
+    needs: build
+    uses: ./.github/workflows/clean-packages.yml

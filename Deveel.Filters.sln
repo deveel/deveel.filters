@@ -3,19 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Filter.Model.XUnit", "test\Deveel.Filter.Model.XUnit\Deveel.Filter.Model.XUnit.csproj", "{7BA4988C-58B4-44A1-992C-F8865B981EFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.Model.XUnit", "test\Deveel.Filter.Model.XUnit\Deveel.Filter.Model.XUnit.csproj", "{7BA4988C-58B4-44A1-992C-F8865B981EFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Filter.Model.Web", "src\Deveel.Filter.Model.Web\Deveel.Filter.Model.Web.csproj", "{7BBBCD50-1FF8-49AB-A5C4-A0D176941D80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.Model.Web", "src\Deveel.Filter.Model.Web\Deveel.Filter.Model.Web.csproj", "{7BBBCD50-1FF8-49AB-A5C4-A0D176941D80}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.Model", "src\Deveel.Filter.Model\Deveel.Filter.Model.csproj", "{BD8ECC01-C00F-4025-9CE1-F4D35B144A3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Filter.Model.Web.XUnit", "test\Deveel.Filter.Model.Web.XUnit\Deveel.Filter.Model.Web.XUnit.csproj", "{A4AFAE29-31E8-4E00-A2BA-739D01F27B08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.Model.Web.XUnit", "test\Deveel.Filter.Model.Web.XUnit\Deveel.Filter.Model.Web.XUnit.csproj", "{A4AFAE29-31E8-4E00-A2BA-739D01F27B08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Filter.DynamicLinq", "src\Deveel.Filter.DynamicLinq\Deveel.Filter.DynamicLinq.csproj", "{E0018AED-D2B7-4066-996B-40A1A7C76746}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.DynamicLinq", "src\Deveel.Filter.DynamicLinq\Deveel.Filter.DynamicLinq.csproj", "{E0018AED-D2B7-4066-996B-40A1A7C76746}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Filter.MongoBson", "src\Deveel.Filter.MongoBson\Deveel.Filter.MongoBson.csproj", "{BF5581E9-C71C-466D-81F0-50BAD6A6627E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.MongoBson", "src\Deveel.Filter.MongoBson\Deveel.Filter.MongoBson.csproj", "{BF5581E9-C71C-466D-81F0-50BAD6A6627E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Filter.MongoBson.XUnit", "test\Deveel.Filter.MongoBson.XUnit\Deveel.Filter.MongoBson.XUnit.csproj", "{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.MongoBson.XUnit", "test\Deveel.Filter.MongoBson.XUnit\Deveel.Filter.MongoBson.XUnit.csproj", "{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{ED0B8843-6F66-42BA-BE86-E5F2305BF4AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{606D3076-7E5C-4536-84AD-26D8670381ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiltersBenchmark", "test\FiltersBenchmark\FiltersBenchmark.csproj", "{1247AF41-1F85-4A82-9202-941150DEA649}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,9 +57,23 @@ Global
 		{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1247AF41-1F85-4A82-9202-941150DEA649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1247AF41-1F85-4A82-9202-941150DEA649}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1247AF41-1F85-4A82-9202-941150DEA649}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1247AF41-1F85-4A82-9202-941150DEA649}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7BA4988C-58B4-44A1-992C-F8865B981EFD} = {606D3076-7E5C-4536-84AD-26D8670381ED}
+		{7BBBCD50-1FF8-49AB-A5C4-A0D176941D80} = {ED0B8843-6F66-42BA-BE86-E5F2305BF4AF}
+		{BD8ECC01-C00F-4025-9CE1-F4D35B144A3F} = {ED0B8843-6F66-42BA-BE86-E5F2305BF4AF}
+		{A4AFAE29-31E8-4E00-A2BA-739D01F27B08} = {606D3076-7E5C-4536-84AD-26D8670381ED}
+		{E0018AED-D2B7-4066-996B-40A1A7C76746} = {ED0B8843-6F66-42BA-BE86-E5F2305BF4AF}
+		{BF5581E9-C71C-466D-81F0-50BAD6A6627E} = {ED0B8843-6F66-42BA-BE86-E5F2305BF4AF}
+		{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A} = {606D3076-7E5C-4536-84AD-26D8670381ED}
+		{1247AF41-1F85-4A82-9202-941150DEA649} = {606D3076-7E5C-4536-84AD-26D8670381ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5254BD5D-FD17-421A-B033-5CA8EDEB2E50}

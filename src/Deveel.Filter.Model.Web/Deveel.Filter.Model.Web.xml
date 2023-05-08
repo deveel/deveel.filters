@@ -4,5 +4,20 @@
         <name>Deveel.Filter.Model.Web</name>
     </assembly>
     <members>
+        <member name="T:Deveel.Filters.BinaryFilterModel">
+            <summary>
+            A model that represents a binary filter
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.BinaryFilterModel.Left">
+            <summary>
+            The left side of the binary filter
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.BinaryFilterModel.Right">
+            <summary>
+            The right side of the binary filter
+            </summary>
+        </member>
     </members>
 </doc>

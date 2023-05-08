@@ -44,9 +44,25 @@ namespace Deveel.Filters {
 				return parameter;
 
 			Expression instance = parameter;
+			var declareType = parameter.Type;
 			var parts = variableName.Split('.');
 			foreach (var part in parts) {
-				instance = Expression.PropertyOrField(instance, part);
+				if (part == parameterName)
+					continue;
+
+				var members = declareType.GetMember(part, BindingFlags.Public | BindingFlags.Instance);
+				if (members == null || members.Length == 0)
+					throw new FilterException($"Unable to find the member {part} in the type '{declareType}'");
+				if (members.Length > 1)
+					throw new FilterException($"Ambiguous reference to the member '{part}' in the type '{declareType}'");
+
+				if (members[0] is PropertyInfo property) {
+					declareType = property.PropertyType;
+				} else if (members[0] is FieldInfo field) {
+					declareType = field.FieldType;
+				}
+
+				instance = Expression.MakeMemberAccess(instance, members[0]);
 			}
 
 			return instance;

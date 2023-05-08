@@ -1,0 +1,36 @@
+name: "Clean Old Packages"
+
+on:
+  workflow_dispatch:
+  
+  workflow_call:
+  
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Remove Old Deveel.Filter.Model Packages
+      uses: actions/delete-package-versions@v4
+      with:
+        package-name: 'Deveel.Filter.Model'
+        package-type: 'nuget'
+        min-versions-to-keep: 10
+        delete-only-pre-release-versions: true
+
+    - name: Remove Old Deveel.Filter.Model.Web Packages
+      uses: actions/delete-package-versions@v4
+      with:
+        package-name: 'Deveel.Filter.Model.Web'
+        package-type: 'nuget'
+        min-versions-to-keep: 10
+        delete-only-pre-release-versions: true
+
+    - name: Remove Old Deveel.Filter.MongoBson Packages
+      uses: actions/delete-package-versions@v4
+      with:
+        package-name: 'Deveel.Filter.MongoBson'
+        package-type: 'nuget'
+        min-versions-to-keep: 10
+        delete-only-pre-release-versions: true
