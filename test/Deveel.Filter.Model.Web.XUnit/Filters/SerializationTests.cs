@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -146,6 +147,40 @@ namespace Deveel.Filters {
 				}
 			};
 			var json = Serialize(model);
+			Assert.Equal(expectedJson, json);
+		}
+
+		[Theory]
+		[InlineData("x", 123, "y", 456, "{\"and\":{\"left\":{\"eq\":{\"left\":{\"ref\":\"x\"},\"right\":{\"value\":123}}},\"right\":{\"neq\":{\"left\":{\"ref\":\"y\"},\"right\":{\"value\":456}}}}}")]
+		[InlineData("x", "test", "y", "test2", "{\"and\":{\"left\":{\"eq\":{\"left\":{\"ref\":\"x\"},\"right\":{\"value\":\"test\"}}},\"right\":{\"neq\":{\"left\":{\"ref\":\"y\"},\"right\":{\"value\":\"test2\"}}}}}")]
+		public static void SerializeAnd(string varName1, object value1, string varName2, object value2, string expectedJson) {
+			var model = new FilterModel {
+				And = new BinaryFilterModel {
+					Left = new FilterModel {
+						Equals = new BinaryFilterModel {
+							Left = new FilterModel {
+								Ref = varName1
+							},
+							Right = new FilterModel {
+								Value = value1
+							}
+						}
+					},
+					Right = new FilterModel {
+						NotEquals = new BinaryFilterModel {
+							Left = new FilterModel {
+								Ref = varName2
+							},
+							Right = new FilterModel {
+								Value = value2
+							}
+						}
+					}
+				}
+			};
+
+			var json = Serialize(model);
+
 			Assert.Equal(expectedJson, json);
 		}
 	}

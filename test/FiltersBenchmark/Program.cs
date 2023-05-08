@@ -18,6 +18,7 @@ namespace Deveel.Filters {
     [MemoryDiagnoser]
     [RankColumn, Orderer(SummaryOrderPolicy.FastestToSlowest)]
     [SimpleJob(RuntimeMoniker.Net60)]
+	[SimpleJob(RuntimeMoniker.Net70)]
     public class FilterTests {
         [Benchmark]
         public void BuildSimpleEqual() {

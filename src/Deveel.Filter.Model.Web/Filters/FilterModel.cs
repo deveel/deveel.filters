@@ -2,18 +2,31 @@
 using System.Text.Json.Serialization;
 
 namespace Deveel.Filters {
-	public class FilterModel : IValidatableObject {
+	/// <summary>
+	/// A model that describes a filter that is used to
+	/// restrict a set of data.
+	/// </summary>
+	/// <remarks>
+	/// This object defines a model that can be exchanged between
+	/// services and clients and be serialized and deserialized safely.
+	/// </remarks>
+	public class FilterModel : IFilter, IValidatableObject {
 		private BinaryFilterModel? binaryFilter;
 		private FilterType? filterType;
 		private FilterModel? not;
 		private object? value;
 		private string? variableName;
+		private FunctionFilterModel? functionFilter;
+
+		FilterType IFilter.FilterType => filterType ?? new FilterType();
 
 		private void Reset() {
 			binaryFilter = null;
 			filterType = null;
 			not = null;
 			value = null;
+			variableName = null;
+			functionFilter = null;
 		}
 
 		private BinaryFilterModel? GetBinaryIf(FilterType type) {
@@ -105,16 +118,26 @@ namespace Deveel.Filters {
 			}
 		}
 
+		[JsonPropertyName("func")]
+		public FunctionFilterModel? Function {
+			get => functionFilter;
+			set {
+				Reset();
+				filterType = FilterType.Function;
+				functionFilter = value;
+			}
+		}
+
 		public virtual Filter BuildFilter() {
 			if (filterType == null)
-				throw new FilterException("The model is invalid");
+				throw new FilterException("The model is invalid - no type was set");
 
 			switch (filterType) {
 				case FilterType.Constant:
 					return new ConstantFilter(value);
 				case FilterType.Not:
 					if (not == null)
-						throw new FilterException("The model is invalid");
+						throw new FilterException("The model is invalid - no unary filter was set");
 
 					return Filter.Not(not.BuildFilter());
 				case FilterType.Equals:
@@ -126,14 +149,19 @@ namespace Deveel.Filters {
 				case FilterType.And:
 				case FilterType.Or:
 					if (binaryFilter == null)
-						throw new FilterException("The model is invalid");
+						throw new FilterException("The model is invalid - no binary filter was set");
 
 					return binaryFilter.BuildFilter(filterType.Value);
 				case FilterType.Variable:
 					if (variableName == null)
-						throw new FilterException("The model is invalid");
+						throw new FilterException("The model is invalid - no variable was set");
 
 					return Filter.Variable(variableName);
+				case FilterType.Function:
+					if (functionFilter == null)
+						throw new FilterException("The model is invalid - no function was set");
+
+					return functionFilter.BuildFilter();
 			}
 
 			throw new FilterException("Not a valid filter model");

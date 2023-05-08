@@ -39,6 +39,9 @@ namespace Deveel.Filters {
 		/// <summary>
 		/// Produces a lambda expression that represents the filter
 		/// </summary>
+		/// <param name="filter">
+		/// The filter to convert to a lambda expression.
+		/// </param>
 		/// <param name="parameterType">
 		/// The type of the parameter of the expression.
 		/// </param>
