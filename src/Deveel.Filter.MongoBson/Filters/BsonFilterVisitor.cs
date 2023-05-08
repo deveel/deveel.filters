@@ -4,7 +4,7 @@ using MongoDB.Bson;
 
 namespace Deveel.Filters {
 	class BsonFilterVisitor : FilterVisitor {
-		internal BsonDocument BuildDocument(Filter filter) {
+		internal BsonDocument BuildDocument(IFilter filter) {
 			var bsonFilter = Visit(filter);
 
 			if (!(bsonFilter is BsonFilter bson))
@@ -16,7 +16,7 @@ namespace Deveel.Filters {
 			return document;
 		}
 
-		public override Filter VisitConstant(ConstantFilter constant) {
+		public override IFilter VisitConstant(IConstantFilter constant) {
 			var value = constant.Value;
 			var valueType = value?.GetType() ?? typeof(DBNull);
 
@@ -39,7 +39,7 @@ namespace Deveel.Filters {
 			return new BsonFilter(FilterType.Constant, bson);
 		}
 
-		public override Filter VisitVariable(VariableFilter variable) {
+		public override IFilter VisitVariable(IVariableFilter variable) {
 			var varRef = new BsonDocument {
 				{ "type", FilterTypeString(variable.FilterType) },
 				{ "varRef", variable.VariableName }
@@ -51,7 +51,7 @@ namespace Deveel.Filters {
 		private static string FilterTypeString(FilterType filterType)
 			=> filterType.ToString().ToLowerInvariant();
 
-		public override Filter VisitUnary(UnaryFilter filter) {
+		public override IFilter VisitUnary(IUnaryFilter filter) {
 			var operand = Visit(filter.Operand);
 
 			if (!(operand is BsonFilter bson))
@@ -65,7 +65,7 @@ namespace Deveel.Filters {
 			return new BsonFilter(FilterType.Not, not);
 		}
 
-		public override Filter VisitFunction(FunctionFilter filter) {
+		public override IFilter VisitFunction(IFunctionFilter filter) {
 			var variable = VisitVariable(filter.Variable);
 			var bsonVariable = ((BsonFilter) variable);
 
@@ -88,7 +88,7 @@ namespace Deveel.Filters {
 			return new BsonFilter(FilterType.Function, function);
 		}
 
-		public override Filter VisitBinary(BinaryFilter filter) {
+		public override IFilter VisitBinary(IBinaryFilter filter) {
 			var bsonLeft = (BsonFilter) Visit(filter.Left);
 			var bsonRight = (BsonFilter) Visit(filter.Right);
 
@@ -115,13 +115,13 @@ namespace Deveel.Filters {
 
 		#region BsonFilter
 
-		class BsonFilter : Filter {
+		class BsonFilter : IFilter {
 			public BsonFilter(FilterType filterType, BsonValue value) {
 				FilterType = filterType;
 				Value = value;
 			}
 
-			public override FilterType FilterType { get; }
+			public FilterType FilterType { get; }
 
 			public BsonValue Value { get; }
 		}

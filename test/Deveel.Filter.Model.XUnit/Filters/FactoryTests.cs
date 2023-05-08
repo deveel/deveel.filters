@@ -73,5 +73,28 @@
 			Assert.NotNull(filter);
 			Assert.Equal(FilterType.LessThanOrEqual, filter.FilterType);
 		}
+
+		[Theory]
+		[InlineData("foo")]
+		[InlineData(22)]
+		[InlineData(123.456)]
+		[InlineData(true)]
+		[InlineData(false)]
+		[InlineData(null)]
+		public static void CreateConstant(object? value) {
+			var filter = Filter.Constant(value);
+			Assert.NotNull(filter);
+			Assert.Equal(FilterType.Constant, filter.FilterType);
+		}
+
+		[Theory]
+		[InlineData("foo")]
+		[InlineData("bar")]
+		[InlineData("baz")]
+		public static void CreateVariable(string varName) {
+			var filter = Filter.Variable(varName);
+			Assert.NotNull(filter);
+			Assert.Equal(FilterType.Variable, filter.FilterType);
+		}
 	}
 }

@@ -3,14 +3,13 @@ using System.Linq.Expressions;
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 
 namespace Deveel.Filters {
-    public static class Program {
+	public static class Program {
         public static void Main(string[] args) {
             BenchmarkRunner.Run<FilterTests>();
         }

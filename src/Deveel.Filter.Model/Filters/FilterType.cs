@@ -6,7 +6,7 @@
 		/// <summary>
 		/// A filter that compares two parties for equality
 		/// </summary>
-		Equals,
+		Equals = 1,
 
 		/// <summary>
 		/// A filter that compares two parties for inequality

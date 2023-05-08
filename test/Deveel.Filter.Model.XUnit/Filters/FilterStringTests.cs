@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deveel.Filters {
+	[Trait("Feature", "String Building")]
 	public static class FilterStringTests {
 		[Theory]
 		[InlineData("a", FilterType.Equals, 1, "a == 1")]
@@ -31,6 +32,29 @@ namespace Deveel.Filters {
 
 			var logicalFilter = Filter.Binary(left, right, logicalType);
 			var actual = logicalFilter.ToString();
+			Assert.Equal(expected, actual);
+		}
+
+		[Theory]
+		[InlineData("a", FilterType.Equals, 1, FilterType.And, "a == 1")]
+		[InlineData("a", FilterType.NotEquals, 1, FilterType.And, "a != 1")]
+		[InlineData("a", FilterType.GreaterThan, 1, FilterType.And, "a > 1")]
+		[InlineData("a", FilterType.GreaterThanOrEqual, 1, FilterType.And, "a >= 1")]
+		[InlineData("a", FilterType.LessThan, 1, FilterType.And, "a < 1")]
+		[InlineData("a", FilterType.LessThanOrEqual, 1, FilterType.And, "a <= 1")]
+		[InlineData("a", FilterType.Equals, 1, FilterType.Or, "a == 1")]
+		[InlineData("a", FilterType.NotEquals, 1, FilterType.Or, "a != 1")]
+		[InlineData("a", FilterType.GreaterThan, 1, FilterType.Or, "a > 1")]
+		[InlineData("a", FilterType.GreaterThanOrEqual, 1, FilterType.Or, "a >= 1")]
+		[InlineData("a", FilterType.LessThan, 1, FilterType.Or, "a < 1")]
+		[InlineData("a", FilterType.LessThanOrEqual, 1, FilterType.Or, "a <= 1")]
+		public static void LogicalBinaryOfEmptyWithNotEmpty(string leftVar, FilterType leftType, object leftValue, FilterType logicalType, string expected) {
+			var left = Filter.Binary(Filter.Variable(leftVar), Filter.Constant(leftValue), leftType);
+			var right = Filter.Empty;
+
+			var logicalFilter = Filter.Binary(left, right, logicalType);
+			var actual = logicalFilter.ToString();
+
 			Assert.Equal(expected, actual);
 		}
 

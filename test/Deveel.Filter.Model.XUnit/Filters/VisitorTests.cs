@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Deveel.Filters {
+	[Trait("Feature", "Visitor")]
 	public static class VisitorTests {
 		[Fact]
 		public static void VisitVariable() {

@@ -6,18 +6,13 @@
     <members>
         <member name="T:Deveel.Filters.Filter">
             <summary>
-            Represents a filter that can be used to restrict
-            the result of a query.
+            Represents a default implementation of a filter that 
+            can be used to restrict the result of a query.
             </summary>
         </member>
         <member name="P:Deveel.Filters.Filter.FilterType">
             <summary>
             Gets the type of filter.
-            </summary>
-        </member>
-        <member name="P:Deveel.Filters.Filter.IsEmpty">
-            <summary>
-            Gets a value indicating if this filter is empty.
             </summary>
         </member>
         <member name="F:Deveel.Filters.Filter.Empty">
@@ -27,125 +22,6 @@
         </member>
         <member name="M:Deveel.Filters.Filter.ToString">
             <inheritdoc/>
-        </member>
-        <member name="M:Deveel.Filters.Filter.AsLambda``1(System.String)">
-            <summary>
-            Produces a lambda expression that represents the filter
-            </summary>
-            <typeparam name="T">
-            The type of the parameter of the expression.
-            </typeparam>
-            <param name="parameterName">
-            The name of the parameter to use in the expression. 
-            <strong>Note</strong>: this name must match the variable references
-            in the filter.
-            </param>
-            <returns>
-            Returns a <see cref="T:System.Linq.Expressions.Expression`1"/> that represents the
-            expression tree of the filter, that can be used to compile a delegate.
-            </returns>
-            <exception cref="T:System.ArgumentException">
-            Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
-            </exception>
-        </member>
-        <member name="M:Deveel.Filters.Filter.AsLambda(System.Type,System.String)">
-            <summary>
-            Produces a lambda expression that represents the filter
-            </summary>
-            <param name="parameterType">
-            The type of the parameter of the expression.
-            </param>
-            <param name="parameterName">
-            The name of the parameter to use in the expression. 
-            <strong>Note</strong>: this name must match the variable references
-            in the filter.
-            </param>
-            <returns>
-            Returns a <see cref="T:System.Linq.Expressions.LambdaExpression"/> that represents the
-            expression tree of the filter, that can be used to compile a delegate.
-            </returns>
-            <exception cref="T:System.ArgumentException">
-            Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
-            </exception>
-            <exception cref="T:System.ArgumentNullException">
-            Thrown when <paramref name="parameterType"/> is <c>null</c>.
-            </exception>
-        </member>
-        <member name="M:Deveel.Filters.Filter.AsAsyncLambda(System.Type,System.String)">
-            <summary>
-            Produces an asynchrounous lambda expression that represents the filter
-            </summary>
-            <param name="parameterType">
-            The type of the parameter of the expression.
-            </param>
-            <param name="parameterName">
-            The name of the parameter to use in the expression. 
-            <strong>Note</strong>: this name must match the variable references
-            in the filter.
-            </param>
-            <returns>
-            Returns a <see cref="T:System.Linq.Expressions.LambdaExpression"/> that represents the
-            expression tree of the filter, that can be used to compile an asynchrouns delegate.
-            </returns>
-        </member>
-        <member name="M:Deveel.Filters.Filter.AsAsyncLambda``1(System.String)">
-            <summary>
-            Produces an asynchrounous lambda expression that represents the filter
-            </summary>
-            <typeparam name="T">
-            The type of the parameter of the expression.
-            </typeparam>
-            <param name="parameterName">
-            The name of the parameter to use in the expression. 
-            <strong>Note</strong>: this name must match the variable references
-            in the filter.
-            </param>
-            <returns>
-            Returns a <see cref="T:System.Linq.Expressions.Expression`1"/> that represents the
-            expression tree of the filter, that can be used to compile an asynchrouns delegate.
-            </returns>
-        </member>
-        <member name="M:Deveel.Filters.Filter.Evaluate(System.Type,System.String,System.Object)">
-            <summary>
-            Compiles and evaluates the filter against the given parameter value.
-            </summary>
-            <param name="parameterType">
-            The type of the parameter to use in the evaluation.
-            </param>
-            <param name="parameterName">
-            The name of the parameter to use in the evaluation.
-            </param>
-            <param name="parameterValue">
-            The value of the parameter to use in the evaluation.
-            </param>
-            <returns>
-            Returns <c>true</c> if the given value matches the filter, otherwise
-            it returns <c>false</c>.
-            </returns>
-            <exception cref="T:System.ArgumentNullException">
-            Thrown when <paramref name="parameterType"/> is <c>null</c>.
-            </exception>
-            <exception cref="T:System.ArgumentException">
-            Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
-            </exception>
-            <exception cref="T:Deveel.Filters.FilterEvaluationException">
-            Thrown when the filter cannot be evaluated because of an
-            unhandled error.
-            </exception>
-        </member>
-        <member name="M:Deveel.Filters.Filter.Evaluate(System.Type,System.Object)">
-            <summary>
-            Compiles and evaluates the filter against the given parameter value.
-            </summary>
-            <param name="parameterType">
-            The type of the parameter to use in the evaluation.
-            </param>
-            <param name="parameterValue">
-            The value of the parameter to use in the evaluation.
-            </param>
-            <returns>
-            Returns <c>true</c> if the given value matches the filter, otherwise
-            </returns>
         </member>
         <member name="M:Deveel.Filters.Filter.Unary(Deveel.Filters.Filter,Deveel.Filters.FilterType)">
             <summary>
@@ -254,6 +130,125 @@
             <param name="message">The message of the exception.</param>
             <param name="innerException">The inner exception of this exception.</param>
         </member>
+        <member name="M:Deveel.Filters.FilterExtensions.AsLambda``1(Deveel.Filters.IFilter,System.String)">
+            <summary>
+            Produces a lambda expression that represents the filter
+            </summary>
+            <typeparam name="T">
+            The type of the parameter of the expression.
+            </typeparam>
+            <param name="parameterName">
+            The name of the parameter to use in the expression. 
+            <strong>Note</strong>: this name must match the variable references
+            in the filter.
+            </param>
+            <returns>
+            Returns a <see cref="T:System.Linq.Expressions.Expression`1"/> that represents the
+            expression tree of the filter, that can be used to compile a delegate.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.AsLambda(Deveel.Filters.IFilter,System.Type,System.String)">
+            <summary>
+            Produces a lambda expression that represents the filter
+            </summary>
+            <param name="parameterType">
+            The type of the parameter of the expression.
+            </param>
+            <param name="parameterName">
+            The name of the parameter to use in the expression. 
+            <strong>Note</strong>: this name must match the variable references
+            in the filter.
+            </param>
+            <returns>
+            Returns a <see cref="T:System.Linq.Expressions.LambdaExpression"/> that represents the
+            expression tree of the filter, that can be used to compile a delegate.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
+            </exception>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="parameterType"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda(Deveel.Filters.IFilter,System.Type,System.String)">
+            <summary>
+            Produces an asynchrounous lambda expression that represents the filter
+            </summary>
+            <param name="parameterType">
+            The type of the parameter of the expression.
+            </param>
+            <param name="parameterName">
+            The name of the parameter to use in the expression. 
+            <strong>Note</strong>: this name must match the variable references
+            in the filter.
+            </param>
+            <returns>
+            Returns a <see cref="T:System.Linq.Expressions.LambdaExpression"/> that represents the
+            expression tree of the filter, that can be used to compile an asynchrouns delegate.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda``1(Deveel.Filters.IFilter,System.String)">
+            <summary>
+            Produces an asynchrounous lambda expression that represents the filter
+            </summary>
+            <typeparam name="T">
+            The type of the parameter of the expression.
+            </typeparam>
+            <param name="parameterName">
+            The name of the parameter to use in the expression. 
+            <strong>Note</strong>: this name must match the variable references
+            in the filter.
+            </param>
+            <returns>
+            Returns a <see cref="T:System.Linq.Expressions.Expression`1"/> that represents the
+            expression tree of the filter, that can be used to compile an asynchrouns delegate.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.IFilter,System.Type,System.String,System.Object)">
+            <summary>
+            Compiles and evaluates the filter against the given parameter value.
+            </summary>
+            <param name="parameterType">
+            The type of the parameter to use in the evaluation.
+            </param>
+            <param name="parameterName">
+            The name of the parameter to use in the evaluation.
+            </param>
+            <param name="parameterValue">
+            The value of the parameter to use in the evaluation.
+            </param>
+            <returns>
+            Returns <c>true</c> if the given value matches the filter, otherwise
+            it returns <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="parameterType"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
+            </exception>
+            <exception cref="T:Deveel.Filters.FilterEvaluationException">
+            Thrown when the filter cannot be evaluated because of an
+            unhandled error.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.IFilter,System.Type,System.Object)">
+            <summary>
+            Compiles and evaluates the filter against the given parameter value.
+            </summary>
+            <param name="parameterType">
+            The type of the parameter to use in the evaluation.
+            </param>
+            <param name="parameterValue">
+            The value of the parameter to use in the evaluation.
+            </param>
+            <returns>
+            Returns <c>true</c> if the given value matches the filter, otherwise
+            </returns>
+        </member>
         <member name="T:Deveel.Filters.FilterType">
             <summary>
             Enumerates the types of filters that are known
@@ -348,6 +343,17 @@
         </member>
         <member name="P:Deveel.Filters.FunctionFilter.FilterType">
             <inheritdoc/>
+        </member>
+        <member name="T:Deveel.Filters.IFilter">
+            <summary>
+            Defines the contract for a filter that can be applied to a
+            set to select a subset of.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.IFilter.FilterType">
+            <summary>
+            Gets the type of the filter.
+            </summary>
         </member>
     </members>
 </doc>

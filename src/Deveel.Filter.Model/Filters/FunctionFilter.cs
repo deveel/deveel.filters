@@ -5,7 +5,7 @@ namespace Deveel.Filters {
 	/// The invocation to a function that returns a
 	/// boolean for filtering
 	/// </summary>
-	public sealed class FunctionFilter : Filter {
+	public sealed class FunctionFilter : Filter, IFunctionFilter {
 		internal FunctionFilter(VariableFilter variable, string functionName, Filter[]? arguments) {
 			if (string.IsNullOrEmpty(functionName)) 
 				throw new ArgumentException($"'{nameof(functionName)}' cannot be null or empty.", nameof(functionName));
@@ -32,10 +32,14 @@ namespace Deveel.Filters {
 		/// </summary>
 		public VariableFilter Variable { get; }
 
+		IVariableFilter IFunctionFilter.Variable => Variable;
+
 		/// <summary>
 		/// Gets the arguments to pass to the function.
 		/// </summary>
 		public Filter[]? Arguments { get; }
+
+		IList<IFilter> IFunctionFilter.Arguments => Arguments ?? Array.Empty<IFilter>();
 
 		/// <inheritdoc/>
 		public override FilterType FilterType => FilterType.Function;

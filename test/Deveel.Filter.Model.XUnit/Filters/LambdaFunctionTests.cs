@@ -48,6 +48,20 @@
 			Assert.True(result);
 		}
 
+		[Fact]
+		public static void LogicalBinaryWithLeftEmpty() {
+			var filter = Filter.Binary(Filter.Empty, Filter.GreaterThan(Filter.Variable("x"), Filter.Constant(10)), FilterType.And);
+			var result = filter.Evaluate(15);
+			Assert.True(result);
+		}
+
+		[Fact]
+		public static void LogicalBinaryWithRightEmpty() {
+			var filter = Filter.Binary(Filter.GreaterThan(Filter.Variable("x"), Filter.Constant(10)), Filter.Empty, FilterType.And);
+			var result = filter.Evaluate(15);
+			Assert.True(result);
+		}
+
 		[Theory]
 		[InlineData("x", 10, FilterType.Equals, true)]
 		[InlineData("x", 10, FilterType.NotEquals, false)]

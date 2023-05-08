@@ -1,5 +1,5 @@
 ﻿namespace Deveel.Filters {
-	public sealed class BinaryFilter : Filter {
+	public sealed class BinaryFilter : Filter, IBinaryFilter {
 		private readonly FilterType _filterType;
 
 		internal BinaryFilter(Filter left, Filter right, FilterType filterType) {
@@ -12,6 +12,10 @@
 
 		public Filter Left { get; }
 
+		IFilter IBinaryFilter.Left => Left;
+
 		public Filter Right { get; }
+
+		IFilter IBinaryFilter.Right => Right;
 	}
 }
