@@ -31,6 +31,9 @@ jobs:
       - name: "Test"
         run: dotnet test -c Release --no-restore --no-build --verbosity normal
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+
       - name: "Pack"
         run: dotnet pack -c Release --no-restore --no-build --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
 
