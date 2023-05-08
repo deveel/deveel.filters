@@ -62,6 +62,13 @@
 			Assert.True(result);
 		}
 
+		[Fact]
+		public static void LogicalBinaryWithBothEmpty() {
+			var filter = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.And);
+
+			Assert.Throws<FilterEvaluationException>(() => filter.Evaluate(15));
+		}
+
 		[Theory]
 		[InlineData("x", 10, FilterType.Equals, true)]
 		[InlineData("x", 10, FilterType.NotEquals, false)]

@@ -30,6 +30,11 @@ namespace Deveel.Filters {
 			return (Filter) converter.Visit(filter);
 		}
 
+		public static bool IsValidReference(string variableName) {
+			return !String.IsNullOrWhiteSpace(variableName) &&
+			       variableName.All(c => Char.IsLetterOrDigit(c) || c == '_' || c == '.');
+		}
+
 		#region Factories
 
 		/// <summary>
@@ -168,8 +173,15 @@ namespace Deveel.Filters {
 		public static ConstantFilter Constant(object? value)
 			=> new ConstantFilter(value);
 
-		public static VariableFilter Variable(string variableName)
-			=> new VariableFilter(variableName);
+		public static VariableFilter Variable(string variableName) {
+			if (String.IsNullOrWhiteSpace(variableName))
+				throw new ArgumentException("The given variable name is null or whitespace.", nameof(variableName));
+
+			if (!IsValidReference(variableName))
+				throw new ArgumentException($"The given variable name '{variableName}' is not a valid reference.", nameof(variableName));
+
+			return new VariableFilter(variableName);
+		}
 
 		#endregion
 

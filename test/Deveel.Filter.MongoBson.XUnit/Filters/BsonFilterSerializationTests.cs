@@ -29,7 +29,7 @@ namespace Deveel.Filters {
 		[InlineData(null)]
 		public static void SerializeConstant(object? value) {
 			var valueType = (value?.GetType() ?? typeof(DBNull));
-			var valueTypeString = valueType.ToString();
+			var valueTypeString = BsonFilter.GetTypeString(valueType);
 
 			var filter = Filter.Constant(value);
 			var bson = filter.AsBsonDocument();
@@ -68,9 +68,22 @@ namespace Deveel.Filters {
 			var right = bson["right"].AsBsonDocument;
 			Assert.NotNull(right);
 			Assert.Equal("constant", right["type"].AsString);
-			Assert.Equal(value.GetType().ToString(), right["valueType"].AsString);
+			Assert.Equal(BsonFilter.GetTypeString(value.GetType()), right["valueType"].AsString);
 			var rightValue = BsonFilter.ConvertBsonValue(value.GetType(), right["value"]);
 			Assert.Equal(value, rightValue);
+		}
+
+		[Fact]
+		public static void SerializeNot() {
+			var variable = Filter.Variable("x");
+			var filter = Filter.Not(variable);
+			var bson = filter.AsBsonDocument();
+			Assert.NotNull(bson);
+			Assert.Equal("not", bson["type"].AsString);
+			var operand = bson["operand"].AsBsonDocument;
+			Assert.NotNull(operand);
+			Assert.Equal("variable", operand["type"].AsString);
+			Assert.Equal("x", operand["varRef"].AsString);
 		}
 
 		[Theory]
@@ -82,15 +95,40 @@ namespace Deveel.Filters {
 			Assert.NotNull(bson);
 			Assert.Equal("function", bson["type"].AsString);
 			Assert.Equal(functionName, bson["function"].AsString);
+
+			Assert.NotNull(bson["variable"]);
+			Assert.NotNull(bson["variable"]["type"]);
+			Assert.Equal("variable", bson["variable"]["type"].AsString);
+			Assert.NotNull(bson["variable"]["varRef"]);
+			Assert.Equal(varName, bson["variable"]["varRef"].AsString);
+
 			var args = bson["arguments"].AsBsonArray;
 			Assert.NotNull(args);
 			Assert.Single(args);
 			var argBson = args[0].AsBsonDocument;
 			Assert.NotNull(argBson);
 			Assert.Equal("constant", argBson["type"].AsString);
-			Assert.Equal(arg.GetType().ToString(), argBson["valueType"].AsString);
+			Assert.Equal(BsonFilter.GetTypeString(arg.GetType()), argBson["valueType"].AsString);
 			var argValue = BsonFilter.ConvertBsonValue(arg.GetType(), argBson["value"]);
 			Assert.Equal(arg, argValue);
+		}
+
+		[Fact]
+		public static void SerializeLogicalAndWithEmpty() {
+			var filter = Filter.And(Filter.GreaterThan(Filter.Constant(22), Filter.Variable("x")), Filter.Empty);
+
+			var bson = filter.AsBsonDocument();
+			Assert.NotNull(bson);
+			Assert.Equal("greaterthan", bson["type"].AsString);
+			var left = bson["left"].AsBsonDocument;
+			Assert.NotNull(left);
+			Assert.Equal("constant", left["type"].AsString);
+			Assert.Equal("int", left["valueType"].AsString);
+			Assert.Equal(22, left["value"].AsInt32);
+			var right = bson["right"].AsBsonDocument;
+			Assert.NotNull(right);
+			Assert.Equal("variable", right["type"].AsString);
+			Assert.Equal("x", right["varRef"].AsString);
 		}
 
 		[Fact]
@@ -166,6 +204,53 @@ namespace Deveel.Filters {
 
 			Assert.Equal(varName, left.VariableName);
 			Assert.Equal(value, right.Value);
+		}
+
+		[Theory]
+		[InlineData("x", FilterType.Not)]
+		public static void DeserializeNot(string varName, FilterType filterType) {
+			var bson = new BsonDocument {
+				{"type", "not"},
+				{"operand", new BsonDocument {
+					{"type", "variable"},
+					{"varRef", varName}
+				}}
+			};
+			var filter = BsonFilter.FromBson(bson);
+			Assert.NotNull(filter);
+			Assert.Equal(filterType, filter.FilterType);
+			var unary = Assert.IsType<UnaryFilter>(filter);
+			var operand = Assert.IsType<VariableFilter>(unary.Operand);
+			Assert.Equal(varName, operand.VariableName);
+		}
+
+		[Theory]
+		[InlineData("x.name", "Contains", "foo")]
+		public static void DeserializeFunction(string varName, string functionName, object arg) {
+			var bson = new BsonDocument {
+				{"type", "function"},
+				{"variable", new BsonDocument {
+					{ "type", "variable" },
+					{ "varRef", varName }
+				} },
+				{"function", functionName},
+				{"arguments", new BsonArray {
+					new BsonDocument {
+						{"type", "constant"},
+						{"valueType", BsonValue.Create(BsonFilter.GetTypeString(arg.GetType()))},
+						{"value", BsonValue.Create(arg)}
+					}
+				}}
+			};
+
+			var filter = BsonFilter.FromBson(bson);
+			Assert.NotNull(filter);
+			Assert.Equal(FilterType.Function, filter.FilterType);
+			var function = Assert.IsType<FunctionFilter>(filter);
+			Assert.Equal(functionName, function.FunctionName);
+			var args = Assert.Single(function.Arguments);
+			var argConstant = Assert.IsType<ConstantFilter>(args);
+			Assert.Equal(arg, argConstant.Value);
 		}
 	}
 }

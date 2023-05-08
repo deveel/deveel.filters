@@ -25,5 +25,17 @@ namespace Deveel.Filters {
 			Assert.False(binary.Equals(emptyFilter));
 			Assert.False(binary.IsEmpty());
 		}
+
+		[Fact]
+		public static void CreateBinaryWithTwoEmpty() {
+			var binary = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.LessThanOrEqual);
+
+			Assert.NotNull(binary);
+			Assert.True(binary.Left.IsEmpty());
+			Assert.Equal(Filter.Empty, binary.Left);
+
+			Assert.True(binary.Right.IsEmpty());
+			Assert.Equal(Filter.Empty, binary.Right);
+		}
 	}
 }

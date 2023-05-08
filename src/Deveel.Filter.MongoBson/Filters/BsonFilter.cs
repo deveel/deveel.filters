@@ -3,6 +3,12 @@ using MongoDB.Bson.Serialization;
 
 namespace Deveel.Filters {
 	public static class BsonFilter {
+		public static string GetTypeString(Type type)
+			=> BsonFilterUtil.GetValueTypeString(type);
+
+		public static Type GetTypeFromString(string typeString)
+			=> BsonFilterUtil.GetTypeFromString(typeString);
+
 		public static Filter FromBson(BsonDocument document) {
 			if (!document.TryGetElement("type", out var typeElement))
 				throw new FilterException("The type of the filter is not specified");
@@ -71,7 +77,7 @@ namespace Deveel.Filters {
 			if (!document.TryGetElement("valueType", out var valueTypeElement))
 				throw new FilterException("The value type of the constant filter is not specified");
 
-			var valueType = Type.GetType(valueTypeElement.Value.AsString, true, true);
+			var valueType = BsonFilterUtil.GetTypeFromString(valueTypeElement.Value.AsString);
 			if (valueType == null)
 				throw new FilterException($"The value type '{valueTypeElement.Value.AsString}' is not valid");
 
@@ -111,7 +117,7 @@ namespace Deveel.Filters {
 		}
 
 		private static UnaryFilter FromNotBsonDocument(BsonDocument document) {
-			if (!document.TryGetElement("not", out var notElement))
+			if (!document.TryGetElement("operand", out var notElement))
 				throw new FilterException("The NOT filter is not specified");
 
 			var not = FromBson(notElement.Value.AsBsonDocument);

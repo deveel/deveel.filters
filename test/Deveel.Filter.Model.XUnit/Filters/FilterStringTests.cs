@@ -58,6 +58,13 @@ namespace Deveel.Filters {
 			Assert.Equal(expected, actual);
 		}
 
+		[Fact]
+		public static void LogicalBinaryOfEmptyParts() {
+			var logicalFilter = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.And);
+
+			Assert.Throws<FilterException>(() => logicalFilter.ToString());
+		}
+
 		[Theory]
 		[InlineData("a", FilterType.Equals, 1, FilterType.Not, "!(a == 1)")]
 		public static void UnaryOfBinaryToString(string variable, FilterType filterType, object value, FilterType unaryType, string expected) {

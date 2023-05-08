@@ -19,15 +19,15 @@ namespace Deveel.Filters {
 				case FilterType.LessThanOrEqual:
 				case FilterType.And:
 				case FilterType.Or:
-					return VisitBinary((BinaryFilter) filter);
+					return VisitBinary((IBinaryFilter) filter);
 				case FilterType.Not:
-					return VisitUnary((UnaryFilter) filter);
+					return VisitUnary((IUnaryFilter) filter);
 				case FilterType.Function:
-					return VisitFunction((FunctionFilter)filter);
+					return VisitFunction((IFunctionFilter)filter);
 				case FilterType.Constant:
-					return VisitConstant((ConstantFilter) filter);
+					return VisitConstant((IConstantFilter) filter);
 				case FilterType.Variable:
-					return VisitVariable((VariableFilter)filter);
+					return VisitVariable((IVariableFilter)filter);
 			}
 
 			throw new NotSupportedException($"The filter type '{filter.FilterType}' is not supported.");
