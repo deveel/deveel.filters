@@ -29,10 +29,12 @@ jobs:
         run: dotnet build -c Release --no-restore
 
       - name: "Test"
-        run: dotnet test -c Release --no-restore --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+        run: dotnet test -c Release --no-restore --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*.XUnit]*"
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: "Pack"
         run: dotnet pack -c Release --no-restore --no-build --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
