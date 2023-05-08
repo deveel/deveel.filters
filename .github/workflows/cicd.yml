@@ -34,8 +34,8 @@ jobs:
       - name: "Pack"
         run: dotnet pack -c Release --no-restore --no-build --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
 
-      - name: "Push PAckages to GitHub Nuget"
-        run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }}
+      - name: "Push Packages to GitHub Nuget"
+        run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
 
   clean:
     name: Celaning Old Packages  
