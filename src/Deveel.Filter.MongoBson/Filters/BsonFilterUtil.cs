@@ -1,4 +1,8 @@
-﻿namespace Deveel.Filters {
+﻿using System.Text.Json.Nodes;
+
+using MongoDB.Bson;
+
+namespace Deveel.Filters {
     internal static class BsonFilterUtil {
 		public static string GetValueTypeString(Type valueType) {
 			if (valueType == typeof(DBNull))
@@ -22,6 +26,15 @@
 
 			return valueType.FullName!;
 		}
+
+		public static DateTimeOffset CreateDateTimeOffset(BsonValue bsonDateTime2) {
+            var bsonDateTime = bsonDateTime2.AsBsonDateTime;
+            return new DateTimeOffset(bsonDateTime.ToUniversalTime());
+        }
+
+		public static BsonValue CreateBsonDateTime2(DateTimeOffset dateTimeOffset) {
+			return new BsonDateTime(dateTimeOffset.UtcDateTime);
+        }
 
 		public static Type GetTypeFromString(string s) {
 			if (s == "null")

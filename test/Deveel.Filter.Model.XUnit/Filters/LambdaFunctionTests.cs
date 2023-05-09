@@ -84,6 +84,21 @@
 			Assert.Equal(expected, result);
 		}
 
+		[Theory]
+		[InlineData("x", "2015-01-01", FilterType.Equal, true)]
+		[InlineData("x", "2015-01-01", FilterType.NotEqual, false)]
+		[InlineData("x", "2015-01-01", FilterType.GreaterThan, false)]
+		[InlineData("x", "2015-01-01", FilterType.GreaterThanOrEqual, true)]
+		[InlineData("x", "2015-01-01", FilterType.LessThan, false)]
+		[InlineData("x", "2015-01-01", FilterType.LessThanOrEqual, true)]
+		public static void FilterByDateTimeAsLambda(string varName, string dateTimeString, FilterType filterType, bool expected) {
+			var filter = Filter.Binary(Filter.Variable(varName), Filter.Constant(DateTime.Parse(dateTimeString)), filterType);
+
+			var result = filter.Evaluate(DateTime.Parse(dateTimeString));
+
+			Assert.Equal(expected, result);
+		}
+
 		[Fact]
 		public static async Task SimpleBinaryAsAsyncLambda() {
 			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);

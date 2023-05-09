@@ -106,10 +106,8 @@ namespace Deveel.Filters {
 			if (valueType == typeof(DateTime))
 				return value.AsDateTime;
 			if (valueType == typeof(DateTimeOffset)) {
-				var doc = value.AsBsonDocument;
-				var dateTime = doc["dateTime"].AsDateTime;
-				var offset = doc["offset"].AsInt32;
-				return new DateTimeOffset(dateTime, TimeSpan.FromMinutes(offset));
+				// var doc = value.AsBsonDocument;
+				return BsonFilterUtil.CreateDateTimeOffset(value.AsBsonDateTime);
 			}
 			if (valueType == typeof(TimeSpan))
 				return TimeSpan.FromMilliseconds(value.AsInt64);

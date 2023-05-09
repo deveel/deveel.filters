@@ -25,10 +25,7 @@ namespace Deveel.Filters {
 			if (value == null) {
 				bsonValue = BsonNull.Value;
 			} else if (value is DateTimeOffset date2) {
-				bsonValue = new BsonDocument {
-					{ "dateTime", date2.DateTime },
-					{"offset", date2.Offset.Minutes }
-				};
+				bsonValue = BsonFilterUtil.CreateBsonDateTime2(date2);
 			} else {
 				bsonValue = BsonValue.Create(value);
 			}
