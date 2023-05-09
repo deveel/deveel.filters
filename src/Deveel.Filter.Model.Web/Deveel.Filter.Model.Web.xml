@@ -19,6 +19,11 @@
             The right side of the binary filter
             </summary>
         </member>
+        <member name="P:Deveel.Filters.BinaryFilterModel.BinaryData">
+            <summary>
+            Extension data for the dynamic properties of the filter.
+            </summary>
+        </member>
         <member name="T:Deveel.Filters.FilterModel">
             <summary>
             A model that describes a filter that is used to

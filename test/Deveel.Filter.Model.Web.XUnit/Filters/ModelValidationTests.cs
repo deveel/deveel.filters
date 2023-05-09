@@ -38,7 +38,8 @@ namespace Deveel.Filters {
             Assert.False(Validator.TryValidateObject(model, context, resuls, true));
             
             Assert.Single(resuls);
-            Assert.Equal("Right", resuls[0].MemberNames.First());
+			Assert.Equal("Left", resuls[0].MemberNames.ElementAt(0));
+            Assert.Equal("Right", resuls[0].MemberNames.ElementAt(1));
         }
 
         [Fact]
