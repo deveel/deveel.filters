@@ -1,4 +1,6 @@
-﻿namespace Deveel.Filters {
+﻿using System.Text.Json;
+
+namespace Deveel.Filters {
 	public static class FilterBuildTests {
 		[Fact]
 		public static void BuildSimpleBinaryFilter() {
@@ -17,6 +19,28 @@
 			Assert.NotNull(result);
 			var binary = Assert.IsType<BinaryFilter>(result);
 			Assert.Equal(FilterType.Equals, result.FilterType);
+
+			var left = Assert.IsType<VariableFilter>(binary.Left);
+			Assert.Equal("foo", left.VariableName);
+
+			var right = Assert.IsType<ConstantFilter>(binary.Right);
+			Assert.Equal(42, right.Value);
+		}
+
+		[Fact]
+		public static void BuildEqualsWithDynamicData() {
+			var filter = new FilterModel {
+				ValueEquals = new Dictionary<string, JsonElement> {
+					{ "foo", JsonDocument.Parse("42").RootElement }
+				}
+			};
+
+			var result = filter.BuildFilter();
+
+			Assert.NotNull(result);
+			Assert.IsType<BinaryFilter>(result);
+			var binary = (BinaryFilter) result;
+			Assert.Equal(FilterType.Equals, binary.FilterType);
 
 			var left = Assert.IsType<VariableFilter>(binary.Left);
 			Assert.Equal("foo", left.VariableName);

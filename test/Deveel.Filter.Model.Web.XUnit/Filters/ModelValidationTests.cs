@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace Deveel.Filters {
     public static class ModelValidationTests {
@@ -62,5 +63,30 @@ namespace Deveel.Filters {
             Assert.Single(resuls);
             Assert.Equal("Ref", resuls[0].MemberNames.First());
         }
+
+        [Fact]
+        public static void ValidateConstantModel() {
+            var model = new FilterModel {
+                Value = 123
+            };
+            var context = new ValidationContext(model);
+            var resuls = new List<ValidationResult>();
+            Assert.True(Validator.TryValidateObject(model, context, resuls, true));
+            Assert.Empty(resuls);
+        }
+
+        [Fact]
+        public static void ValidateDynamicEqual() {
+            var model = new FilterModel {
+                ValueEquals = new Dictionary<string, JsonElement> {
+                    { "x.name", JsonDocument.Parse("\"foo\"").RootElement }
+                }
+            };
+
+            var context = new ValidationContext(model);
+            var resuls = new List<ValidationResult>();
+            Assert.True(Validator.TryValidateObject(model, context, resuls, true));
+            Assert.Empty(resuls);
+         }
     }
 }

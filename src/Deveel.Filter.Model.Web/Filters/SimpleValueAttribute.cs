@@ -2,6 +2,7 @@
 using System.Text.Json;
 
 namespace Deveel.Filters {
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
 	public sealed class SimpleValueAttribute : ValidationAttribute {
 		public override bool IsValid(object? value) {
 			if (value == null)
@@ -33,7 +34,25 @@ namespace Deveel.Filters {
 				if (json.ValueKind == JsonValueKind.Array ||
 					json.ValueKind == JsonValueKind.Object)
 					return false;
+
+				return true;
 			}
+
+			if (value is IDictionary<string, object> dictionary) {
+				foreach (var kvp in dictionary) {
+                    if (!IsValid(kvp.Value))
+                        return false;
+                }
+                return true;
+			}
+
+			if (value is IDictionary<string, JsonElement> jsonDictionary) {
+                foreach (var kvp in jsonDictionary) {
+                    if (!IsValid(kvp.Value))
+                        return false;
+                }
+                return true;
+            }
 
 			return false;
 		}

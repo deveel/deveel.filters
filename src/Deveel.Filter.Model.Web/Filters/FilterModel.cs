@@ -1,22 +1,25 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Deveel.Filters {
-	/// <summary>
-	/// A model that describes a filter that is used to
-	/// restrict a set of data.
-	/// </summary>
-	/// <remarks>
-	/// This object defines a model that can be exchanged between
-	/// services and clients and be serialized and deserialized safely.
-	/// </remarks>
-	public class FilterModel : IFilter, IValidatableObject {
+    /// <summary>
+    /// A model that describes a filter that is used to
+    /// restrict a set of data.
+    /// </summary>
+    /// <remarks>
+    /// This object defines a model that can be exchanged between
+    /// services and clients and be serialized and deserialized safely.
+    /// </remarks>
+    public class FilterModel : IFilter, IValidatableObject {
 		private BinaryFilterModel? binaryFilter;
 		private FilterType? filterType;
 		private FilterModel? not;
 		private object? value;
 		private string? variableName;
 		private FunctionFilterModel? functionFilter;
+		private IDictionary<string, JsonElement>? jsonData;
 
 		FilterType IFilter.FilterType => filterType ?? new FilterType();
 
@@ -27,6 +30,7 @@ namespace Deveel.Filters {
 			value = null;
 			variableName = null;
 			functionFilter = null;
+			jsonData = null;
 		}
 
 		private BinaryFilterModel? GetBinaryIf(FilterType type) {
@@ -87,6 +91,16 @@ namespace Deveel.Filters {
 			get => GetBinaryIf(FilterType.Or);
 		}
 
+		[JsonExtensionData, SimpleValue, MaxLength(1, ErrorMessage = "Only one element is allowed in this filter")]
+		public IDictionary<string, JsonElement>? ValueEquals {
+			get => jsonData;
+			set {
+				Reset();
+				filterType = FilterType.Equals;
+				jsonData = value;
+			}
+		}
+
 		[JsonPropertyName("not")]
 		public FilterModel? Not {
 			get => not;
@@ -128,7 +142,7 @@ namespace Deveel.Filters {
 			}
 		}
 
-		public virtual Filter BuildFilter() {
+		public virtual IFilter BuildFilter() {
 			if (filterType == null)
 				throw new FilterException("The model is invalid - no type was set");
 
@@ -140,18 +154,25 @@ namespace Deveel.Filters {
 						throw new FilterException("The model is invalid - no unary filter was set");
 
 					return Filter.Not(not.BuildFilter());
-				case FilterType.Equals:
+				case FilterType.Equals: {
+						if (jsonData != null)
+							return BuildEqualFilterFromJson(jsonData);
+						if (binaryFilter != null)
+							return binaryFilter.BuildFilter(filterType.Value);
+
+						throw new FilterException("The model is invalid - no binary filter was set");
+					}
 				case FilterType.NotEquals:
 				case FilterType.GreaterThan:
 				case FilterType.GreaterThanOrEqual:
 				case FilterType.LessThan:
 				case FilterType.LessThanOrEqual:
 				case FilterType.And:
-				case FilterType.Or:
-					if (binaryFilter == null)
-						throw new FilterException("The model is invalid - no binary filter was set");
+				case FilterType.Or: 
+						if (binaryFilter == null)
+							throw new FilterException("The model is invalid - no binary filter was set");
 
-					return binaryFilter.BuildFilter(filterType.Value);
+						return binaryFilter.BuildFilter(filterType.Value);
 				case FilterType.Variable:
 					if (variableName == null)
 						throw new FilterException("The model is invalid - no variable was set");
@@ -167,7 +188,15 @@ namespace Deveel.Filters {
 			throw new FilterException("Not a valid filter model");
 		}
 
-		IEnumerable<ValidationResult> IValidatableObject.Validate(ValidationContext validationContext) {
+		private IFilter BuildEqualFilterFromJson(IDictionary<string, JsonElement>? jsonData) {
+			if (jsonData == null)
+				return Filter.Empty;
+
+			var value = JsonElementUtil.InferValue(jsonData?.Values.FirstOrDefault());
+			return Filter.Equals(Filter.Variable(jsonData.Keys.First()), Filter.Constant(value));
+        }
+
+        IEnumerable<ValidationResult> IValidatableObject.Validate(ValidationContext validationContext) {
 			if (filterType == null)
 				yield return new ValidationResult("The filter type is not specified");
 
@@ -176,6 +205,15 @@ namespace Deveel.Filters {
 
 			if (filterType == FilterType.Variable && String.IsNullOrWhiteSpace(variableName))
 				yield return new ValidationResult("The variable name is not specified", new[] {nameof(Ref)});
+
+			if (filterType == FilterType.Equals && jsonData != null) {
+				if (jsonData.Count > 1)
+                    yield return new ValidationResult("The equals filter can only have one value", new[] {nameof(ValueEquals)});
+
+				var simpleValue = new SimpleValueAttribute();
+				if (!simpleValue.IsValid(jsonData.Values.First()))
+                    yield return new ValidationResult("The value is not valid", new[] {nameof(ValueEquals)});
+			}
 
 			if (binaryFilter != null) {
 				var binaryValidationResults = new List<ValidationResult>();
