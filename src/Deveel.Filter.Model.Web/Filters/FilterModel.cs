@@ -146,8 +146,12 @@ namespace Deveel.Filters {
 				throw new FilterException("The model is invalid - no type was set");
 
 			switch (filterType) {
-				case FilterType.Constant:
-					return new ConstantFilter(value);
+				case FilterType.Constant: {
+						if (value is JsonElement json)
+							value = JsonElementUtil.InferValue(json);
+
+						return new ConstantFilter(value);
+					}
 				case FilterType.Not:
 					if (not == null)
 						throw new FilterException("The model is invalid - no unary filter was set");

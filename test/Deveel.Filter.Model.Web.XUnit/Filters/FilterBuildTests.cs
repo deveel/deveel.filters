@@ -106,6 +106,20 @@ namespace Deveel.Filters {
 		}
 
 		[Fact]
+		public static void BuildConstantWithJson() {
+			var filter = new FilterModel {
+				Value = JsonDocument.Parse("42").RootElement
+			};
+
+			var result = filter.BuildFilter();
+			Assert.NotNull(result);
+			Assert.IsType<ConstantFilter>(result);
+			Assert.Equal(FilterType.Constant, result.FilterType);
+			var constant = (ConstantFilter) result;
+			Assert.Equal(42, constant.Value);
+		}
+
+		[Fact]
 		public static void BuildFunction() {
 			var function = new FilterModel {
 				Function = new FunctionFilterModel {
