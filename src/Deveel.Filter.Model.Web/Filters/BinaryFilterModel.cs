@@ -11,13 +11,13 @@ namespace Deveel.Filters {
 		/// The left side of the binary filter
 		/// </summary>
 		[JsonPropertyName("left"), Required]
-		public FilterModel Left { get; set; }
+		public FilterModel? Left { get; set; }
 
 		/// <summary>
 		/// The right side of the binary filter
 		/// </summary>
 		[JsonPropertyName("right"), Required]
-		public FilterModel Right { get; set; }
+		public FilterModel? Right { get; set; }
 
 		[JsonExtensionData, SimpleValue]
 		public IDictionary<string, JsonElement>? BinaryData { get; set; }
@@ -25,6 +25,9 @@ namespace Deveel.Filters {
 		internal BinaryFilter BuildFilter(FilterType filterType) {
 			if (BinaryData != null)
 				return JsonElementUtil.BuildFilter(BinaryData, filterType);
+
+			if (Left == null || Right == null)
+				throw new FilterException("The left and right side of the binary filter must be specified");
 
 			var left = Left.BuildFilter();
 			var right = Right.BuildFilter();
