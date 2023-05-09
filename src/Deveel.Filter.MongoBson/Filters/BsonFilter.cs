@@ -103,9 +103,14 @@ namespace Deveel.Filters {
 				return value.AsDouble;
 			if (valueType == typeof(bool))
 				return value.AsBoolean;
-			if (valueType == typeof(DateTime) ||
-				valueType == typeof(DateTimeOffset))
-				return value.ToUniversalTime();
+			if (valueType == typeof(DateTime))
+				return value.AsDateTime;
+			if (valueType == typeof(DateTimeOffset)) {
+				var doc = value.AsBsonDocument;
+				var dateTime = doc["dateTime"].AsDateTime;
+				var offset = doc["offset"].AsInt32;
+				return new DateTimeOffset(dateTime, TimeSpan.FromMinutes(offset));
+			}
 			if (valueType == typeof(TimeSpan))
 				return TimeSpan.FromMilliseconds(value.AsInt64);
 			if (valueType == typeof(Guid))

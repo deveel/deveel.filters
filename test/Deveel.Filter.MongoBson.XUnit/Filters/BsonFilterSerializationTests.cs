@@ -21,6 +21,7 @@ namespace Deveel.Filters {
 
 		[Theory]
 		[InlineData(123)]
+		[InlineData(123l)]
 		[InlineData("test")]
 		[InlineData(true)]
 		[InlineData(false)]
@@ -45,6 +46,47 @@ namespace Deveel.Filters {
 			var runtimeValue = BsonFilter.ConvertBsonValue(valueType, bsonValue);
 			Assert.Equal(value, runtimeValue);
 		}
+
+		[Theory]
+		[InlineData("2009-12-01T01:23:56")]
+		[InlineData("2009-12-01T01:23:56Z")]
+		[InlineData("2009-12-01T01:23:56+01:00")]
+		public static void SerializeDateTime(string dateTimeString) {
+			var dateTime = DateTime.Parse(dateTimeString);
+
+			var filter = Filter.Constant(dateTime);
+			var bson = filter.AsBsonDocument();
+
+			Assert.NotNull(bson);
+			Assert.Equal("constant", bson["type"].AsString);
+			Assert.Equal("datetime", bson["valueType"].AsString);
+
+			var bsonValue = bson["value"];
+			Assert.NotNull(bsonValue);
+
+			var runtimeValue = BsonFilter.ConvertBsonValue(typeof(DateTime), bsonValue);
+
+			var convertedDate = Assert.IsType<DateTime>(runtimeValue);
+			Assert.Equal(dateTime.ToUniversalTime(), convertedDate.ToUniversalTime());
+		}
+
+		[Theory]
+		[InlineData("2009-12-01T01:23:56")]
+		[InlineData("2009-12-01T01:23:56Z")]
+		[InlineData("2009-12-01T01:23:56+01:00")]
+		public static void SerializeDateTimeOffset(string dateTimeString) {
+            var dateTime = DateTimeOffset.Parse(dateTimeString);
+            var filter = Filter.Constant(dateTime);
+            var bson = filter.AsBsonDocument();
+            Assert.NotNull(bson);
+            Assert.Equal("constant", bson["type"].AsString);
+            Assert.Equal("datetime2", bson["valueType"].AsString);
+            var bsonValue = bson["value"];
+            Assert.NotNull(bsonValue);
+            var runtimeValue = BsonFilter.ConvertBsonValue(typeof(DateTimeOffset), bsonValue);
+            var convertedDate = Assert.IsType<DateTimeOffset>(runtimeValue);
+            Assert.Equal(dateTime.ToUniversalTime(), convertedDate.ToUniversalTime());
+        }
 
 		[Theory]
 		[InlineData("x", 123, FilterType.Equal)]
@@ -149,6 +191,7 @@ namespace Deveel.Filters {
 
 		[Theory]
 		[InlineData(22)]
+		[InlineData(Int64.MaxValue - 1)]
 		[InlineData("test")]
 		[InlineData(true)]
 		[InlineData(false)]

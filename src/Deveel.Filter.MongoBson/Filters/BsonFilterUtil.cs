@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Deveel.Filters {
-	internal static class BsonFilterUtil {
+﻿namespace Deveel.Filters {
+    internal static class BsonFilterUtil {
 		public static string GetValueTypeString(Type valueType) {
 			if (valueType == typeof(DBNull))
 				return "null";
@@ -21,10 +15,12 @@ namespace Deveel.Filters {
 				return "double";
 			if (valueType == typeof(bool))
 				return "bool";
-			if (valueType == typeof(DateTimeOffset))
+			if (valueType == typeof(DateTime))
 				return "datetime";
+			if (valueType == typeof(DateTimeOffset))
+				return "datetime2";
 
-			return valueType.AssemblyQualifiedName!;
+			return valueType.FullName!;
 		}
 
 		public static Type GetTypeFromString(string s) {
@@ -43,9 +39,15 @@ namespace Deveel.Filters {
 			if (s == "bool")
 				return typeof(bool);
 			if (s == "datetime")
+				return typeof(DateTime);
+			if (s == "datetime2")
 				return typeof(DateTimeOffset);
 
-			return Type.GetType(s, true, true)!;
+			var type = Type.GetType(s, false, true);
+			if (type == null)
+				throw new FilterException($"Unable to load the type '{s}' from the current context");
+
+			return type;
 		}
 	}
 }
