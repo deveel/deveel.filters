@@ -102,8 +102,8 @@ namespace Deveel.Filters {
 		public static BinaryFilter Binary(Filter left, Filter right, FilterType filterType) {
 			if (filterType != FilterType.And &&
 				filterType != FilterType.Or &&
-				filterType != FilterType.Equals &&
-				filterType != FilterType.NotEquals &&
+				filterType != FilterType.Equal &&
+				filterType != FilterType.NotEqual &&
 				filterType != FilterType.LessThan &&
 				filterType != FilterType.LessThanOrEqual &&
 				filterType != FilterType.GreaterThan &&
@@ -128,17 +128,17 @@ namespace Deveel.Filters {
 		public static BinaryFilter Or(IFilter left, IFilter right)
 			=> Binary(Convert(left), Convert(right), FilterType.Or);
 
-		public static BinaryFilter Equals(Filter left, Filter right)
-			=> Binary(left, right, FilterType.Equals);
+		public static BinaryFilter Equal(Filter left, Filter right)
+			=> Binary(left, right, FilterType.Equal);
 
-		public static BinaryFilter Equals(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.Equals);
+		public static BinaryFilter Equal(IFilter left, IFilter right)
+			=> Binary(Convert(left), Convert(right), FilterType.Equal);
 
 		public static BinaryFilter NotEquals(Filter left, Filter right)
-			=> Binary(left, right, FilterType.NotEquals);
+			=> Binary(left, right, FilterType.NotEqual);
 
-		public static BinaryFilter NotEquals(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.NotEquals);
+		public static BinaryFilter NotEqual(IFilter left, IFilter right)
+			=> Binary(Convert(left), Convert(right), FilterType.NotEqual);
 
 		public static BinaryFilter GreaterThan(Filter left, Filter right)
 			=> Binary(left, right, FilterType.GreaterThan);

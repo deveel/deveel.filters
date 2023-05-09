@@ -17,6 +17,41 @@ namespace Deveel.Filters {
             return JsonDocument.Parse(valueString).RootElement;
         }
 
+        public static BinaryFilter BuildFilter(IDictionary<string, JsonElement>? jsonData, FilterType filterType, FilterType defaultLogical = FilterType.And) {
+            if (defaultLogical != FilterType.And &&
+                defaultLogical != FilterType.Or)
+                throw new ArgumentException($"The type '{defaultLogical}' is not a logical filter type", nameof(defaultLogical));
+
+            if (filterType != FilterType.Equal &&
+                filterType != FilterType.NotEqual &&
+                filterType != FilterType.GreaterThan &&
+                filterType != FilterType.GreaterThanOrEqual &&
+                filterType != FilterType.LessThan &&
+                filterType != FilterType.LessThanOrEqual)
+                throw new ArgumentException($"The filter type '{filterType}' is not a binary filter type", nameof(filterType));
+
+            if (jsonData == null)
+                throw new ArgumentNullException(nameof(jsonData));
+
+            BinaryFilter? result = null;
+
+            foreach (var item in jsonData) {
+                var value = InferValue(item.Value);
+                var filter = Filter.Binary(Filter.Variable(item.Key), Filter.Constant(value), filterType);
+
+                if (result == null) {
+                    result = filter;
+                } else {
+                    result = Filter.Binary(result, filter, defaultLogical);
+                }
+            }
+
+            if (result == null)
+                throw new FilterException("It was not possible to build a binary filter from the given data");
+
+            return result;
+        }
+
         public static object? InferValue(JsonElement? json) {
             if (json == null)
                 return null;

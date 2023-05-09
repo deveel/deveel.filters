@@ -24,10 +24,6 @@ namespace Deveel.Filters {
 				builder.Append('\"');
 				builder.Append(s);
 				builder.Append('\"');
-			} else if (constant.Value is char c) {
-				builder.Append('\'');
-				builder.Append(c);
-				builder.Append('\'');
 			} else if (constant.Value is bool b) {
 				if (b) {
 					builder.Append("true");
@@ -68,10 +64,10 @@ namespace Deveel.Filters {
 			builder.Append(' ');
 
 			switch (filter.FilterType) {
-				case FilterType.Equals:
+				case FilterType.Equal:
 					builder.Append("==");
 					break;
-				case FilterType.NotEquals:
+				case FilterType.NotEqual:
 					builder.Append("!=");
 					break;
 				case FilterType.GreaterThan:

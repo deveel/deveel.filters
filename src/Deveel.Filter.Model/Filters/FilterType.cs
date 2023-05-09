@@ -6,12 +6,12 @@
 		/// <summary>
 		/// A filter that compares two parties for equality
 		/// </summary>
-		Equals = 1,
+		Equal = 1,
 
 		/// <summary>
 		/// A filter that compares two parties for inequality
 		/// </summary>
-		NotEquals,
+		NotEqual,
 
 		/// <summary>
 		/// Compares two parties to determine if the first part is greater 

@@ -78,7 +78,7 @@ namespace Deveel.Filters {
         [Fact]
         public static void ValidateDynamicEqual() {
             var model = new FilterModel {
-                ValueEquals = new Dictionary<string, JsonElement> {
+                BinaryData = new Dictionary<string, JsonElement> {
                     { "x.name", JsonDocument.Parse("\"foo\"").RootElement }
                 }
             };

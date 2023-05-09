@@ -5,7 +5,7 @@ namespace Deveel.Filters {
 		[Fact]
 		public static void BuildSimpleBinaryFilter() {
 			var filter = new FilterModel {
-				Equals = new BinaryFilterModel {
+				Equal = new BinaryFilterModel {
 					Left = new FilterModel {
 						Ref = "foo"
 					},
@@ -18,7 +18,7 @@ namespace Deveel.Filters {
 			var result = filter.BuildFilter();
 			Assert.NotNull(result);
 			var binary = Assert.IsType<BinaryFilter>(result);
-			Assert.Equal(FilterType.Equals, result.FilterType);
+			Assert.Equal(FilterType.Equal, result.FilterType);
 
 			var left = Assert.IsType<VariableFilter>(binary.Left);
 			Assert.Equal("foo", left.VariableName);
@@ -30,7 +30,7 @@ namespace Deveel.Filters {
 		[Fact]
 		public static void BuildEqualsWithDynamicData() {
 			var filter = new FilterModel {
-				ValueEquals = new Dictionary<string, JsonElement> {
+				BinaryData = new Dictionary<string, JsonElement> {
 					{ "foo", JsonDocument.Parse("42").RootElement }
 				}
 			};
@@ -40,7 +40,7 @@ namespace Deveel.Filters {
 			Assert.NotNull(result);
 			Assert.IsType<BinaryFilter>(result);
 			var binary = (BinaryFilter) result;
-			Assert.Equal(FilterType.Equals, binary.FilterType);
+			Assert.Equal(FilterType.Equal, binary.FilterType);
 
 			var left = Assert.IsType<VariableFilter>(binary.Left);
 			Assert.Equal("foo", left.VariableName);
@@ -53,7 +53,7 @@ namespace Deveel.Filters {
 		public static void BuildSimpleBinaryFilterWithNot() {
 			var filter = new FilterModel {
 				Not = new FilterModel {
-					Equals = new BinaryFilterModel {
+					Equal = new BinaryFilterModel {
 						Left = new FilterModel {
 							Ref = "foo"
 						},
@@ -69,7 +69,7 @@ namespace Deveel.Filters {
 			Assert.Equal(FilterType.Not, result.FilterType);
 
 			var binary = Assert.IsType<BinaryFilter>(((UnaryFilter) result).Operand);
-			Assert.Equal(FilterType.Equals, binary.FilterType);
+			Assert.Equal(FilterType.Equal, binary.FilterType);
 
 			var left = Assert.IsType<VariableFilter>(binary.Left);
 			Assert.Equal("foo", left.VariableName);
@@ -140,6 +140,29 @@ namespace Deveel.Filters {
 
 			var arg2 = Assert.IsType<ConstantFilter>(func.Arguments[1]);
 			Assert.Equal(42, arg2.Value);
+		}
+
+		[Fact]
+		public static void BuildFunctionWithNonConstantArguments() {
+			var error = Assert.Throws<ArgumentException>(() => {
+                var function = new FilterModel {
+                    Function = new FunctionFilterModel {
+                        Name = "test",
+                        Instance = "x",
+                        Arguments = new[] {
+                            new FilterModel {
+								Not = new FilterModel {
+									Ref = "foo"
+								}
+                            },
+                            new FilterModel {
+                                Ref = "bar"
+                            }
+                        }
+                    }
+                };
+                function.BuildFilter();
+            });
 		}
 	}
 }

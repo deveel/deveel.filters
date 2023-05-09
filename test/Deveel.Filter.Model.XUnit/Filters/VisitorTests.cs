@@ -30,7 +30,7 @@ namespace Deveel.Filters {
 		public static void VisitBinary() {
 			var left = Filter.Variable("test");
 			var right = Filter.Constant(123);
-			var binary = Filter.Equals(left, right);
+			var binary = Filter.Equal(left, right);
 			var visitor = new FilterVisitor();
 			var result = visitor.Visit(binary);
 			var resultBinary = Assert.IsType<BinaryFilter>(result);

@@ -1,8 +1,8 @@
 ﻿namespace Deveel.Filters {
 	public static class FactoryTests {
 		[Theory]
-		[InlineData("foo", 42, FilterType.Equals)]
-		[InlineData("foo", 42, FilterType.NotEquals)]
+		[InlineData("foo", 42, FilterType.Equal)]
+		[InlineData("foo", 42, FilterType.NotEqual)]
 		[InlineData("foo", 42, FilterType.GreaterThan)]
 		[InlineData("foo", 42, FilterType.GreaterThanOrEqual)]
 		[InlineData("foo", 42, FilterType.LessThan)]
@@ -19,9 +19,9 @@
 		[InlineData("foo", "bar")]
 		[InlineData("foo", true)]
 		public static void CreateEquals(string varName, object value) {
-			var filter = Filter.Equals(Filter.Variable(varName), Filter.Constant(value));
+			var filter = Filter.Equal(Filter.Variable(varName), Filter.Constant(value));
 			Assert.NotNull(filter);
-			Assert.Equal(FilterType.Equals, filter.FilterType);
+			Assert.Equal(FilterType.Equal, filter.FilterType);
 		}
 
 		[Theory]
@@ -31,7 +31,7 @@
 		public static void CreateNotEquals(string varName, object value) {
 			var filter = Filter.NotEquals(Filter.Variable(varName), Filter.Constant(value));
 			Assert.NotNull(filter);
-			Assert.Equal(FilterType.NotEquals, filter.FilterType);
+			Assert.Equal(FilterType.NotEqual, filter.FilterType);
 		}
 
 		[Theory]

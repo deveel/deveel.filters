@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Deveel.Filters {
-	public class FilterVisitor : IFilterVisitor {
+﻿namespace Deveel.Filters {
+    public class FilterVisitor : IFilterVisitor {
 		public IFilter Visit(IFilter filter) {
 			if (filter.IsEmpty())
 				return Filter.Empty;
 
 			switch (filter.FilterType) {
-				case FilterType.Equals:
-				case FilterType.NotEquals:
+				case FilterType.Equal:
+				case FilterType.NotEqual:
 				case FilterType.GreaterThan:
 				case FilterType.GreaterThanOrEqual:
 				case FilterType.LessThan:

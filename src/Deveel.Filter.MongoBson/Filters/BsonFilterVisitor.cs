@@ -122,8 +122,8 @@ namespace Deveel.Filters {
 			switch (filter.FilterType) {
 				case FilterType.And:
 				case FilterType.Or:
-				case FilterType.Equals:
-				case FilterType.NotEquals:
+				case FilterType.Equal:
+				case FilterType.NotEqual:
 				case FilterType.GreaterThan:
 				case FilterType.GreaterThanOrEqual:
 				case FilterType.LessThan:

@@ -1,47 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 
 namespace Deveel.Filters {
-	class FilterModelConverter : FilterVisitor {
-		public override IFilter VisitBinary(IBinaryFilter filter) {
+    class FilterModelConverter : FilterVisitor {
+		private readonly FilterBuilderOptions builderOptions;
+
+        public FilterModelConverter(FilterBuilderOptions binaryOptions) {
+            this.builderOptions = binaryOptions;
+        }
+
+		private BinaryFilterModel MakeBinary(FilterModel left, FilterModel right, bool logicalAnd = false) {
+			if (builderOptions.PreferBinaryData &&
+				((IFilter)left).FilterType == FilterType.Variable &&
+				!String.IsNullOrWhiteSpace(left.Ref) &&
+				((IFilter)right).FilterType == FilterType.Constant) {
+				var variable = left.Ref;
+				var constant = JsonElementUtil.ToElement(right.Value);
+
+				return new BinaryFilterModel {
+					BinaryData = new Dictionary<string, JsonElement> {
+						{ variable, constant }
+					}
+				};
+			}
+
+			return new BinaryFilterModel {
+                Left = left,
+                Right = right
+            };
+		}
+
+        public override IFilter VisitBinary(IBinaryFilter filter) {
 			var left = (FilterModel) Visit(filter.Left);
 			var right = (FilterModel) Visit(filter.Right);
 
 			switch (filter.FilterType) {
-				case FilterType.Equals:
+				case FilterType.Equal:
 					return new FilterModel {
-						Equals = new BinaryFilterModel { Left = left, Right = right },
+						Equal = MakeBinary(left, right)
 					};
-				case FilterType.NotEquals:
+				case FilterType.NotEqual:
 					return new FilterModel {
-						NotEquals = new BinaryFilterModel { Left = left, Right = right },
+						NotEqual = MakeBinary(left, right),
 					};
 				case FilterType.GreaterThan:
 					return new FilterModel {
-						GreaterThan = new BinaryFilterModel { Left = left, Right = right },
+						GreaterThan = MakeBinary(left, right)
 					};
 				case FilterType.GreaterThanOrEqual:
 					return new FilterModel {
-						GreaterThanOrEqual = new BinaryFilterModel { Left = left, Right = right },
+						GreaterThanOrEqual = MakeBinary(left, right),
 					};
 				case FilterType.LessThan:
 					return new FilterModel {
-						LessThan = new BinaryFilterModel { Left = left, Right = right },
+						LessThan = MakeBinary(left, right),
 					};
 				case FilterType.LessThanOrEqual:
 					return new FilterModel {
-						LessThanOrEqual = new BinaryFilterModel { Left = left, Right = right },
+						LessThanOrEqual = MakeBinary(left, right),
 					};
 				case FilterType.And:
 					return new FilterModel {
-						And = new BinaryFilterModel { Left = left, Right = right },
+						And = MakeBinary(left, right, true),
 					};
 				case FilterType.Or:
 					return new FilterModel {
-						Or = new BinaryFilterModel { Left = left, Right = right },
+						Or = MakeBinary(left, right),
 					};
 				default:
 					throw new FilterException($"The filter type {filter.FilterType} is not binary");

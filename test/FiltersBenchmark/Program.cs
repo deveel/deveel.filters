@@ -22,14 +22,14 @@ namespace Deveel.Filters {
     public class FilterTests {
         [Benchmark]
         public void BuildSimpleEqual() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equals);
+            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
 
             filter.AsLambda(typeof(int), "x");
         }
 
         [Benchmark]
         public void BuildSimpleEqualOfT() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equals);
+            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
 
             filter.AsLambda<int>("x");
         }
@@ -37,14 +37,14 @@ namespace Deveel.Filters {
 
         [Benchmark]
         public void BuildAsyncSimpleEqual() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equals);
+            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
 
             filter.AsAsyncLambda(typeof(int), "x");
         }
 
         [Benchmark]
         public void BuildAsyncSimpleEqualOfT() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equals);
+            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
 
             filter.AsAsyncLambda<int>("x");
         }

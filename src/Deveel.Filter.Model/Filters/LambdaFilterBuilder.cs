@@ -148,10 +148,10 @@ namespace Deveel.Filters {
 
 			Expression expression;
 			switch (filter.FilterType) {
-				case FilterType.Equals:
+				case FilterType.Equal:
 					expression = Expression.Equal(leftExp, rightExp);
 					break;
-				case FilterType.NotEquals:
+				case FilterType.NotEqual:
 					expression = Expression.NotEqual(leftExp, rightExp);
 					break;
 				case FilterType.GreaterThan:

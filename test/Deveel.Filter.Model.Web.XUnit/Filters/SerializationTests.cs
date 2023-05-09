@@ -47,7 +47,7 @@ namespace Deveel.Filters {
 		[InlineData("x", "test", "{\"eq\":{\"left\":{\"ref\":\"x\"},\"right\":{\"value\":\"test\"}}}")]
 		public static void SerializeEquals(string varName, object value, string expectedJson) {
 			var model = new FilterModel {
-				Equals = new BinaryFilterModel {
+				Equal = new BinaryFilterModel {
 					Left = new FilterModel {
 						Ref = varName
 					},
@@ -69,7 +69,7 @@ namespace Deveel.Filters {
 		public static void SerializeEqualsWithDynamicData(string key, object? value, string expectedJson) {
 			var valueString = value == null ? "null" : (value is string s ? $"\"{s}\"" : Convert.ToString(value));
             var model = new FilterModel {
-                ValueEquals = new Dictionary<string, JsonElement> {
+                BinaryData = new Dictionary<string, JsonElement> {
 					{ key, JsonDocument.Parse(valueString).RootElement }
                 }
             };
@@ -82,7 +82,7 @@ namespace Deveel.Filters {
 		[InlineData("x", "test", "{\"neq\":{\"left\":{\"ref\":\"x\"},\"right\":{\"value\":\"test\"}}}")]
 		public static void SerializeNotEquals(string varName, object value, string expectedJson) {
 			var model = new FilterModel {
-				NotEquals = new BinaryFilterModel {
+				NotEqual = new BinaryFilterModel {
 					Left = new FilterModel {
 						Ref = varName
 					},
@@ -174,7 +174,7 @@ namespace Deveel.Filters {
 			var model = new FilterModel {
 				And = new BinaryFilterModel {
 					Left = new FilterModel {
-						Equals = new BinaryFilterModel {
+						Equal = new BinaryFilterModel {
 							Left = new FilterModel {
 								Ref = varName1
 							},
@@ -184,7 +184,7 @@ namespace Deveel.Filters {
 						}
 					},
 					Right = new FilterModel {
-						NotEquals = new BinaryFilterModel {
+						NotEqual = new BinaryFilterModel {
 							Left = new FilterModel {
 								Ref = varName2
 							},
@@ -204,19 +204,22 @@ namespace Deveel.Filters {
 		[Theory]
 		[InlineData("x", 123, "y", 456, "{\"and\":{\"left\":{\"x\":123},\"right\":{\"y\":456}}}")]
 		[InlineData("x", "test", "y", "test2", "{\"and\":{\"left\":{\"x\":\"test\"},\"right\":{\"y\":\"test2\"}}}")]
-		public static void SerializeAndWithDyamicEquals(string varName1, object value1, string varName2, object value2, string expectedJson) {
+		[InlineData("x", true, "y", 223, "{\"and\":{\"left\":{\"x\":true},\"right\":{\"y\":223}}}")]
+        [InlineData("x", false, "y", 123, "{\"and\":{\"left\":{\"x\":false},\"right\":{\"y\":123}}}")]
+        [InlineData("x", null, "y", 223, "{\"and\":{\"left\":{\"x\":null},\"right\":{\"y\":223}}}")]
+        public static void SerializeAndWithDyamicBinaryData(string varName1, object value1, string varName2, object value2, string expectedJson) {
 			var jsonValue1 = JsonElementUtil.ToElement(value1);
 			var jsonValue2 = JsonElementUtil.ToElement(value2);
 
 			var model = new FilterModel {
 				And = new BinaryFilterModel {
 					Left = new FilterModel {
-						ValueEquals = new Dictionary<string, JsonElement> {
+						BinaryData = new Dictionary<string, JsonElement> {
 							{ varName1, jsonValue1 }
                         }
 					},
 					Right = new FilterModel {
-                        ValueEquals = new Dictionary<string, JsonElement> {
+                        BinaryData = new Dictionary<string, JsonElement> {
 							{ varName2, jsonValue2 }
                         }
                     }
@@ -230,27 +233,71 @@ namespace Deveel.Filters {
 		[Theory]
 		[InlineData("{\"and\":{\"left\":{\"x\":123},\"right\":{\"y\":456}}}", "x", 123, "y", 456)]
 		[InlineData("{\"and\":{\"left\":{\"x\":\"test\"},\"right\":{\"y\":\"test2\"}}}", "x", "test", "y", "test2")]
-		public static void DeserializeAndWithDynamicEquals(string json, string varName1, object value1, string varName2, object value2) {
+		public static void DeserializeAndWithDynamicBinaryData(string json, string varName1, object value1, string varName2, object value2) {
 			var model = Deserialize(json);
 
 			Assert.NotNull(model);
 			Assert.NotNull(model.And);
 			Assert.NotNull(model.And.Left);
-			Assert.NotNull(model.And.Left.ValueEquals);
+			Assert.NotNull(model.And.Left.BinaryData);
 			Assert.NotNull(model.And.Right);
-			Assert.NotNull(model.And.Right.ValueEquals);
+			Assert.NotNull(model.And.Right.BinaryData);
 
-			Assert.Equal(1, model.And.Left.ValueEquals.Count);
-			Assert.Equal(1, model.And.Right.ValueEquals.Count);
+			Assert.Equal(1, model.And.Left.BinaryData.Count);
+			Assert.Equal(1, model.And.Right.BinaryData.Count);
 
-			Assert.True(model.And.Left.ValueEquals.ContainsKey(varName1));
-			Assert.True(model.And.Right.ValueEquals.ContainsKey(varName2));
+			Assert.True(model.And.Left.BinaryData.ContainsKey(varName1));
+			Assert.True(model.And.Right.BinaryData.ContainsKey(varName2));
 
-			var jsonValue1 = JsonElementUtil.InferValue(model.And.Left.ValueEquals[varName1]);
-			var jsonValue2 = JsonElementUtil.InferValue(model.And.Right.ValueEquals[varName2]);
+			var jsonValue1 = JsonElementUtil.InferValue(model.And.Left.BinaryData[varName1]);
+			var jsonValue2 = JsonElementUtil.InferValue(model.And.Right.BinaryData[varName2]);
 
 			Assert.Equal(value1, jsonValue1);
 			Assert.Equal(value2, jsonValue2);
 		}
-	}
+
+		[Theory]
+        [InlineData("{\"and\":{\"x\":123,\"y\":456}}", "x", 123, "y", 456)]
+        [InlineData("{\"and\":{\"x\":\"test\",\"y\":\"test2\"}}", "x", "test", "y", "test2")]
+		public static void DeserializeAndWithSimplifiedDynamicBinaryData(string json, string varName1, object value1, string varName2, object value2) {
+			var model = Deserialize(json);
+
+			Assert.NotNull(model);
+			Assert.NotNull(model.And);
+			Assert.NotNull(model.And.BinaryData);
+			Assert.Null(model.And.Left);
+			Assert.Null(model.And.Right);
+
+			Assert.Equal(2, model.And.BinaryData.Count);
+
+			Assert.True(model.And.BinaryData.ContainsKey(varName1));
+			Assert.True(model.And.BinaryData.ContainsKey(varName2));
+
+			var jsonValue1 = JsonElementUtil.InferValue(model.And.BinaryData[varName1]);
+			var jsonValue2 = JsonElementUtil.InferValue(model.And.BinaryData[varName2]);
+
+			Assert.Equal(value1, jsonValue1);
+			Assert.Equal(value2, jsonValue2);
+		}
+
+		[Theory]
+		[InlineData("{\"eq\":{\"x\":123}}", "x", 123)]
+		[InlineData("{\"eq\":{\"x\":\"test\"}}", "x", "test")]
+		public static void DeserializeEqualWithBinaryData(string json, string varName, object value) {
+			var model = Deserialize(json);
+
+			Assert.NotNull(model);
+			Assert.NotNull(model.Equal);
+			Assert.Null(model.Equal.Left);
+			Assert.Null(model.Equal.Right);
+			Assert.NotNull(model.Equal.BinaryData);
+
+			Assert.Equal(1, model.Equal.BinaryData.Count);
+			Assert.True(model.Equal.BinaryData.ContainsKey(varName));
+
+			var jsonValue = JsonElementUtil.InferValue(model.Equal.BinaryData[varName]);
+
+			Assert.Equal(value, jsonValue);
+		}
+    }
 }

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Deveel.Filters {
+    public static class FilterExtensions {
+		public static FilterModel ToFilterModel(this IFilter filter, FilterBuilderOptions? binaryOptions = null) {
+			if (filter == null)
+                throw new ArgumentNullException(nameof(filter));
 
-namespace Deveel.Filters {
-	public static class FilterExtensions {
-		public static FilterModel ToFilterModel(this IFilter filter) {
-			var converter = new FilterModelConverter();
+			if (binaryOptions == null)
+				binaryOptions = new FilterBuilderOptions();
+
+			var converter = new FilterModelConverter(binaryOptions);
 			return (FilterModel) converter.Visit(filter);
 		}
 	}

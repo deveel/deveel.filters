@@ -17,8 +17,8 @@ namespace Deveel.Filters {
 				throw new FilterException($"The filter type '{typeElement.Value.AsString}' is not valid");
 
 			switch (filterType) {
-				case FilterType.Equals:
-				case FilterType.NotEquals:
+				case FilterType.Equal:
+				case FilterType.NotEqual:
 				case FilterType.GreaterThan:
 				case FilterType.GreaterThanOrEqual:
 				case FilterType.LessThan:

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Deveel.Filters {
@@ -18,7 +19,13 @@ namespace Deveel.Filters {
 		[JsonPropertyName("right"), Required]
 		public FilterModel Right { get; set; }
 
+		[JsonExtensionData, SimpleValue]
+		public IDictionary<string, JsonElement>? BinaryData { get; set; }
+
 		internal BinaryFilter BuildFilter(FilterType filterType) {
+			if (BinaryData != null)
+				return JsonElementUtil.BuildFilter(BinaryData, filterType);
+
 			var left = Left.BuildFilter();
 			var right = Right.BuildFilter();
 

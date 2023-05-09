@@ -23,7 +23,7 @@
 			var filter = Filter.Binary(
 				Filter.Function(Filter.Variable("x"), "Substring", Filter.Constant(1)),
 				Filter.Constant("oobar"),
-				FilterType.Equals);
+				FilterType.Equal);
 
 			var result = filter.Evaluate("x", "foobar");
 			Assert.True(result);
@@ -70,8 +70,8 @@
 		}
 
 		[Theory]
-		[InlineData("x", 10, FilterType.Equals, true)]
-		[InlineData("x", 10, FilterType.NotEquals, false)]
+		[InlineData("x", 10, FilterType.Equal, true)]
+		[InlineData("x", 10, FilterType.NotEqual, false)]
 		[InlineData("x", 10, FilterType.GreaterThan, false)]
 		[InlineData("x", 10, FilterType.GreaterThanOrEqual, true)]
 		[InlineData("x", 10, FilterType.LessThan, false)]
@@ -94,7 +94,7 @@
 
 		[Fact]
 		public static void SimpleBinaryLambdaOnComplexObject() {
-			var filter = Filter.Binary(Filter.Variable("x.name"), Filter.Constant("antonello"), FilterType.Equals);
+			var filter = Filter.Binary(Filter.Variable("x.name"), Filter.Constant("antonello"), FilterType.Equal);
 			var obj = new {
 				name = "antonello"
 			};

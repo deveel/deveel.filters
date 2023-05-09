@@ -8,8 +8,8 @@ namespace Deveel.Filters {
 	[Trait("Feature", "String Building")]
 	public static class FilterStringTests {
 		[Theory]
-		[InlineData("a", FilterType.Equals, 1, "a == 1")]
-		[InlineData("a", FilterType.NotEquals, 1, "a != 1")]
+		[InlineData("a", FilterType.Equal, 1, "a == 1")]
+		[InlineData("a", FilterType.NotEqual, 1, "a != 1")]
 		[InlineData("a", FilterType.GreaterThan, 1, "a > 1")]
 		[InlineData("a", FilterType.GreaterThanOrEqual, 1, "a >= 1")]
 		[InlineData("a", FilterType.LessThan, 1, "a < 1")]
@@ -24,8 +24,8 @@ namespace Deveel.Filters {
 		}
 
 		[Theory]
-		[InlineData("a", FilterType.Equals, 1, "b", FilterType.Equals, 2, FilterType.And, "(a == 1) && (b == 2)")]
-		[InlineData("a", FilterType.Equals, 1, "b", FilterType.Equals, 2, FilterType.Or, "(a == 1) || (b == 2)")]
+		[InlineData("a", FilterType.Equal, 1, "b", FilterType.Equal, 2, FilterType.And, "(a == 1) && (b == 2)")]
+		[InlineData("a", FilterType.Equal, 1, "b", FilterType.Equal, 2, FilterType.Or, "(a == 1) || (b == 2)")]
 		public static void BinaryWithLogicalToString(string leftVar, FilterType leftType, object leftValue, string rightVar, FilterType rightType, object rightValue, FilterType logicalType, string expected) {
 			var left = Filter.Binary(Filter.Variable(leftVar), Filter.Constant(leftValue), leftType);
 			var right = Filter.Binary(Filter.Variable(rightVar), Filter.Constant(rightValue), rightType);
@@ -36,14 +36,14 @@ namespace Deveel.Filters {
 		}
 
 		[Theory]
-		[InlineData("a", FilterType.Equals, 1, FilterType.And, "a == 1")]
-		[InlineData("a", FilterType.NotEquals, 1, FilterType.And, "a != 1")]
+		[InlineData("a", FilterType.Equal, 1, FilterType.And, "a == 1")]
+		[InlineData("a", FilterType.NotEqual, 1, FilterType.And, "a != 1")]
 		[InlineData("a", FilterType.GreaterThan, 1, FilterType.And, "a > 1")]
 		[InlineData("a", FilterType.GreaterThanOrEqual, 1, FilterType.And, "a >= 1")]
 		[InlineData("a", FilterType.LessThan, 1, FilterType.And, "a < 1")]
 		[InlineData("a", FilterType.LessThanOrEqual, 1, FilterType.And, "a <= 1")]
-		[InlineData("a", FilterType.Equals, 1, FilterType.Or, "a == 1")]
-		[InlineData("a", FilterType.NotEquals, 1, FilterType.Or, "a != 1")]
+		[InlineData("a", FilterType.Equal, 1, FilterType.Or, "a == 1")]
+		[InlineData("a", FilterType.NotEqual, 1, FilterType.Or, "a != 1")]
 		[InlineData("a", FilterType.GreaterThan, 1, FilterType.Or, "a > 1")]
 		[InlineData("a", FilterType.GreaterThanOrEqual, 1, FilterType.Or, "a >= 1")]
 		[InlineData("a", FilterType.LessThan, 1, FilterType.Or, "a < 1")]
@@ -66,7 +66,7 @@ namespace Deveel.Filters {
 		}
 
 		[Theory]
-		[InlineData("a", FilterType.Equals, 1, FilterType.Not, "!(a == 1)")]
+		[InlineData("a", FilterType.Equal, 1, FilterType.Not, "!(a == 1)")]
 		public static void UnaryOfBinaryToString(string variable, FilterType filterType, object value, FilterType unaryType, string expected) {
 			var variableFilter = Filter.Variable(variable);
 			var constantFilter = Filter.Constant(value);

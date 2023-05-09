@@ -47,10 +47,10 @@ namespace Deveel.Filters {
 		}
 
 		[Theory]
-		[InlineData("x", 123, FilterType.Equals)]
-		[InlineData("x", "test", FilterType.Equals)]
-		[InlineData("x", 123, FilterType.NotEquals)]
-		[InlineData("x", "test", FilterType.NotEquals)]
+		[InlineData("x", 123, FilterType.Equal)]
+		[InlineData("x", "test", FilterType.Equal)]
+		[InlineData("x", 123, FilterType.NotEqual)]
+		[InlineData("x", "test", FilterType.NotEqual)]
 		[InlineData("x", 123, FilterType.GreaterThan)]
 		[InlineData("x", 123, FilterType.GreaterThanOrEqual)]
 		[InlineData("x", 123, FilterType.LessThan)]
@@ -171,10 +171,10 @@ namespace Deveel.Filters {
 		}
 
 		[Theory]
-		[InlineData("x", 123, FilterType.Equals)]
-		[InlineData("x", "test", FilterType.Equals)]
-		[InlineData("x", 123, FilterType.NotEquals)]
-		[InlineData("x", "test", FilterType.NotEquals)]
+		[InlineData("x", 123, FilterType.Equal)]
+		[InlineData("x", "test", FilterType.Equal)]
+		[InlineData("x", 123, FilterType.NotEqual)]
+		[InlineData("x", "test", FilterType.NotEqual)]
 		[InlineData("x", 123, FilterType.GreaterThan)]
 		[InlineData("x", 123, FilterType.GreaterThanOrEqual)]
 		[InlineData("x", 123, FilterType.LessThan)]
