@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{606D3076-7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiltersBenchmark", "test\FiltersBenchmark\FiltersBenchmark.csproj", "{1247AF41-1F85-4A82-9202-941150DEA649}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Filters.DynamicLinq.XUnit", "test\Deveel.Filters.DynamicLinq.XUnit\Deveel.Filters.DynamicLinq.XUnit.csproj", "{02BBF660-1703-4A52-A85E-0DD4BCA562BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{1247AF41-1F85-4A82-9202-941150DEA649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1247AF41-1F85-4A82-9202-941150DEA649}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1247AF41-1F85-4A82-9202-941150DEA649}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02BBF660-1703-4A52-A85E-0DD4BCA562BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02BBF660-1703-4A52-A85E-0DD4BCA562BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02BBF660-1703-4A52-A85E-0DD4BCA562BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02BBF660-1703-4A52-A85E-0DD4BCA562BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{BF5581E9-C71C-466D-81F0-50BAD6A6627E} = {ED0B8843-6F66-42BA-BE86-E5F2305BF4AF}
 		{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A} = {606D3076-7E5C-4536-84AD-26D8670381ED}
 		{1247AF41-1F85-4A82-9202-941150DEA649} = {606D3076-7E5C-4536-84AD-26D8670381ED}
+		{02BBF660-1703-4A52-A85E-0DD4BCA562BD} = {606D3076-7E5C-4536-84AD-26D8670381ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5254BD5D-FD17-421A-B033-5CA8EDEB2E50}

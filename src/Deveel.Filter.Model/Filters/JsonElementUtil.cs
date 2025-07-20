@@ -61,10 +61,10 @@ namespace Deveel.Filters {
                 case JsonValueKind.Null:
                     return null;
                 case JsonValueKind.String: {
-                        if (json.Value.TryGetDateTimeOffset(out var dateTimeOffset))
+						if (json.Value.TryGetDateTime(out var dateTime))
+							return dateTime;
+						if (json.Value.TryGetDateTimeOffset(out var dateTimeOffset))
                             return dateTimeOffset;
-                        if (json.Value.TryGetDateTime(out var dateTime))
-                            return dateTime;
 
                         return json.Value.GetString();
                     }
