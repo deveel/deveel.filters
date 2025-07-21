@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Deveel</RootNamespace>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Antonello Provenzano</Authors>
+    <Copyright>(C) 2023-2025 Antonello Provenzano</Copyright>
+    <PackageLicenseFile>EULA.md</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/deveel/deveel.filters</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/deveel/deveel.filters</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>deveel-logo.png</PackageIcon>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

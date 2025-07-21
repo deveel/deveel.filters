@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Deveel</RootNamespace>
-	  <IsPackable>false</IsPackable>
+    <Description>Implements filters based on LINQ definitions</Description>
+    <PackageTags>filter;filters;deveel;model;lambda;condition;data</PackageTags>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>./Deveel.Filter.Model.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

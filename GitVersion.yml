@@ -1,0 +1,52 @@
+mode: ContinuousDeployment
+next-version: 1.0.0
+branches:
+  main:
+    regex: ^master$|^main$
+    mode: ContinuousDeployment
+    tag: ''
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    is-release-branch: false
+    is-mainline: true
+  feature:
+    regex: ^features?[/-]|^feat[/-]
+    mode: ContinuousDeployment
+    tag: 'alpha'
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    source-branches: ['main']
+    is-release-branch: false
+    is-mainline: false
+  pull-request:
+    regex: ^(pull|pull\-requests|pr)[/-]
+    mode: ContinuousDeployment
+    tag: 'pr'
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    source-branches: ['main', 'feature']
+    is-release-branch: false
+    is-mainline: false
+  hotfix:
+    regex: ^hotfix[/-]|^fix[/-]
+    mode: ContinuousDeployment
+    tag: 'hotfix'
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    source-branches: ['main']
+    is-release-branch: false
+    is-mainline: false
+ignore:
+  sha: []
+merge-message-formats: {}
+commit-message-incrementing:
+  enabled: true
+  increment-per-commit: false
+  major-pattern: '\+semver:\s?(breaking|major)'
+  minor-pattern: '\+semver:\s?(feature|minor)'
+  patch-pattern: '\+semver:\s?(fix|patch)'
+  no-bump-pattern: '\+semver:\s?(none|skip)'

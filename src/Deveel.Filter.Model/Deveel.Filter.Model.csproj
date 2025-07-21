@@ -1,24 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<RootNamespace>Deveel</RootNamespace>
-		<VersionPrefix>2.0.1</VersionPrefix>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<Authors>Antonello Provenzano</Authors>
-		<Company>Deveel AS</Company>
 		<Description>Provides models and utilities to dynamically define filters to restrict access to data</Description>
-		<Copyright>(C) 2023 Deveel AS</Copyright>
-		<PackageLicenseFile>EULA.md</PackageLicenseFile>
-		<PackageProjectUrl>https://github.com/deveel/deveel.filters</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/deveel/deveel.filters</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageIcon>deveel-logo.png</PackageIcon>
 		<PackageTags>filter filters deveel model lambda condition data</PackageTags>
 
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<DocumentationFile>./Deveel.Filter.Model.xml</DocumentationFile>
 	</PropertyGroup>
 

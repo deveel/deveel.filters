@@ -18,6 +18,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Filter.MongoBson.XUnit", "test\Deveel.Filter.MongoBson.XUnit\Deveel.Filter.MongoBson.XUnit.csproj", "{9E6A5BBA-45E0-4820-8647-9C6E2AA7777A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{ED0B8843-6F66-42BA-BE86-E5F2305BF4AF}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{606D3076-7E5C-4536-84AD-26D8670381ED}"
 EndProject
