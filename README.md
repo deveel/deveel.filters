@@ -2,7 +2,48 @@
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/deveel/deveel.filters/cicd.yml?logo=github)
 
 # Deveel Filters
-Provides a generic and structured approach to create filters to be applied to a data source.
+
+Provides a generic and structured approach to create filters to be applied to a data source, supporting multiple target frameworks and flexible filter expressions.
+
+## Features
+
+- **Dynamic Filters**: Create filters dynamically using a fluent API.
+- **LINQ Support**: Use LINQ expressions to build complex filters.
+- **Asynchronous Evaluation**: Evaluate filters asynchronously for better performance in I/O-bound scenarios.
+- **Web Integration**: DTOs and validation for web APIs to ensure data integrity.
+- **Extensible**: Easily extendable to support custom filter types and operations.
+- **Performance Optimized**: Designed for high performance with minimal allocations.
+- **Cross-Platform**: Compatible with .NET 6.0, 7.0, and 8.0.
+- **Benchmarked**: Performance benchmarks available to compare different filter implementations.
+
+## Motivation
+
+Deveel Filters is designed to provide a robust and flexible filtering mechanism that can be used across various applications, from web APIs to data processing tasks. It aims to simplify the creation and evaluation of filters while maintaining high performance and extensibility.
+
+### Why Not System.Linq.Expressions?
+
+While it is powerful, it can be complex and verbose for many common filtering scenarios. 
+
+* Also, the set of expressions in the System.Linq.Expressions namespace is limited to LINQ operations, which may not cover all use cases.
+* Furthermore, the _System.Linq.Expressions_ framework provides a more extensive set of operations, but it can be cumbersome to use for simple filtering tasks.
+* _Deveel Filters_ provides a more user-friendly API and supports a wider range of filter types and operations, making it easier to work with complex data structures and scenarios.
+* It also allows for more straightforward integration with web APIs and other data sources, providing a consistent and efficient way to handle filtering across different contexts.
+* The Filter objects are serializable to JSON, BSON and other formats, making it easy to transmit filters over the network or store them in a database.
+
+## Supported Frameworks
+
+- .NET 6.0
+- .NET 7.0  
+- .NET 8.0
+
+## Packages
+
+### Core Package
+- **Deveel.Filter.Model** - Core filtering models and utilities
+
+### Extension Packages
+- **Deveel.Filter.Model.Web** - Web DTOs and validation for APIs
+- **Deveel.Filter.DynamicLinq** - LINQ-based filter implementations
 
 ## Installation
 
@@ -10,16 +51,13 @@ Provides a generic and structured approach to create filters to be applied to a 
 ```bash
 dotnet add package Deveel.Filter.Model
 ```
-
 ### Package Manager
 ```bash
 Install-Package Deveel.Filter.Model
 ```
-
 ## Usage
 
 ### Creating a Filter
-
 ```csharp
 var filter = Filter.Equal(
 	Filter.Variable("x.name"),
@@ -27,11 +65,21 @@ var filter = Filter.Equal(
 	FilterType.Equals);
 
 var result = filter.Evaluate(new {name = "antonello"});
+	Filter.Equal(
+		Filter.Variable("x.age"),
+		Filter.Constant(30),
+		FilterType.Equals));
+
+var result = filter.Evaluate(new {name = "antonello", age = 30});
+var filter = Filter.Function("x.name", "StartsWith", Filter.Constant("Anto"));
+
+var result = filter.Evaluate(new {name = "Antonello"});
 ```
 
+Navigating through complex objects:
 
 ```csharp
-var filter = Filter.And(
+var filter = Filter.LogicalAnd(
 	Filter.Equal(
 		Filter.Variable("x.name"),
 		Filter.Constant("Antonello"),
@@ -41,16 +89,47 @@ var filter = Filter.And(
 		Filter.Constant(30),
 		FilterType.Equals));
 
-var result = filter.Evaluate(new {name = "antonello", age = 30});
+var result = filter.Evaluate(new {name = "Antonello", age = 30});
+
+var filter = Filter.LogicalAnd(
+	Filter.Equal(
+		Filter.Variable("x.name"),
+		Filter.Constant("Antonello"),
+		FilterType.Equals),
+	Filter.Equal(
+		Filter.Variable("x.address.city"),
+		Filter.Constant("Rome"),
+		FilterType.Equals));
+
+var result = filter.Evaluate(new {name = "Antonello", address = new {city = "Rome"}});
+
 ```
 
+### Asynchronous Evaluation
 ```csharp
-var filter = Filter.Function("x.name", "StartsWith", Filter.Constant("Anto"));
+var filter = Filter.Equal(
+	Filter.Variable("x.name"),
+	Filter.Constant("Antonello"),
+	FilterType.Equals);
 
-var result = filter.Evaluate(new {name = "Antonello"});
+	var result = await filter.EvaluateAsync(new {name = "Antonello"});
+```
+
+### Convert to LINQ Expression
+
+```csharp
+var filter = Filter.Equal(
+	Filter.Variable("x.name"),
+	Filter.Constant("Antonello"),
+	FilterType.Equals);
+
+	var lambda = filter.AsLambda<Person>();
+	var result = lambda(new Person { Name = "Antonello" });
 ```
 
 ## Performances
+
+_Deveel.Filters v1.0.0-c18 / 2025-07-21_
 
 BenchmarkDotNet=v0.13.5, OS=Windows 11 (10.0.22621.1635/22H2/2022Update/SunValley2)
 Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
