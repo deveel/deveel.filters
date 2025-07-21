@@ -21,7 +21,7 @@
 		[Fact]
 		public static void ComplexBinaryWithFunctionCallAsLabda() {
 			var filter = Filter.Binary(
-				Filter.Function(Filter.Variable("x"), "Substring", Filter.Constant(1)),
+				Filter.Function(Filter.Variable("x"), "Substring", new[] { Filter.Constant(1) }),
 				Filter.Constant("oobar"),
 				FilterType.Equal);
 
@@ -31,7 +31,7 @@
 
 		[Fact]
 		public static void SimpleFunctionCallAslambda() {
-			var filter = Filter.Function(Filter.Variable("x"), "StartsWith", Filter.Constant("foo"));
+			var filter = Filter.Function(Filter.Variable("x"), "StartsWith", new[] { Filter.Constant("foo") });
 
 			var result = filter.Evaluate("x", "foobar");
 			Assert.True(result);

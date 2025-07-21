@@ -289,7 +289,7 @@ namespace Deveel.Filters
 			var filter = Filter.Function(
 				Filter.Variable("Name"),
 				"Contains",
-				Filter.Constant("John"));
+				new[] { Filter.Constant("John") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -434,7 +434,7 @@ namespace Deveel.Filters
 			Assert.False((bool)intCompiled.DynamicInvoke(3)!);
 
 			// Test with string
-			var stringFilter = Filter.Function(Filter.Variable("x"), "StartsWith", Filter.Constant("Hello"));
+			var stringFilter = Filter.Function(Filter.Variable("x"), "StartsWith", new[] { Filter.Constant("Hello") });
 			var stringLambda = stringFilter.AsDynamicLamda(typeof(string));
 			var stringCompiled = stringLambda.Compile();
 			Assert.True((bool)stringCompiled.DynamicInvoke("Hello World")!);
@@ -701,7 +701,7 @@ namespace Deveel.Filters
 			var filter = Filter.Function(
 				Filter.Variable("Name"),
 				"StartsWith",
-				Filter.Constant("J"));
+				new[] { Filter.Constant("J") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -724,7 +724,7 @@ namespace Deveel.Filters
 			var filter = Filter.Function(
 				Filter.Variable("Name"),
 				"EndsWith",
-				Filter.Constant("son"));
+				new[] { Filter.Constant("son") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1135,7 +1135,7 @@ namespace Deveel.Filters
 			var filter = Filter.Function(
 				Filter.Variable("Address.City"),
 				"Contains",
-				Filter.Constant("York"));
+				new[] { Filter.Constant("York") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1262,7 +1262,7 @@ namespace Deveel.Filters
 			var filter = Filter.Function(
 				Filter.Variable("Tags"),
 				"Contains",
-				Filter.Constant("developer"));
+				new[] { Filter.Constant("developer") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();

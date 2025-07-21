@@ -132,7 +132,7 @@ namespace Deveel.Filters {
 		[InlineData("x", "Contains", 123)]
 		public static void SerializeFunction(string varName, string functionName, object arg) {
 			var variable = Filter.Variable(varName);
-			var filter = Filter.Function(variable, functionName, Filter.Constant(arg));
+			var filter = Filter.Function(variable, functionName, new[] { Filter.Constant(arg) });
 			var bson = filter.AsBsonDocument();
 			Assert.NotNull(bson);
 			Assert.Equal("function", bson["type"].AsString);

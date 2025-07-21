@@ -52,7 +52,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void VisitFunction() {
-			var function = Filter.Function(Filter.Variable("x"), "test", Filter.Constant(123));
+			var function = Filter.Function(Filter.Variable("x"), "test", new[] { Filter.Constant(123) });
 
 			var visitor = new FilterVisitor();
 			var result = visitor.Visit(function);

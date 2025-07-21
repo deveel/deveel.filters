@@ -164,11 +164,14 @@ namespace Deveel.Filters {
 		public static BinaryFilter LessThanOrEqual(IFilter left, IFilter right)
 			=> Binary(Convert(left), Convert(right), FilterType.LessThanOrEqual);
 
-		public static FunctionFilter Function(VariableFilter variable, string functionName, params Filter[] arguments)
+		public static FunctionFilter Function(VariableFilter variable, string functionName, Filter[] arguments)
 			=> new FunctionFilter(variable, functionName, arguments);
 
-		public static FunctionFilter Function(VariableFilter variable, string functionName, params IFilter[] arguments)
+		public static FunctionFilter Function(VariableFilter variable, string functionName, IFilter[] arguments)
 			=> new FunctionFilter(variable, functionName, arguments?.Select(Convert).ToArray());
+
+		public static FunctionFilter Function(VariableFilter variable, string functionName)
+			=> new FunctionFilter(variable, functionName, Array.Empty<Filter>());
 
 		public static ConstantFilter Constant(object? value)
 			=> new ConstantFilter(value);
@@ -183,7 +186,7 @@ namespace Deveel.Filters {
 			return new VariableFilter(variableName);
 		}
 
-		#endregion
+#endregion
 
 		#region EmptyFilter
 

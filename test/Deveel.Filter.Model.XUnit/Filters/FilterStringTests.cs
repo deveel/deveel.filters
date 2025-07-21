@@ -85,7 +85,7 @@
 		public static void FunctionToString(string variable, string functionName, object arg, string expected) {
 			var variableFilter = Filter.Variable(variable);
 			var constantFilter = Filter.Constant(arg);
-			var functionFilter = Filter.Function(variableFilter, functionName, constantFilter);
+			var functionFilter = Filter.Function(variableFilter, functionName, new[] { constantFilter });
 			var actual = functionFilter.ToString();
 			Assert.Equal(expected, actual);
 		}

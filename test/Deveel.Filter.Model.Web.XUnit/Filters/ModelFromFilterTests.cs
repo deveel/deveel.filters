@@ -298,7 +298,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildFunctionModel() {
-			var function = Filter.Function(Filter.Variable("x"), "f", Filter.Constant(22), Filter.Constant(45));
+			var function = Filter.Function(Filter.Variable("x"), "f", new[] { Filter.Constant(22), Filter.Constant(45) });
 			var model = function.ToFilterModel();
 			Assert.NotNull(model);
 			Assert.NotNull(model.Function);
