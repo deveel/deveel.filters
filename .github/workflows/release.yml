@@ -8,6 +8,17 @@ on:
   push:
     tags:
       - 'v*.*.*'  # Triggers on version tags like v1.0.0, v2.1.3, etc.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+      publish_to_nuget:
+        description: 'Publish to NuGet.org'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -25,16 +36,35 @@ jobs:
           - dotnet-version: '8.0.x'
             framework-moniker: 'net8.0'
 
+    outputs:
+      version: ${{ steps.determine_version.outputs.version }}
+      assembly-version: ${{ steps.determine_version.outputs.assembly-version }}
+      file-version: ${{ steps.determine_version.outputs.file-version }}
+      informational-version: ${{ steps.determine_version.outputs.informational-version }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: "Extract version from tag"
-        id: extract_version
+      - name: "Determine version"
+        id: determine_version
         run: |
-          # Remove 'v' prefix from tag and extract version
-          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Manual trigger - use input version
+            VERSION="${{ github.event.inputs.version }}"
+            echo "Using manual version: $VERSION"
+          else
+            # Tag trigger - extract version from tag
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "Extracted version from tag: $VERSION"
+          fi
+          
+          # Set version outputs for different version types
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
+          echo "assembly-version=$VERSION" >> $GITHUB_OUTPUT
+          echo "file-version=$VERSION" >> $GITHUB_OUTPUT
+          echo "informational-version=$VERSION" >> $GITHUB_OUTPUT
+          
+          echo "Final version: $VERSION"
 
       - name: "Setup .NET ${{ matrix.dotnet-version }}"
         uses: actions/setup-dotnet@v4
@@ -60,7 +90,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/publish-packages.yml
     with:
-      nuget: true
+      nuget: ${{ github.event_name == 'push' || github.event.inputs.publish_to_nuget == 'true' }}
+      version: ${{ needs.build.outputs.version }}
+      assembly-version: ${{ needs.build.outputs.assembly-version }}
+      file-version: ${{ needs.build.outputs.file-version }}
+      informational-version: ${{ needs.build.outputs.informational-version }}
 
   clean:
     name: "Cleaning Old Packages"
