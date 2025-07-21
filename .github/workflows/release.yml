@@ -58,30 +58,14 @@ jobs:
   publish:
     name: "Publish Packages"
     needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: "Setup .NET .NET 8.0"
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-      
-      - name: "Pack"
-        run: dotnet pack -c Release --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
-      
-      - name: "Push Packages to GitHub Nuget"
-        run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
-
-      - name: Publish to NuGet
-        run: dotnet nuget push ./nuget/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+    uses: ./.github/workflows/publish-packages.yml
+    with:
+      nuget: true
 
   clean:
     name: "Cleaning Old Packages"
     needs: publish
-    uses: ./.github/workflows/publish-packages.yml
+    uses: ./.github/workflows/clean-packages.yml
 
   create-release:
     name: "Create GitHub Release"

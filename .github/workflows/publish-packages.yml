@@ -1,8 +1,13 @@
 name: "Publish Packages"
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
+    inputs:
+      nuget:
+        description: 'Whether to publish to NuGet.org'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   publish:
@@ -22,3 +27,7 @@ jobs:
 
       - name: "Push Packages to GitHub Nuget"
         run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+
+      - name: "Push Packages to NuGet.org"
+        if: ${{ inputs.nuget == true }}
+        run: dotnet nuget push ./nuget/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
