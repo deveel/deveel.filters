@@ -11,34 +11,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Remove Old Deveel.Filter.Model Packages
+    - name: Remove Old Deveel.Filters Packages
       uses: actions/delete-package-versions@v4
       with:
-        package-name: 'Deveel.Filter.Model'
+        package-name: 'Deveel.Filters'
         package-type: 'nuget'
         min-versions-to-keep: 10
         delete-only-pre-release-versions: true
 
-    - name: Remove Old Deveel.Filter.Model.Web Packages
+    - name: Remove Old Deveel.Filters.WebModel Packages
       uses: actions/delete-package-versions@v4
       with:
-        package-name: 'Deveel.Filter.Model.Web'
+        package-name: 'Deveel.Filters.WebModel'
         package-type: 'nuget'
         min-versions-to-keep: 10
         delete-only-pre-release-versions: true
 
-    - name: Remove Old Deveel.Filter.MongoBson Packages
+    - name: Remove Old Deveel.Filters.MongoBson Packages
       uses: actions/delete-package-versions@v4
       with:
-        package-name: 'Deveel.Filter.MongoBson'
+        package-name: 'Deveel.Filters.MongoBson'
         package-type: 'nuget'
         min-versions-to-keep: 10
         delete-only-pre-release-versions: true
 
-    - name: Remove Old Deveel.Filter.DynamicLinq Packages
+    - name: Remove Old Deveel.Filters.DynamicLinq Packages
       uses: actions/delete-package-versions@v4
       with:
-        package-name: 'Deveel.Filter.DynamicLinq'
+        package-name: 'Deveel.Filters.DynamicLinq'
         package-type: 'nuget'
         min-versions-to-keep: 10
         delete-only-pre-release-versions: true
