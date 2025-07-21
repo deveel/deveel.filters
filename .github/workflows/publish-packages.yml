@@ -1,0 +1,24 @@
+name: "Publish Packages"
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    name: "Publish (.NET ${{ matrix.dotnet-version }})"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Setup .NET ${{ matrix.dotnet-version }}"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: "Pack"
+        run: dotnet pack -c Release --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
+
+      - name: "Push Packages to GitHub Nuget"
+        run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate

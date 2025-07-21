@@ -10,17 +10,21 @@ on:
 
 jobs:
   build:
-    name: "Build and Publish"
+    name: "Build (.NET ${{ matrix.dotnet-version }})"
     
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        dotnet-version: ['6.0.x', '7.0.x', '8.0.x']
+
     steps:
-      - uses: actions/checkout@v3
-  
+      - uses: actions/checkout@v4
+
       - name: "Setup .NET Core"
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: "Restore"
         run: dotnet restore
@@ -32,17 +36,17 @@ jobs:
         run: dotnet test -c Release --no-restore --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*.XUnit]*"
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: "Pack"
-        run: dotnet pack -c Release --no-restore --no-build --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
-
-      - name: "Push Packages to GitHub Nuget"
-        run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+  publish:
+    name: "Publish Packages"
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/publish-packages.yml
 
   clean:
-    name: Celaning Old Packages  
-    needs: build
+    name: Cleaning Old Packages
+    needs: publish
     uses: ./.github/workflows/clean-packages.yml

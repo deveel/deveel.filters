@@ -34,3 +34,11 @@ jobs:
         package-type: 'nuget'
         min-versions-to-keep: 10
         delete-only-pre-release-versions: true
+
+    - name: Remove Old Deveel.Filter.DynamicLinq Packages
+      uses: actions/delete-package-versions@v4
+      with:
+        package-name: 'Deveel.Filter.DynamicLinq'
+        package-type: 'nuget'
+        min-versions-to-keep: 10
+        delete-only-pre-release-versions: true
