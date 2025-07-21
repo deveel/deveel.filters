@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+    <Title>Deveel Filters Web Model</Title>
 		<Description>Provides models for the definition of data transfer objects suited for web applications (such as APIs)</Description>
 		<PackageTags>filter filters deveel model web dto vaidation</PackageTags>
 
@@ -9,16 +10,5 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Deveel.Filter.Model\Deveel.Filter.Model.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\EULA.md">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\..\deveel-logo.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
 	</ItemGroup>
 </Project>

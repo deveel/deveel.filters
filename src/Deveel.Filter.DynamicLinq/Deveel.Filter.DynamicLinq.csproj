@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Title>Deveel Filters DynamicLINQ</Title>
     <Description>Implements filters based on LINQ definitions</Description>
     <PackageTags>filter;filters;deveel;model;lambda;condition;data</PackageTags>
 
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DocumentationFile>./Deveel.Filter.Model.xml</DocumentationFile>
+    <DocumentationFile>./Deveel.Filter.DynamicLinq.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Deveel.Filter.DynamicLinq</name>
+    </assembly>
+    <members>
+        <member name="T:Deveel.Filters.FilterExpressionParser">
+            <summary>
+            Provides functionality to parse string expressions into Filter objects using DynamicExpressionParser.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Deveel.Filters.FilterExpressionParser.Parse(System.String,System.Type,System.String,System.Linq.Dynamic.Core.ParsingConfig)" -->
+        <member name="M:Deveel.Filters.FilterExpressionParser.Parse``1(System.String,System.String,System.Linq.Dynamic.Core.ParsingConfig)">
+            <summary>
+            Parses a string expression into a Filter object with a typed parameter.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expression</typeparam>
+            <param name="expression">The string expression to parse</param>
+            <param name="parameterName">The name of the parameter (default: "x")</param>
+            <param name="config">Optional parsing configuration</param>
+            <returns>A Filter object representing the parsed expression</returns>
+        </member>
+        <member name="T:Deveel.Filters.ExpressionToFilterVisitor">
+            <summary>
+            Visitor class that navigates Expression trees and converts them to Filter objects.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.ExpressionToFilterVisitor.ConvertToFilter(System.Linq.Expressions.Expression)">
+            <summary>
+            Converts an Expression to a Filter object.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.ToDynamicString(Deveel.Filters.Filter)">
+            <summary>
+            Converts a Filter object into a string that is compatible with DynamicLinq parsing.
+            </summary>
+            <param name="filter">The filter to convert to a DynamicLinq-compatible string.</param>
+            <returns>A string representation of the filter that can be parsed by DynamicLinq.</returns>
+        </member>
+        <member name="T:Deveel.Filters.DynamicLinqFilterStringBuilder">
+            <summary>
+            A specialized filter visitor that formats filters in a way compatible with DynamicLinq parsing.
+            </summary>
+        </member>
+    </members>
+</doc>

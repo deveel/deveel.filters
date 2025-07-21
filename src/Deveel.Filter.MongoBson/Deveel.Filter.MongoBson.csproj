@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+    <Title>Deveel Filters BSON Model (MongoDB)</Title>
 		<Description>Provides utilities and extensions to serialize and deserialize filters to BSON documents, suited to be stored in MongoDB databases</Description>
 		<PackageTags>filter filters deveel mongodb mongo bson mongo-bson</PackageTags>
 	</PropertyGroup>
@@ -11,16 +12,5 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Deveel.Filter.Model\Deveel.Filter.Model.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\EULA.md">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\..\deveel-logo.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
 	</ItemGroup>
 </Project>
