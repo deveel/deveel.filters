@@ -33,7 +33,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: "Restore"
-        run: dotnet restore --framework ${{ matrix.dotnet-moniker }}
+        run: dotnet restore -p:TargetFramework=${{ matrix.dotnet-moniker }}
 
       - name: "Build"
         run: dotnet build -c Release --no-restore --framework ${{ matrix.dotnet-moniker }}

@@ -16,7 +16,13 @@ jobs:
     
     strategy:
       matrix:
-        dotnet-version: ['6.0.x', '7.0.x', '8.0.x']
+        include:
+          - dotnet-version: '6.0.x'
+            dotnet-moniker: 'net6.0'
+          - dotnet-version: '7.0.x'
+            dotnet-moniker: 'net7.0'
+          - dotnet-version: '8.0.x'
+            dotnet-moniker: 'net8.0'
 
     steps:
       - uses: actions/checkout@v4
@@ -27,10 +33,10 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: "Restore"
-        run: dotnet restore
+        run: dotnet restore -p:TargetFramework=${{ matrix.dotnet-moniker }}
 
       - name: "Build"
-        run: dotnet build -c Release --no-restore
+        run: dotnet build -c Release --no-restore --framework ${{ matrix.dotnet-moniker }}
 
       - name: "Test"
-        run: dotnet test -c Release --no-restore --no-build --verbosity normal
+        run: dotnet test -c Release --no-restore --no-build --verbosity normal --framework ${{ matrix.dotnet-moniker }}
