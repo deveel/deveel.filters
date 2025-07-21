@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Deveel.Filter.Model.Web\Deveel.Filter.Model.Web.csproj" />
+    <ProjectReference Include="..\..\src\Deveel.Filters.WebModel\Deveel.Filters.WebModel.csproj" />
   </ItemGroup>
 
 </Project>

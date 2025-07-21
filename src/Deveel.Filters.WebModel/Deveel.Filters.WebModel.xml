@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Deveel.Filters.WebModel</name>
+    </assembly>
+    <members>
+        <member name="T:Deveel.Filters.BinaryFilterModel">
+            <summary>
+            A model that represents a binary filter
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.BinaryFilterModel.Left">
+            <summary>
+            The left side of the binary filter
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.BinaryFilterModel.Right">
+            <summary>
+            The right side of the binary filter
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.BinaryFilterModel.BinaryData">
+            <summary>
+            Extension data for the dynamic properties of the filter.
+            </summary>
+        </member>
+        <member name="T:Deveel.Filters.FilterModel">
+            <summary>
+            A model that describes a filter that is used to
+            restrict a set of data.
+            </summary>
+            <remarks>
+            This object defines a model that can be exchanged between
+            services and clients and be serialized and deserialized safely.
+            </remarks>
+        </member>
+        <member name="T:Deveel.Filters.FunctionFilterModel">
+            <summary>
+            Describes a function that is returning a boolean value
+            and is used to filter a set of data.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilterModel.Instance">
+            <summary>
+            The reference to the variable that is the
+            instance object defining the function.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilterModel.Name">
+            <summary>
+            The name of the function to invoke.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilterModel.Arguments">
+            <summary>
+            An optional array of arguments to pass to the function.
+            </summary>
+        </member>
+        <member name="T:Deveel.Filters.VariableNameAttribute">
+            <summary>
+            An attribute that can be used to validate a string
+            is a valid variable name for a filter.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.VariableNameAttribute.IsValid(System.Object)">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>

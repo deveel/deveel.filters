@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Deveel.Filter.MongoBson\Deveel.Filter.MongoBson.csproj" />
+    <ProjectReference Include="..\..\src\Deveel.Filters.MongoBson\Deveel.Filters.MongoBson.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,10 +5,10 @@
 		<Description>Provides models for the definition of data transfer objects suited for web applications (such as APIs)</Description>
 		<PackageTags>filter filters deveel model web dto vaidation</PackageTags>
 
-		<DocumentationFile>./Deveel.Filter.Model.Web.xml</DocumentationFile>
+		<DocumentationFile>./Deveel.Filters.WebModel.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Deveel.Filter.Model\Deveel.Filter.Model.csproj" />
+		<ProjectReference Include="..\Deveel.Filters\Deveel.Filters.csproj" />
 	</ItemGroup>
 </Project>
