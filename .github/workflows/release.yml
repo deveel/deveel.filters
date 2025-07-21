@@ -66,27 +66,3 @@ jobs:
     name: "Cleaning Old Packages"
     needs: publish
     uses: ./.github/workflows/clean-packages.yml
-
-  create-release:
-    name: "Create GitHub Release"
-    needs: publish
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: "Extract version from tag"
-        id: extract_version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      
-      - name: "Create Release"
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ steps.extract_version.outputs.version }}
-          draft: false
-          prerelease: false
