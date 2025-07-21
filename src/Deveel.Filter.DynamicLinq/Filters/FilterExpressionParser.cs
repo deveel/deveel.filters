@@ -8,12 +8,6 @@ namespace Deveel.Filters
 	/// </summary>
 	public static class FilterExpressionParser
 	{
-		public static readonly ParsingConfig DefaultParsingConfig = new ParsingConfig
-		{
-			// Default configuration can be customized here if needed
-			// e.g., CustomTypeProvider, etc.
-		};
-
 		/// <summary>
 		/// Parses a string expression into a Filter object.
 		/// </summary>
@@ -32,9 +26,17 @@ namespace Deveel.Filters
 			try
 			{
 				// Parse the string expression into a LambdaExpression using DynamicExpressionParser
-				var parameter = Expression.Parameter(parameterType, parameterName);
-				var lambda = DynamicExpressionParser.ParseLambda(config, new[] { parameter }, typeof(bool), expression, parameterName);
-				
+				LambdaExpression lambda;
+
+				if (!String.IsNullOrWhiteSpace(parameterName))
+				{
+					var parameter = Expression.Parameter(parameterType, parameterName);
+					lambda = DynamicExpressionParser.ParseLambda(config, new[] { parameter }, typeof(bool), expression, parameterName);
+				} else
+				{
+					lambda = DynamicExpressionParser.ParseLambda(config, parameterType, typeof(bool), expression);
+				}
+
 				// Navigate the expression tree and convert to Filter
 				var visitor = new ExpressionToFilterVisitor(parameterName);
 				return visitor.ConvertToFilter(lambda.Body);

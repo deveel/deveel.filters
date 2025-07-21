@@ -11,10 +11,18 @@ namespace Deveel.Filters {
 			var filterString = filter.ToDynamicString();
 
 			try {
-				var parameter = Expression.Parameter(parameterType, parameterName);
-				return DynamicExpressionParser.ParseLambda(config, new[] { parameter }, typeof(bool), filterString);
-			} catch (Exception ex) {
+				LambdaExpression lambda;
+				if (!String.IsNullOrWhiteSpace(parameterName))
+				{
+					var parameter = Expression.Parameter(parameterType, parameterName);
+					lambda = DynamicExpressionParser.ParseLambda(config, new[] { parameter }, typeof(bool), filterString);
+				} else
+				{
+					lambda = DynamicExpressionParser.ParseLambda(config, parameterType, typeof(bool), filterString);
+				}
 
+				return lambda;
+			} catch (Exception ex) {
 				throw new FilterException("Unable to construct the dynamic lamda", ex);
 			}
 		}
