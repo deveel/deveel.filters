@@ -43,10 +43,9 @@ branches:
 ignore:
   sha: []
 merge-message-formats: {}
-commit-message-incrementing:
-  enabled: true
-  increment-per-commit: false
-  major-pattern: '\+semver:\s?(breaking|major)'
-  minor-pattern: '\+semver:\s?(feature|minor)'
-  patch-pattern: '\+semver:\s?(fix|patch)'
-  no-bump-pattern: '\+semver:\s?(none|skip)'
+commit-message-incrementing: Enabled
+  # increment-per-commit: false
+  # major-pattern: '\+semver:\s?(breaking|major)'
+  # minor-pattern: '\+semver:\s?(feature|minor)'
+  # patch-pattern: '\+semver:\s?(fix|patch)'
+  # no-bump-pattern: '\+semver:\s?(none|skip)'
