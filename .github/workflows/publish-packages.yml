@@ -8,22 +8,46 @@ on:
         required: false
         type: boolean
         default: false
+      version:
+        description: 'Package version to use'
+        required: true
+        type: string
+      assembly-version:
+        description: 'Assembly version to use'
+        required: true
+        type: string
+      file-version:
+        description: 'File version to use'
+        required: true
+        type: string
+      informational-version:
+        description: 'Informational version to use'
+        required: true
+        type: string
 
 jobs:
   publish:
-    name: "Publish (.NET ${{ matrix.dotnet-version }})"
+    name: "Publish Packages"
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: "Setup .NET ${{ matrix.dotnet-version }}"
+      - name: "Setup .NET 8.0"
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
       - name: "Pack"
-        run: dotnet pack -c Release --verbosity normal --include-symbols --include-source --version-suffix $GITHUB_RUN_ID --output ./nuget
+        run: |
+          dotnet pack -c Release --verbosity normal --include-symbols --include-source --output ./nuget \
+            -p:PackageVersion=${{ inputs.version }} \
+            -p:Version=${{ inputs.version }} \
+            -p:AssemblyVersion=${{ inputs.assembly-version }} \
+            -p:FileVersion=${{ inputs.file-version }} \
+            -p:InformationalVersion=${{ inputs.informational-version }}
 
       - name: "Push Packages to GitHub Nuget"
         run: dotnet nuget push ./nuget/*.nupkg --source https://nuget.pkg.github.com/deveel --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
