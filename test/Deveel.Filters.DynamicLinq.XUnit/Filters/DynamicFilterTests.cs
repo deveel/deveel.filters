@@ -364,7 +364,7 @@ namespace Deveel.Filters
 				FilterType.Equal);
 
 			// Act
-			var lambda = filter.AsDynamicLamda(typeof(Person));
+			var lambda = filter.AsDynamicLambda(typeof(Person));
 
 			// Assert
 			Assert.NotNull(lambda);
@@ -388,7 +388,7 @@ namespace Deveel.Filters
 				FilterType.GreaterThan);
 
 			// Act
-			var lambda = filter.AsDynamicLamda(typeof(Person), "person");
+			var lambda = filter.AsDynamicLambda(typeof(Person), "person");
 
 			// Assert
 			Assert.NotNull(lambda);
@@ -413,7 +413,7 @@ namespace Deveel.Filters
 			};
 
 			// Act
-			var lambda = filter.AsDynamicLamda(typeof(Person), "x", config);
+			var lambda = filter.AsDynamicLambda(typeof(Person), "x", config);
 
 			// Assert
 			Assert.NotNull(lambda);
@@ -428,14 +428,14 @@ namespace Deveel.Filters
 		{
 			// Test with int
 			var intFilter = Filter.Binary(Filter.Variable("x"), Filter.Constant(5), FilterType.GreaterThan);
-			var intLambda = intFilter.AsDynamicLamda(typeof(int), "x");
+			var intLambda = intFilter.AsDynamicLambda(typeof(int), "x");
 			var intCompiled = intLambda.Compile();
 			Assert.True((bool)intCompiled.DynamicInvoke(10)!);
 			Assert.False((bool)intCompiled.DynamicInvoke(3)!);
 
 			// Test with string
 			var stringFilter = Filter.Function(Filter.Variable("x"), "StartsWith", new[] { Filter.Constant("Hello") });
-			var stringLambda = stringFilter.AsDynamicLamda(typeof(string));
+			var stringLambda = stringFilter.AsDynamicLambda(typeof(string));
 			var stringCompiled = stringLambda.Compile();
 			Assert.True((bool)stringCompiled.DynamicInvoke("Hello World")!);
 			Assert.False((bool)stringCompiled.DynamicInvoke("Goodbye")!);
@@ -481,7 +481,7 @@ namespace Deveel.Filters
 				FilterType.GreaterThan);
 
 			// Act
-			var lambda = filter.AsDynamicLamda(obj.GetType());
+			var lambda = filter.AsDynamicLambda(obj.GetType());
 
 			// Assert
 			Assert.NotNull(lambda);
@@ -791,7 +791,7 @@ namespace Deveel.Filters
 				FilterType.Equal);
 
 			// Act & Assert
-			Assert.Throws<ArgumentNullException>(() => filter.AsDynamicLamda(null!));
+			Assert.Throws<ArgumentNullException>(() => filter.AsDynamicLambda(null!));
 		}
 
 		#endregion
