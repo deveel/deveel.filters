@@ -30,6 +30,43 @@
             Converts an Expression to a Filter object.
             </summary>
         </member>
+        <member name="T:Deveel.Filters.FilterExtensions">
+            <summary>
+            Provides extension methods for converting Filter objects into dynamic LINQ expressions.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.AsDynamicLambda(Deveel.Filters.Filter,System.Type,System.String,System.Linq.Dynamic.Core.ParsingConfig)">
+            <summary>
+            Converts a Filter object into a LambdaExpression that can be used with DynamicLinq for filtering.
+            </summary>
+            <param name="filter">
+            The filter to convert into a LambdaExpression. This filter will be converted into a string representation
+            that is compatible with DynamicLinq parsing, and then parsed back into a LambdaExpression.
+            </param>
+            <param name="parameterType">
+            The type of the parameter that will be used in the LambdaExpression. This is typically the type of the entity
+            being filtered. The parameter name in the expression will be determined by the <paramref name="parameterName"/> argument.
+            </param>
+            <param name="parameterName">
+            The name of the parameter to be used in the LambdaExpression. This is the name that will be used in the string representation
+            of the filter when it is converted for DynamicLinq parsing. If this parameter is null or whitespace, the parameter will be defined
+            without a name in the LambdaExpression, and the string representation of the filter will not include a parameter name.
+            This can be useful in cases where the parameter name is not relevant or should be inferred from context.
+            </param>
+            <param name="config"></param>
+            <returns>
+            Returns a <see cref="T:System.Linq.Expressions.LambdaExpression"/> that represents the filter, which can be used to filter an
+            <see cref="T:System.Linq.IQueryable"/> using DynamicLinq. The resulting LambdaExpression will have a single parameter
+            of the specified type, and its body will represent the logic defined in the original Filter object.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown if either <paramref name="filter"/> or <paramref name="parameterType"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:Deveel.Filters.FilterException">
+            Thrown if the filter cannot be converted into a valid LambdaExpression, which can occur if the filter contains
+            unsupported operations or if the resulting string representation is not compatible with DynamicLinq parsing.
+            </exception>
+        </member>
         <member name="M:Deveel.Filters.FilterExtensions.ToDynamicString(Deveel.Filters.Filter)">
             <summary>
             Converts a Filter object into a string that is compatible with DynamicLinq parsing.
