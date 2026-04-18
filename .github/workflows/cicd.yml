@@ -26,16 +26,14 @@ jobs:
           fetch-depth: 0  # GitVersion needs full history
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.10.2
+        uses: gittools/actions/gitversion/setup@v4
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.x'
 
       - name: Determine Version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.10.2
-        with:
-          useConfigFile: true
-
+        uses: gittools/actions/gitversion/execute@v4
+       
       - name: Display GitVersion outputs
         run: |
           echo "Version: ${{ steps.gitversion.outputs.SemVer }}"
@@ -53,20 +51,20 @@ jobs:
     strategy:
       matrix:
         include:
-          - dotnet-version: '6.0.x'
-            dotnet-moniker: 'net6.0'
-          - dotnet-version: '7.0.x'
-            dotnet-moniker: 'net7.0'
           - dotnet-version: '8.0.x'
             dotnet-moniker: 'net8.0'
+          - dotnet-version: '9.0.x'
+            dotnet-moniker: 'net9.0'
+          - dotnet-version: '10.0.x'
+            dotnet-moniker: 'net10.0'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # GitVersion needs full history
 
       - name: "Setup .NET ${{ matrix.dotnet-version }}"
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
