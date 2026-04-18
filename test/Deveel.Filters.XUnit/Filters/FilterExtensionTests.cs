@@ -106,46 +106,40 @@ namespace Deveel.Filters {
 		#region AsString
 
 		[Fact]
-		public static void AsString_Variable() {
+		public static void ToString_Variable() {
 			var filter = Filter.Variable("x");
-			Assert.Equal("x", filter.AsString());
+			Assert.Equal("x", filter.ToString());
 		}
 
 		[Fact]
-		public static void AsString_NullConstant() {
+		public static void ToString_NullConstant() {
 			var filter = Filter.Constant(null);
-			Assert.Equal("null", filter.AsString());
+			Assert.Equal("null", filter.ToString());
 		}
 
 		[Fact]
-		public static void AsString_BoolConstant() {
-			Assert.Equal("true", Filter.Constant(true).AsString());
-			Assert.Equal("false", Filter.Constant(false).AsString());
+		public static void ToString_BoolConstant() {
+			Assert.Equal("true", Filter.Constant(true).ToString());
+			Assert.Equal("false", Filter.Constant(false).ToString());
 		}
 
 		[Fact]
 		public static void AsString_StringConstant() {
-			Assert.Equal("\"hello\"", Filter.Constant("hello").AsString());
+			Assert.Equal("\"hello\"", Filter.Constant("hello").ToString());
 		}
 
 		#endregion
 
 		#region IsEmpty
-
-		[Fact]
-		public static void IsEmpty_NullFilter() {
-			IFilter? filter = null;
-			Assert.True(filter.IsEmpty());
-		}
-
+		
 		[Fact]
 		public static void IsEmpty_EmptyFilter() {
-			Assert.True(Filter.Empty.IsEmpty());
+			Assert.True(Filter.Empty.IsEmpty);
 		}
 
 		[Fact]
 		public static void IsEmpty_NonEmptyFilter() {
-			Assert.False(Filter.Variable("x").IsEmpty());
+			Assert.False(Filter.Variable("x").IsEmpty);
 		}
 
 		#endregion

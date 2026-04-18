@@ -86,12 +86,12 @@ namespace Deveel.Filters {
 			this.builder = builder;
 		}
 
-		public override IFilter VisitVariable(IVariableFilter variable) {
+		public override Filter VisitVariable(VariableFilter variable) {
 			builder.Append(variable.VariableName);
 			return Filter.Variable(variable.VariableName);
 		}
 
-		public override IFilter VisitConstant(IConstantFilter constant) {
+		public override Filter VisitConstant(ConstantFilter constant) {
 			if (constant.Value == null) {
 				builder.Append("null");
 			} else if (constant.Value is string s) {
@@ -136,14 +136,14 @@ namespace Deveel.Filters {
 			return Filter.Constant(constant.Value);
 		}
 
-		public override IFilter VisitBinary(IBinaryFilter filter) {
-			if (filter.Left.IsEmpty() && filter.Right.IsEmpty())
+		public override Filter VisitBinary(BinaryFilter filter) {
+			if (filter.Left.IsEmpty && filter.Right.IsEmpty)
 				throw new FilterException("Both left and right operands are empty");
 
 			if (filter.FilterType == FilterType.And || filter.FilterType == FilterType.Or) {
-				if (!filter.Left.IsEmpty() && filter.Right.IsEmpty())
+				if (!filter.Left.IsEmpty && filter.Right.IsEmpty)
 					return Visit(filter.Left);
-				if (filter.Left.IsEmpty() && !filter.Right.IsEmpty())
+				if (filter.Left.IsEmpty && !filter.Right.IsEmpty)
 					return Visit(filter.Right);
 			}
 
@@ -201,8 +201,8 @@ namespace Deveel.Filters {
 			return Filter.Binary(left, right, filter.FilterType);
 		}
 
-		public override IFilter VisitUnary(IUnaryFilter filter) {
-			if (filter.Operand.IsEmpty())
+		public override Filter VisitUnary(UnaryFilter filter) {
+			if (filter.Operand.IsEmpty)
 				throw new FilterException("The operand of the unary filter is empty");
 
 			switch (filter.FilterType) {
@@ -223,14 +223,14 @@ namespace Deveel.Filters {
 			return Filter.Unary(operand, filter.FilterType);
 		}
 
-		public override IList<IFilter> VisitFunctionArguments(IList<IFilter>? arguments) {
-			var args = new List<IFilter>(arguments?.Count ?? 0);
+		public override IList<Filter> VisitFunctionArguments(IList<Filter>? arguments) {
+			var args = new List<Filter>(arguments?.Count ?? 0);
 
 			builder.Append('(');
 
 			if (arguments != null) {
 				for (int i = 0; i < arguments.Count; i++) {
-					args.Add((Filter)Visit(arguments[i]));
+					args.Add(Visit(arguments[i]));
 
 					if (i < arguments.Count - 1)
 						builder.Append(", ");
@@ -242,7 +242,7 @@ namespace Deveel.Filters {
 			return args;
 		}
 
-		public override IFilter VisitFunction(IFunctionFilter filter) {
+		public override Filter VisitFunction(FunctionFilter filter) {
 			var variable = VisitVariable(filter.Variable);
 
 			builder.Append('.');
@@ -251,7 +251,7 @@ namespace Deveel.Filters {
 
 			var arguments = new Filter[args.Count];
 			for (int i = 0; i < args.Count; i++) {
-				arguments[i] = (Filter)args[i];
+				arguments[i] = args[i];
 			}
 
 			if (!(variable is VariableFilter variableFilter))
@@ -260,7 +260,7 @@ namespace Deveel.Filters {
 			return Filter.Function(variableFilter, filter.FunctionName, arguments);
 		}
 
-		private static bool NeedsParentheses(IFilter filter) {
+		private static bool NeedsParentheses(Filter filter) {
 			return filter.FilterType != FilterType.Constant && 
 			       filter.FilterType != FilterType.Variable &&
 			       filter.FilterType != FilterType.Function;

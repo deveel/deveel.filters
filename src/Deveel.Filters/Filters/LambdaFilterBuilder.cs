@@ -14,7 +14,7 @@ namespace Deveel.Filters {
 			parameter = Expression.Parameter(parameterType, parameterName);
 		}
 
-		public LambdaExpression BuildLambda(IFilter filter) {
+		public LambdaExpression BuildLambda(Filter filter) {
 			var result = Visit(filter);
 			if (!(result is FilterExpression filterExp))
 				throw new InvalidOperationException("Could not parse the filter");
@@ -25,7 +25,7 @@ namespace Deveel.Filters {
 			return Expression.Lambda(delegateType, body, parameter);
 		}
 
-		public LambdaExpression BuildAsyncLambda(IFilter filter) {
+		public LambdaExpression BuildAsyncLambda(Filter filter) {
 			var result = Visit(filter);
 			if (!(result is FilterExpression filterExp))
 				throw new InvalidOperationException("Could not parse the filter");
@@ -68,18 +68,18 @@ namespace Deveel.Filters {
 			return instance;
 		}
 
-		public override IFilter VisitVariable(IVariableFilter variable) {
+		public override Filter VisitVariable(VariableFilter variable) {
 			var expression = ResolveVariable(variable.VariableName);
 			return new FilterExpression(variable.FilterType, expression);
 		}
 
-		public override IFilter VisitConstant(IConstantFilter constant) {
+		public override Filter VisitConstant(ConstantFilter constant) {
 			var expression = Expression.Constant(constant.Value);
 			return new FilterExpression(constant.FilterType, expression);
 		}
 
-		public override IFilter VisitUnary(IUnaryFilter filter) {
-			if (filter.Operand.IsEmpty())
+		public override Filter VisitUnary(UnaryFilter filter) {
+			if (filter.Operand.IsEmpty)
 				throw new FilterException("The operand of a unary filter cannot be empty");
 
 			var operand = Visit(filter.Operand);
@@ -97,13 +97,13 @@ namespace Deveel.Filters {
 			return new FilterExpression(filter.FilterType, expression);
 		}
 
-		public override IFilter VisitFunction(IFunctionFilter filter) {
+		public override Filter VisitFunction(FunctionFilter filter) {
 			var variable = VisitVariable(filter.Variable);
 			var variableExp = ((FilterExpression) variable).Expression;
 
-			var arguments = new Expression[filter.Arguments?.Count ?? 0];
+			var arguments = new Expression[filter.Arguments?.Length ?? 0];
 			if (filter.Arguments != null) {
-				for (int i = 0; i < filter.Arguments.Count; i++) {
+				for (int i = 0; i < filter.Arguments.Length; i++) {
 					var arg = Visit(filter.Arguments[i]);
 					arguments[i] = ((FilterExpression) arg).Expression;
 				}
@@ -127,18 +127,18 @@ namespace Deveel.Filters {
 			return new FilterExpression(filter.FilterType, functionCall);
 		}
 
-		public override IFilter VisitBinary(IBinaryFilter filter) {
-			if (filter.Left.IsEmpty() &&
-				filter.Right.IsEmpty())
+		public override Filter VisitBinary(BinaryFilter filter) {
+			if (filter.Left.IsEmpty &&
+				filter.Right.IsEmpty)
 				throw new FilterException("The left and right filter cannot be empty");
 
 			if (filter.FilterType == FilterType.And ||
 				filter.FilterType == FilterType.Or) {
-				if (filter.Left.IsEmpty() && !filter.Right.IsEmpty())
+				if (filter.Left.IsEmpty && !filter.Right.IsEmpty)
 					return Visit(filter.Right);
-				if (!filter.Left.IsEmpty() && filter.Right.IsEmpty())
+				if (!filter.Left.IsEmpty && filter.Right.IsEmpty)
 					return Visit(filter.Left);
-			} else if (filter.Left.IsEmpty() || filter.Right.IsEmpty())
+			} else if (filter.Left.IsEmpty || filter.Right.IsEmpty)
 				throw new FilterException($"The filter of type '{filter.FilterType}' must have either left or right part not empty");
 
 			var left = Visit(filter.Left);
@@ -181,13 +181,13 @@ namespace Deveel.Filters {
 
 		#region FilterExpression
 
-		class FilterExpression : IFilter {
+		class FilterExpression : Filter {
 			public FilterExpression(FilterType filterType, Expression expression) {
 				FilterType = filterType;
 				Expression = expression;
 			}
 
-			public FilterType FilterType { get; }
+			public override FilterType FilterType { get; }
 
 			public Expression Expression { get; }
 		}

@@ -7,12 +7,21 @@ namespace Deveel.Filters {
         public FilterModelConverter(FilterBuilderOptions binaryOptions) {
             this.builderOptions = binaryOptions;
         }
+        
+        public FilterModel? WebModel { get; private set; }
+
+        private FilterModel? VisitModel(Filter filter)
+        {
+	        var visitor = new FilterModelConverter(builderOptions);
+	        visitor.Visit(filter);
+	        return visitor.WebModel;
+        }
 
 		private BinaryFilterModel MakeBinary(FilterModel left, FilterModel right, bool logicalAnd = false) {
 			if (builderOptions.PreferBinaryData &&
-				((IFilter)left).FilterType == FilterType.Variable &&
+				left.GetFilterType() == FilterType.Variable &&
 				!String.IsNullOrWhiteSpace(left.Ref) &&
-				((IFilter)right).FilterType == FilterType.Constant) {
+				right.GetFilterType() == FilterType.Constant) {
 				var variable = left.Ref;
 				var constant = JsonElementUtil.ToElement(right.Value);
 
@@ -29,94 +38,101 @@ namespace Deveel.Filters {
             };
 		}
 
-        public override IFilter VisitBinary(IBinaryFilter filter) {
-			var left = (FilterModel) Visit(filter.Left);
-			var right = (FilterModel) Visit(filter.Right);
+        public override Filter VisitBinary(BinaryFilter filter) {
+			var left = VisitModel(filter.Left);
+			var right = VisitModel(filter.Right);
 
 			switch (filter.FilterType) {
 				case FilterType.Equal:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						Equal = MakeBinary(left, right)
 					};
+					break;
 				case FilterType.NotEqual:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						NotEqual = MakeBinary(left, right),
 					};
+					break;
 				case FilterType.GreaterThan:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						GreaterThan = MakeBinary(left, right)
 					};
+					break;
 				case FilterType.GreaterThanOrEqual:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						GreaterThanOrEqual = MakeBinary(left, right),
 					};
+					break;
 				case FilterType.LessThan:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						LessThan = MakeBinary(left, right),
 					};
+					break;
 				case FilterType.LessThanOrEqual:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						LessThanOrEqual = MakeBinary(left, right),
 					};
+					break;
 				case FilterType.And:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						And = MakeBinary(left, right, true),
 					};
+					break;
 				case FilterType.Or:
-					return new FilterModel {
+					WebModel = new FilterModel {
 						Or = MakeBinary(left, right),
 					};
+					break;
 				default:
 					throw new FilterException($"The filter type {filter.FilterType} is not binary");
 			}
+			
+			return filter;
 		}
 
-		public override IFilter VisitConstant(IConstantFilter filter) {
-			return new FilterModel {
+		public override Filter VisitConstant(ConstantFilter filter) {
+			WebModel = new FilterModel {
 				Value = filter.Value
 			};
+
+			return base.VisitConstant(filter);
 		}
 
-		public override IFilter VisitVariable(IVariableFilter filter) {
-			return new FilterModel {
+		public override Filter VisitVariable(VariableFilter filter) {
+			WebModel = new FilterModel {
 				Ref = filter.VariableName
 			};
+			
+			return filter;
 		}
 
-		public override IFilter VisitUnary(IUnaryFilter filter) {
+		public override Filter VisitUnary(UnaryFilter filter) {
 			if (filter.FilterType != FilterType.Not)
 				throw new FilterException($"The filter type {filter.FilterType} is not unary");
 
-			var operand = (FilterModel)Visit(filter.Operand);
-			return new FilterModel {
+			var operand = VisitModel(filter.Operand);
+			WebModel = new FilterModel {
 				Not = operand
 			};
+			
+			return filter;
 		}
-
-		public override IList<IFilter> VisitFunctionArguments(IList<IFilter>? arguments) {
-			if (arguments == null)
-				return new FilterModel[0];
-
-			var list = new List<IFilter>(arguments.Count);
-			foreach (var argument in arguments) {
-				list.Add(Visit(argument));
-			}
-			return list;
-		}
-
-		public override IFilter VisitFunction(IFunctionFilter filter) {
+		
+		public override Filter VisitFunction(FunctionFilter filter) {
 			var arguments = VisitFunctionArguments(filter.Arguments);
 			var args = new FilterModel[arguments.Count];
 			for (var i = 0; i < arguments.Count; i++) {
-				args[i] = (FilterModel)arguments[i];
+				args[i] = VisitModel(arguments[i]);
 			}
-			return new FilterModel {
+			WebModel = new FilterModel {
 				Function = new FunctionFilterModel {
 					Instance = filter.Variable.VariableName,
 					Name = filter.FunctionName,
 					Arguments = args
 				}
 			};
+			
+			return filter;
 		}
 	}
 }

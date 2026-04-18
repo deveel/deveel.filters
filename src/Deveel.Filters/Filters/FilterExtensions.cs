@@ -6,14 +6,7 @@ namespace Deveel.Filters {
 		public static bool IsEmpty(this IFilter filter) {
 			return filter is null || Filter.Empty.Equals(filter);
 		}
-
-		public static string AsString(this IFilter filter) {
-			var builder = new StringBuilder();
-			var visitor = new FilterStringBuilder(builder);
-			visitor.Visit(filter);
-			return builder.ToString();
-		}
-
+		
 		/// <summary>
 		/// Produces a lambda expression that represents the filter
 		/// </summary>
@@ -32,7 +25,7 @@ namespace Deveel.Filters {
 		/// <exception cref="ArgumentException">
 		/// Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
 		/// </exception>
-		public static Expression<Func<T, bool>> AsLambda<T>(this IFilter filter, string parameterName = "x") {
+		public static Expression<Func<T, bool>> AsLambda<T>(this Filter filter, string parameterName = "x") {
 			return (Expression<Func<T, bool>>)filter.AsLambda(typeof(T), parameterName);
 		}
 
@@ -60,7 +53,7 @@ namespace Deveel.Filters {
 		/// <exception cref="ArgumentNullException">
 		/// Thrown when <paramref name="parameterType"/> is <c>null</c>.
 		/// </exception>
-		public static LambdaExpression AsLambda(this IFilter filter, Type parameterType, string parameterName = "x") {
+		public static LambdaExpression AsLambda(this Filter filter, Type parameterType, string parameterName = "x") {
 			if (parameterType is null)
 				throw new ArgumentNullException(nameof(parameterType));
 
@@ -90,7 +83,7 @@ namespace Deveel.Filters {
 		/// Returns a <see cref="LambdaExpression"/> that represents the
 		/// expression tree of the filter, that can be used to compile an asynchrouns delegate.
 		/// </returns>
-		public static LambdaExpression AsAsyncLambda(this IFilter filter, Type parameterType, string parameterName = "x") {
+		public static LambdaExpression AsAsyncLambda(this Filter filter, Type parameterType, string parameterName = "x") {
 			if (parameterType is null)
 				throw new ArgumentNullException(nameof(parameterType));
 			if (String.IsNullOrWhiteSpace(parameterName))
@@ -119,7 +112,7 @@ namespace Deveel.Filters {
 		/// Returns a <see cref="Expression{TDelegate}"/> that represents the
 		/// expression tree of the filter, that can be used to compile an asynchrouns delegate.
 		/// </returns>
-		public static Expression<Func<T, Task<bool>>> AsAsyncLambda<T>(this IFilter filter, string parameterName = "x") {
+		public static Expression<Func<T, Task<bool>>> AsAsyncLambda<T>(this Filter filter, string parameterName = "x") {
 			return (Expression<Func<T, Task<bool>>>)filter.AsAsyncLambda(typeof(T), parameterName);
 		}
 
@@ -149,7 +142,7 @@ namespace Deveel.Filters {
 		/// Thrown when the filter cannot be evaluated because of an
 		/// unhandled error.
 		/// </exception>
-		public static bool Evaluate(this IFilter filter, Type parameterType, string parameterName, object parameterValue) {
+		public static bool Evaluate(this Filter filter, Type parameterType, string parameterName, object parameterValue) {
 			if (parameterType is null)
 				throw new ArgumentNullException(nameof(parameterType));
 			if (String.IsNullOrWhiteSpace(parameterName))
@@ -177,10 +170,10 @@ namespace Deveel.Filters {
 		/// <returns>
 		/// Returns <c>true</c> if the given value matches the filter, otherwise
 		/// </returns>
-		public static bool Evaluate(this IFilter filter, Type parameterType, object parameterValue)
+		public static bool Evaluate(this Filter filter, Type parameterType, object parameterValue)
 			=> filter.Evaluate(parameterType, "x", parameterValue);
 
-		public static bool Evaluate<T>(this IFilter filter, string parameterName, T parameterValue) {
+		public static bool Evaluate<T>(this Filter filter, string parameterName, T parameterValue) {
 			try {
 				var lambda = filter.AsLambda<T>(parameterName);
 				var compiled = lambda.Compile();
@@ -191,10 +184,10 @@ namespace Deveel.Filters {
 			}
 		}
 
-		public static bool Evaluate<T>(this IFilter filter, T parameterValue)
+		public static bool Evaluate<T>(this Filter filter, T parameterValue)
 			=> filter.Evaluate("x", parameterValue);
 
-		public static Task<bool> EvaluateAsync(this IFilter filter, Type parameterType, string parameterName, object parameterValue) {
+		public static Task<bool> EvaluateAsync(this Filter filter, Type parameterType, string parameterName, object parameterValue) {
 			var asyncLambda = filter.AsAsyncLambda(parameterType, parameterName);
 			var compiled = asyncLambda.Compile();
 
@@ -203,14 +196,14 @@ namespace Deveel.Filters {
 			return (Task<bool>)task;
 		}
 
-		public static Task<bool> EvaluateAsync<T>(this IFilter filter, string parameterName, T parameterValue) {
+		public static Task<bool> EvaluateAsync<T>(this Filter filter, string parameterName, T parameterValue) {
 			var asyncLambda = filter.AsAsyncLambda<T>(parameterName);
 			var compiled = asyncLambda.Compile();
 
 			return compiled.Invoke(parameterValue);
 		}
 
-		public static Task<bool> EvaluateAsync<T>(this IFilter filter, T parameterValue)
+		public static Task<bool> EvaluateAsync<T>(this Filter filter, T parameterValue)
 			=> filter.EvaluateAsync("x", parameterValue);
 
 	}

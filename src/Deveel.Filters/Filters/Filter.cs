@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Text;
 
 namespace Deveel.Filters {
@@ -8,7 +7,7 @@ namespace Deveel.Filters {
 	/// can be used to restrict the result of a query.
 	/// </summary>
 	[DebuggerDisplay("{ToString(),nq}")]
-	public abstract class Filter : IFilter {
+	public abstract class Filter {
 		/// <summary>
 		/// Gets the type of filter.
 		/// </summary>
@@ -18,18 +17,18 @@ namespace Deveel.Filters {
 		/// An empty filter that has no effect on the result.
 		/// </summary>
 		public static readonly Filter Empty = new EmptyFilter();
+		
+		public bool IsEmpty => Empty.Equals(this);
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return this.AsString();
+			var builder = new StringBuilder();
+			var visitor = new FilterStringBuilder(builder);
+			visitor.Visit(this);
+			return builder.ToString();
 		}
 
-
-		public static Filter Convert(IFilter filter) {
-			var converter = new FilterConverter();
-			return (Filter) converter.Visit(filter);
-		}
-
+		
 		public static bool IsValidReference(string variableName) {
 			return !String.IsNullOrWhiteSpace(variableName) &&
 			       variableName.All(c => Char.IsLetterOrDigit(c) || c == '_' || c == '.');
@@ -59,10 +58,7 @@ namespace Deveel.Filters {
 
 			return new UnaryFilter(operand, filterType);
 		}
-
-		public static UnaryFilter Unary(IFilter operand, FilterType filterType)
-			=> Unary(Convert(operand), filterType);
-
+		
 		/// <summary>
 		/// Creates an unary filter that negates the given operand.
 		/// </summary>
@@ -76,10 +72,7 @@ namespace Deveel.Filters {
 
 		public static UnaryFilter Not(Filter operand)
 			=> Unary(operand, FilterType.Not);
-
-		public static UnaryFilter Not(IFilter operand)
-			=> Not(Convert(operand));
-
+		
 		/// <summary>
 		/// Creates a new binary filter with the given left and right operands
 		/// </summary>
@@ -112,64 +105,34 @@ namespace Deveel.Filters {
 
 			return new BinaryFilter(left, right, filterType);
 		}
-
-		public static BinaryFilter Binary(IFilter left, IFilter right, FilterType filterType)
-			=> Binary(Convert(left), Convert(right), filterType);
-
+		
 		public static BinaryFilter And(Filter left, Filter right)
 			=> Binary(left, right, FilterType.And);
-
-		public static BinaryFilter And(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.And);
-
+		
 		public static BinaryFilter Or(Filter left, Filter right)
 			=> Binary(left, right, FilterType.Or);
-
-		public static BinaryFilter Or(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.Or);
-
+		
 		public static BinaryFilter Equal(Filter left, Filter right)
 			=> Binary(left, right, FilterType.Equal);
-
-		public static BinaryFilter Equal(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.Equal);
-
+		
 		public static BinaryFilter NotEquals(Filter left, Filter right)
 			=> Binary(left, right, FilterType.NotEqual);
-
-		public static BinaryFilter NotEqual(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.NotEqual);
-
+		
 		public static BinaryFilter GreaterThan(Filter left, Filter right)
 			=> Binary(left, right, FilterType.GreaterThan);
-
-		public static BinaryFilter GreaterThan(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.GreaterThan);
-
+		
 		public static BinaryFilter GreaterThanOrEqual(Filter left, Filter right)
 			=> Binary(left, right, FilterType.GreaterThanOrEqual);
-
-		public static BinaryFilter GreaterThanOrEqual(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.GreaterThanOrEqual);
-
+		
 		public static BinaryFilter LessThan(Filter left, Filter right)
 			=> Binary(left, right, FilterType.LessThan);
-
-		public static BinaryFilter LessThan(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.LessThan);
-
+		
 		public static BinaryFilter LessThanOrEqual(Filter left, Filter right)
 			=> Binary(left, right, FilterType.LessThanOrEqual);
-
-		public static BinaryFilter LessThanOrEqual(IFilter left, IFilter right)
-			=> Binary(Convert(left), Convert(right), FilterType.LessThanOrEqual);
-
+		
 		public static FunctionFilter Function(VariableFilter variable, string functionName, Filter[] arguments)
 			=> new FunctionFilter(variable, functionName, arguments);
-
-		public static FunctionFilter Function(VariableFilter variable, string functionName, IFilter[] arguments)
-			=> new FunctionFilter(variable, functionName, arguments?.Select(Convert).ToArray());
-
+		
 		public static FunctionFilter Function(VariableFilter variable, string functionName)
 			=> new FunctionFilter(variable, functionName, Array.Empty<Filter>());
 

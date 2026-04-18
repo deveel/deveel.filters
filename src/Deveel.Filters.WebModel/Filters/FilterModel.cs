@@ -11,7 +11,7 @@ namespace Deveel.Filters {
     /// This object defines a model that can be exchanged between
     /// services and clients and be serialized and deserialized safely.
     /// </remarks>
-    public class FilterModel : IFilter, IValidatableObject {
+    public class FilterModel : IValidatableObject {
 		private BinaryFilterModel? binaryFilter;
 		private FilterType? filterType;
 		private FilterModel? not;
@@ -20,8 +20,8 @@ namespace Deveel.Filters {
 		private FunctionFilterModel? functionFilter;
 		private IDictionary<string, JsonElement>? binaryData;
 
-		FilterType IFilter.FilterType => filterType ?? new FilterType();
-
+		internal FilterType? GetFilterType() => filterType;
+		
 		private void Reset() {
 			binaryFilter = null;
 			filterType = null;
@@ -141,7 +141,7 @@ namespace Deveel.Filters {
 			}
 		}
 
-		public virtual IFilter BuildFilter() {
+		public virtual Filter BuildFilter() {
 			if (filterType == null)
 				throw new FilterException("The model is invalid - no type was set");
 
@@ -191,7 +191,7 @@ namespace Deveel.Filters {
 			throw new FilterException("Not a valid filter model");
 		}
 
-		private IFilter BuildBinaryFilterFromJson(IDictionary<string, JsonElement>? jsonData, FilterType filterType) {
+		private Filter BuildBinaryFilterFromJson(IDictionary<string, JsonElement>? jsonData, FilterType filterType) {
 			if (jsonData == null)
 				return Filter.Empty;
 

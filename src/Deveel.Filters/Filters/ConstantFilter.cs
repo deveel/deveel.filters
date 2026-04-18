@@ -1,5 +1,5 @@
 ﻿namespace Deveel.Filters {
-	public sealed class ConstantFilter : Filter, IConstantFilter {
+	public sealed class ConstantFilter : Filter {
 		public ConstantFilter(object? value) {
 			Value = value;
 		}

@@ -4,7 +4,7 @@ using MongoDB.Bson;
 
 namespace Deveel.Filters {
 	class BsonFilterVisitor : FilterVisitor {
-		internal BsonDocument BuildDocument(IFilter filter) {
+		internal BsonDocument BuildDocument(Filter filter) {
 			var bsonFilter = Visit(filter);
 
 			if (!(bsonFilter is BsonFilter bson))
@@ -16,7 +16,7 @@ namespace Deveel.Filters {
 			return document;
 		}
 
-		public override IFilter VisitConstant(IConstantFilter constant) {
+		public override Filter VisitConstant(ConstantFilter constant) {
 			var value = constant.Value;
 			var valueType = value?.GetType() ?? typeof(DBNull);
 
@@ -43,7 +43,7 @@ namespace Deveel.Filters {
 			return BsonFilterUtil.GetValueTypeString(valueType);
 		}
 
-		public override IFilter VisitVariable(IVariableFilter variable) {
+		public override Filter VisitVariable(VariableFilter variable) {
 			var varRef = new BsonDocument {
 				{ "type", FilterTypeString(variable.FilterType) },
 				{ "varRef", variable.VariableName }
@@ -55,8 +55,8 @@ namespace Deveel.Filters {
 		private static string FilterTypeString(FilterType filterType)
 			=> filterType.ToString().ToLowerInvariant();
 
-		public override IFilter VisitUnary(IUnaryFilter filter) {
-			if (filter.Operand.IsEmpty())
+		public override Filter VisitUnary(UnaryFilter filter) {
+			if (filter.Operand.IsEmpty)
 				throw new FilterException("Invalid filter operand: it cannot be empty");
 
 			var operand = Visit(filter.Operand);
@@ -72,7 +72,7 @@ namespace Deveel.Filters {
 			return new BsonFilter(FilterType.Not, not);
 		}
 
-		public override IFilter VisitFunction(IFunctionFilter filter) {
+		public override Filter VisitFunction(FunctionFilter filter) {
 			var variable = VisitVariable(filter.Variable);
 			var bsonVariable = ((BsonFilter) variable);
 
@@ -95,19 +95,19 @@ namespace Deveel.Filters {
 			return new BsonFilter(FilterType.Function, function);
 		}
 
-		public override IFilter VisitBinary(IBinaryFilter filter) {
-			if (filter.Left.IsEmpty() && filter.Right.IsEmpty())
+		public override Filter VisitBinary(BinaryFilter filter) {
+			if (filter.Left.IsEmpty && filter.Right.IsEmpty)
 				throw new FilterException("The operands of a binary filter cannot be both empty");
 
 			if (filter.FilterType == FilterType.And ||
 				filter.FilterType == FilterType.Or) {
-				if (filter.Left.IsEmpty() && !filter.Right.IsEmpty())
+				if (filter.Left.IsEmpty && !filter.Right.IsEmpty)
 					return Visit(filter.Right);
-				if (!filter.Left.IsEmpty() && filter.Right.IsEmpty())
+				if (!filter.Left.IsEmpty && filter.Right.IsEmpty)
 					return Visit(filter.Left);
 			}
 
-			if (filter.Left.IsEmpty() || filter.Right.IsEmpty())
+			if (filter.Left.IsEmpty || filter.Right.IsEmpty)
 				throw new FilterException($"The operands of a {filter.FilterType} filter cannot be empty");
 
 			var bsonLeft = (BsonFilter) Visit(filter.Left);
@@ -136,13 +136,13 @@ namespace Deveel.Filters {
 
 		#region BsonFilter
 
-		class BsonFilter : IFilter {
+		class BsonFilter : Filter {
 			public BsonFilter(FilterType filterType, BsonValue value) {
 				FilterType = filterType;
 				Value = value;
 			}
 
-			public FilterType FilterType { get; }
+			public override FilterType FilterType { get; }
 
 			public BsonValue Value { get; }
 		}

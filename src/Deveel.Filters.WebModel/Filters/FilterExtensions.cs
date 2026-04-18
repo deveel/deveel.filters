@@ -1,6 +1,6 @@
 ﻿namespace Deveel.Filters {
     public static class FilterExtensions {
-		public static FilterModel ToFilterModel(this IFilter filter, FilterBuilderOptions? binaryOptions = null) {
+		public static FilterModel ToFilterModel(this Filter filter, FilterBuilderOptions? binaryOptions = null) {
 			if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
 
@@ -8,7 +8,8 @@
 				binaryOptions = new FilterBuilderOptions();
 
 			var converter = new FilterModelConverter(binaryOptions);
-			return (FilterModel) converter.Visit(filter);
+			converter.Visit(filter);
+			return converter.WebModel;
 		}
 	}
 }

@@ -130,7 +130,7 @@
             <param name="message">The message of the exception.</param>
             <param name="innerException">The inner exception of this exception.</param>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsLambda``1(Deveel.Filters.IFilter,System.String)">
+        <member name="M:Deveel.Filters.FilterExtensions.AsLambda``1(Deveel.Filters.Filter,System.String)">
             <summary>
             Produces a lambda expression that represents the filter
             </summary>
@@ -150,7 +150,7 @@
             Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
             </exception>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsLambda(Deveel.Filters.IFilter,System.Type,System.String)">
+        <member name="M:Deveel.Filters.FilterExtensions.AsLambda(Deveel.Filters.Filter,System.Type,System.String)">
             <summary>
             Produces a lambda expression that represents the filter
             </summary>
@@ -176,7 +176,7 @@
             Thrown when <paramref name="parameterType"/> is <c>null</c>.
             </exception>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda(Deveel.Filters.IFilter,System.Type,System.String)">
+        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda(Deveel.Filters.Filter,System.Type,System.String)">
             <summary>
             Produces an asynchrounous lambda expression that represents the filter
             </summary>
@@ -193,7 +193,7 @@
             expression tree of the filter, that can be used to compile an asynchrouns delegate.
             </returns>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda``1(Deveel.Filters.IFilter,System.String)">
+        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda``1(Deveel.Filters.Filter,System.String)">
             <summary>
             Produces an asynchrounous lambda expression that represents the filter
             </summary>
@@ -210,7 +210,7 @@
             expression tree of the filter, that can be used to compile an asynchrouns delegate.
             </returns>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.IFilter,System.Type,System.String,System.Object)">
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.Filter,System.Type,System.String,System.Object)">
             <summary>
             Compiles and evaluates the filter against the given parameter value.
             </summary>
@@ -238,7 +238,7 @@
             unhandled error.
             </exception>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.IFilter,System.Type,System.Object)">
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.Filter,System.Type,System.Object)">
             <summary>
             Compiles and evaluates the filter against the given parameter value.
             </summary>

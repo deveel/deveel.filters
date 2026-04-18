@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace Deveel.Filters {
 	public interface IFilterVisitor {
-		IFilter Visit(IFilter filter);
+		Filter Visit(Filter filter);
 
-		IFilter VisitFunction(IFunctionFilter filter);
+		Filter VisitFunction(FunctionFilter filter);
 
-		IFilter VisitConstant(IConstantFilter constant);
+		Filter VisitConstant(ConstantFilter constant);
 
-		IFilter VisitVariable(IVariableFilter variable);
+		Filter VisitVariable(VariableFilter variable);
 
-		IFilter VisitUnary(IUnaryFilter filter);
+		Filter VisitUnary(UnaryFilter filter);
 
-		IFilter VisitBinary(IBinaryFilter filter);
+		Filter VisitBinary(BinaryFilter filter);
 	}
 }

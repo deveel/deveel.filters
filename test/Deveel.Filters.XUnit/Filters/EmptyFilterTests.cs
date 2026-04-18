@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Deveel.Filters {
+﻿namespace Deveel.Filters {
 	public class EmptyFilterTests {
 		[Fact]
 		public static void BuildEmptyFilter() {
 			var filter = Filter.Empty;
 			Assert.NotNull(filter);
-			Assert.True(filter.IsEmpty());
+			Assert.True(filter.IsEmpty);
 			Assert.Equal(Filter.Empty, filter);
 		}
 
@@ -23,7 +17,7 @@ namespace Deveel.Filters {
 			Assert.NotEqual(binary, emptyFilter);
 			Assert.False(emptyFilter.Equals(binary));
 			Assert.False(binary.Equals(emptyFilter));
-			Assert.False(binary.IsEmpty());
+			Assert.False(binary.IsEmpty);
 		}
 
 		[Fact]
@@ -31,10 +25,10 @@ namespace Deveel.Filters {
 			var binary = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.LessThanOrEqual);
 
 			Assert.NotNull(binary);
-			Assert.True(binary.Left.IsEmpty());
+			Assert.True(binary.Left.IsEmpty);
 			Assert.Equal(Filter.Empty, binary.Left);
 
-			Assert.True(binary.Right.IsEmpty());
+			Assert.True(binary.Right.IsEmpty);
 			Assert.Equal(Filter.Empty, binary.Right);
 		}
 	}

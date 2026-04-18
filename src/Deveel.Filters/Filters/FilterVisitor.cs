@@ -1,7 +1,7 @@
 ﻿namespace Deveel.Filters {
     public class FilterVisitor : IFilterVisitor {
-		public IFilter Visit(IFilter filter) {
-			if (filter.IsEmpty())
+		public Filter Visit(Filter filter) {
+			if (filter.IsEmpty)
 				return Filter.Empty;
 
 			switch (filter.FilterType) {
@@ -13,22 +13,22 @@
 				case FilterType.LessThanOrEqual:
 				case FilterType.And:
 				case FilterType.Or:
-					return VisitBinary((IBinaryFilter) filter);
+					return VisitBinary((BinaryFilter) filter);
 				case FilterType.Not:
-					return VisitUnary((IUnaryFilter) filter);
+					return VisitUnary((UnaryFilter) filter);
 				case FilterType.Function:
-					return VisitFunction((IFunctionFilter)filter);
+					return VisitFunction((FunctionFilter)filter);
 				case FilterType.Constant:
-					return VisitConstant((IConstantFilter) filter);
+					return VisitConstant((ConstantFilter) filter);
 				case FilterType.Variable:
-					return VisitVariable((IVariableFilter)filter);
+					return VisitVariable((VariableFilter)filter);
 			}
 
 			throw new NotSupportedException($"The filter type '{filter.FilterType}' is not supported.");
 		}
 
-		public virtual IList<IFilter> VisitFunctionArguments(IList<IFilter>? arguments) {
-			var list = new List<IFilter>(arguments?.Count ?? 0);
+		public virtual IList<Filter> VisitFunctionArguments(IList<Filter>? arguments) {
+			var list = new List<Filter>(arguments?.Count ?? 0);
 			if (arguments != null) {
 				foreach (var argument in arguments) {
 					list.Add(Visit(argument));
@@ -38,7 +38,7 @@
 			return list;
 		}
 
-		public virtual IFilter VisitFunction(IFunctionFilter filter) {
+		public virtual Filter VisitFunction(FunctionFilter filter) {
 			var variable = VisitVariable(filter.Variable);
 			var arguments = VisitFunctionArguments(filter.Arguments);
 
@@ -53,21 +53,21 @@
 			return Filter.Function(variableFilter, filter.FunctionName, args);
 		}
 
-		public virtual IFilter VisitConstant(IConstantFilter constant) {
+		public virtual Filter VisitConstant(ConstantFilter constant) {
 			return new ConstantFilter(constant.Value);
 		}
 
-		public virtual IFilter VisitVariable(IVariableFilter variable) {
+		public virtual Filter VisitVariable(VariableFilter variable) {
 			return Filter.Variable(variable.VariableName);
 		}
 
-		public virtual IFilter VisitUnary(IUnaryFilter filter) {
+		public virtual Filter VisitUnary(UnaryFilter filter) {
 			var operand = (Filter) Visit(filter.Operand);
 
 			return Filter.Unary(operand, filter.FilterType);
 		}
 
-		public virtual IFilter VisitBinary(IBinaryFilter filter) {
+		public virtual Filter VisitBinary(BinaryFilter filter) {
 			var left = (Filter) Visit(filter.Left);
 			var right = (Filter) Visit(filter.Right);
 
