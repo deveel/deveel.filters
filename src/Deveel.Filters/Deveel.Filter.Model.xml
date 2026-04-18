@@ -55,6 +55,114 @@
         <member name="P:Deveel.Filters.ConstantFilterExpression.ExpressionType">
             <inheritdoc/>
         </member>
+        <member name="T:Deveel.Filters.FieldFilterExpressionBuilder">
+            <summary>
+            A builder that provides comparison and function operations
+            for a specific variable in a filter expression.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsEqualTo(System.Object)">
+            <summary>
+            Creates an equality comparison with the specified value.
+            </summary>
+            <param name="value">The value to compare against.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsNotEqualTo(System.Object)">
+            <summary>
+            Creates an inequality comparison with the specified value.
+            </summary>
+            <param name="value">The value to compare against.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsGreaterThan(System.Object)">
+            <summary>
+            Creates a greater-than comparison with the specified value.
+            </summary>
+            <param name="value">The value to compare against.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsGreaterThanOrEqualTo(System.Object)">
+            <summary>
+            Creates a greater-than-or-equal comparison with the specified value.
+            </summary>
+            <param name="value">The value to compare against.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsLessThan(System.Object)">
+            <summary>
+            Creates a less-than comparison with the specified value.
+            </summary>
+            <param name="value">The value to compare against.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsLessThanOrEqualTo(System.Object)">
+            <summary>
+            Creates a less-than-or-equal comparison with the specified value.
+            </summary>
+            <param name="value">The value to compare against.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsNull">
+            <summary>
+            Creates a null equality check for the variable.
+            </summary>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.IsNotNull">
+            <summary>
+            Creates a null inequality check for the variable.
+            </summary>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.HasFunction(System.String,System.Object[])">
+            <summary>
+            Creates a function call expression on the variable.
+            </summary>
+            <param name="functionName">The name of the function to invoke.</param>
+            <param name="arguments">The arguments to pass to the function.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.Function(System.String)">
+            <summary>
+            Starts building a function call expression on the variable,
+            returning a <see cref="T:Deveel.Filters.FunctionFilterExpressionBuilder"/> that
+            allows adding arguments fluently.
+            </summary>
+            <param name="functionName">The name of the function to invoke.</param>
+            <returns>
+            Returns a <see cref="T:Deveel.Filters.FunctionFilterExpressionBuilder"/> to add
+            arguments and finalize the function expression.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.Contains(System.Object)">
+            <summary>
+            Creates a "contains" function call on the variable with the specified value.
+            </summary>
+            <param name="value">The value to check for containment.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.StartsWith(System.Object)">
+            <summary>
+            Creates a "startsWith" function call on the variable with the specified value.
+            </summary>
+            <param name="value">The value to check as a prefix.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.EndsWith(System.Object)">
+            <summary>
+            Creates an "endsWith" function call on the variable with the specified value.
+            </summary>
+            <param name="value">The value to check as a suffix.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FieldFilterExpressionBuilder.In(System.Object[])">
+            <summary>
+            Creates an "in" function call on the variable with the specified values.
+            </summary>
+            <param name="values">The set of values to check membership against.</param>
+            <returns>Returns the parent builder for further chaining.</returns>
+        </member>
         <member name="T:Deveel.Filters.FilterEvaluationException">
             <summary>
             An exception thrown when the evaluation of
@@ -320,6 +428,69 @@
             Thrown when <paramref name="variableName"/> is <c>null</c>, whitespace,
             or not a valid variable reference.
             </exception>
+        </member>
+        <member name="T:Deveel.Filters.FilterExpressionBuilder">
+            <summary>
+            A fluent builder for creating <see cref="T:Deveel.Filters.FilterExpression"/> objects.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionBuilder.Where(System.String)">
+            <summary>
+            Starts a filter expression with a reference to a variable.
+            </summary>
+            <param name="variableName">The name of the variable to reference.</param>
+            <returns>
+            Returns a <see cref="T:Deveel.Filters.FieldFilterExpressionBuilder"/> to continue building
+            the filter for the specified variable.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionBuilder.And(System.String)">
+            <summary>
+            Combines the current expression with another using a logical AND,
+            starting a new condition on the specified variable.
+            </summary>
+            <param name="variableName">The name of the variable to reference.</param>
+            <returns>
+            Returns a <see cref="T:Deveel.Filters.FieldFilterExpressionBuilder"/> to continue building
+            the filter for the specified variable.
+            </returns>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when no previous expression has been set.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionBuilder.Or(System.String)">
+            <summary>
+            Combines the current expression with another using a logical OR,
+            starting a new condition on the specified variable.
+            </summary>
+            <param name="variableName">The name of the variable to reference.</param>
+            <returns>
+            Returns a <see cref="T:Deveel.Filters.FieldFilterExpressionBuilder"/> to continue building
+            the filter for the specified variable.
+            </returns>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when no previous expression has been set.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionBuilder.Not">
+            <summary>
+            Negates the current expression.
+            </summary>
+            <returns>
+            Returns this builder instance for further chaining.
+            </returns>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when no previous expression has been set.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionBuilder.Build">
+            <summary>
+            Builds the final <see cref="T:Deveel.Filters.FilterExpression"/>.
+            </summary>
+            <returns>
+            Returns the constructed <see cref="T:Deveel.Filters.FilterExpression"/>, or
+            <see cref="F:Deveel.Filters.FilterExpression.Empty"/> if no conditions were added.
+            </returns>
         </member>
         <member name="T:Deveel.Filters.FilterExpressionType">
             <summary>
@@ -689,6 +860,38 @@
         </member>
         <member name="P:Deveel.Filters.FunctionFilterExpression.ExpressionType">
             <inheritdoc/>
+        </member>
+        <member name="T:Deveel.Filters.FunctionFilterExpressionBuilder">
+            <summary>
+            A fluent builder for constructing a <see cref="T:Deveel.Filters.FunctionFilterExpression"/>
+            with typed arguments before finalizing it into the parent builder.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FunctionFilterExpressionBuilder.Argument(System.Object)">
+            <summary>
+            Adds a constant argument to the function call.
+            </summary>
+            <param name="value">The constant value to add as an argument.</param>
+            <returns>Returns this builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FunctionFilterExpressionBuilder.ArgumentVariable(System.String)">
+            <summary>
+            Adds a variable reference argument to the function call.
+            </summary>
+            <param name="variableName">The name of the variable to reference as an argument.</param>
+            <returns>Returns this builder for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FunctionFilterExpressionBuilder.Then">
+            <summary>
+            Finalizes the function expression and returns the parent builder.
+            </summary>
+            <returns>Returns the parent <see cref="T:Deveel.Filters.FilterExpressionBuilder"/> for further chaining.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FunctionFilterExpressionBuilder.Build">
+            <summary>
+            Finalizes the function expression and builds the resulting <see cref="T:Deveel.Filters.FilterExpression"/>.
+            </summary>
+            <returns>Returns the constructed <see cref="T:Deveel.Filters.FilterExpression"/>.</returns>
         </member>
         <member name="T:Deveel.Filters.JsonElementUtil">
             <summary>
