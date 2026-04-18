@@ -3,7 +3,7 @@
 	public static class LambdaFunctionTests {
 		[Fact]
 		public static void SimpleBinaryAsLambda() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
 
 			var result = filter.Evaluate("x", 20);
 
@@ -12,7 +12,7 @@
 
 		[Fact]
 		public static void SimpleUnaryAsLambda() {
-			var filter = Filter.Unary(Filter.Variable("x"), FilterType.Not);
+			var filter = FilterExpression.Unary(FilterExpression.Variable("x"), FilterExpressionType.Not);
 
 			var result = filter.Evaluate("x", true);
 			Assert.False(result);
@@ -20,10 +20,10 @@
 
 		[Fact]
 		public static void ComplexBinaryWithFunctionCallAsLabda() {
-			var filter = Filter.Binary(
-				Filter.Function(Filter.Variable("x"), "Substring", new[] { Filter.Constant(1) }),
-				Filter.Constant("oobar"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Function(FilterExpression.Variable("x"), "Substring", new[] { FilterExpression.Constant(1) }),
+				FilterExpression.Constant("oobar"),
+				FilterExpressionType.Equal);
 
 			var result = filter.Evaluate("x", "foobar");
 			Assert.True(result);
@@ -31,7 +31,7 @@
 
 		[Fact]
 		public static void SimpleFunctionCallAslambda() {
-			var filter = Filter.Function(Filter.Variable("x"), "StartsWith", new[] { Filter.Constant("foo") });
+			var filter = FilterExpression.Function(FilterExpression.Variable("x"), "StartsWith", new[] { FilterExpression.Constant("foo") });
 
 			var result = filter.Evaluate("x", "foobar");
 			Assert.True(result);
@@ -39,10 +39,10 @@
 
 		[Fact]
 		public static void BinaryWithLogicalAsLambda() {
-			var filter = Filter.Binary(
-					Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan),
-					Filter.Binary(Filter.Variable("x"), Filter.Constant(20), FilterType.LessThan),
-					FilterType.And);
+			var filter = FilterExpression.Binary(
+					FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan),
+					FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(20), FilterExpressionType.LessThan),
+					FilterExpressionType.And);
 
 			var result = filter.Evaluate(15);
 			Assert.True(result);
@@ -50,34 +50,34 @@
 
 		[Fact]
 		public static void LogicalBinaryWithLeftEmpty() {
-			var filter = Filter.Binary(Filter.Empty, Filter.GreaterThan(Filter.Variable("x"), Filter.Constant(10)), FilterType.And);
+			var filter = FilterExpression.Binary(FilterExpression.Empty, FilterExpression.GreaterThan(FilterExpression.Variable("x"), FilterExpression.Constant(10)), FilterExpressionType.And);
 			var result = filter.Evaluate(15);
 			Assert.True(result);
 		}
 
 		[Fact]
 		public static void LogicalBinaryWithRightEmpty() {
-			var filter = Filter.Binary(Filter.GreaterThan(Filter.Variable("x"), Filter.Constant(10)), Filter.Empty, FilterType.And);
+			var filter = FilterExpression.Binary(FilterExpression.GreaterThan(FilterExpression.Variable("x"), FilterExpression.Constant(10)), FilterExpression.Empty, FilterExpressionType.And);
 			var result = filter.Evaluate(15);
 			Assert.True(result);
 		}
 
 		[Fact]
 		public static void LogicalBinaryWithBothEmpty() {
-			var filter = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.And);
+			var filter = FilterExpression.Binary(FilterExpression.Empty, FilterExpression.Empty, FilterExpressionType.And);
 
 			Assert.Throws<FilterEvaluationException>(() => filter.Evaluate(15));
 		}
 
 		[Theory]
-		[InlineData("x", 10, FilterType.Equal, true)]
-		[InlineData("x", 10, FilterType.NotEqual, false)]
-		[InlineData("x", 10, FilterType.GreaterThan, false)]
-		[InlineData("x", 10, FilterType.GreaterThanOrEqual, true)]
-		[InlineData("x", 10, FilterType.LessThan, false)]
-		[InlineData("x", 10, FilterType.LessThanOrEqual, true)]
-		public static void FilterByBinaryAsLabda(string varName, object value, FilterType filterType, bool expected) {
-			var filter = Filter.Binary(Filter.Variable(varName), Filter.Constant(value), filterType);
+		[InlineData("x", 10, FilterExpressionType.Equal, true)]
+		[InlineData("x", 10, FilterExpressionType.NotEqual, false)]
+		[InlineData("x", 10, FilterExpressionType.GreaterThan, false)]
+		[InlineData("x", 10, FilterExpressionType.GreaterThanOrEqual, true)]
+		[InlineData("x", 10, FilterExpressionType.LessThan, false)]
+		[InlineData("x", 10, FilterExpressionType.LessThanOrEqual, true)]
+		public static void FilterByBinaryAsLabda(string varName, object value, FilterExpressionType expressionType, bool expected) {
+			var filter = FilterExpression.Binary(FilterExpression.Variable(varName), FilterExpression.Constant(value), expressionType);
 			
 			var result = filter.Evaluate(value.GetType(), value);
 
@@ -85,14 +85,14 @@
 		}
 
 		[Theory]
-		[InlineData("x", "2015-01-01", FilterType.Equal, true)]
-		[InlineData("x", "2015-01-01", FilterType.NotEqual, false)]
-		[InlineData("x", "2015-01-01", FilterType.GreaterThan, false)]
-		[InlineData("x", "2015-01-01", FilterType.GreaterThanOrEqual, true)]
-		[InlineData("x", "2015-01-01", FilterType.LessThan, false)]
-		[InlineData("x", "2015-01-01", FilterType.LessThanOrEqual, true)]
-		public static void FilterByDateTimeAsLambda(string varName, string dateTimeString, FilterType filterType, bool expected) {
-			var filter = Filter.Binary(Filter.Variable(varName), Filter.Constant(DateTime.Parse(dateTimeString)), filterType);
+		[InlineData("x", "2015-01-01", FilterExpressionType.Equal, true)]
+		[InlineData("x", "2015-01-01", FilterExpressionType.NotEqual, false)]
+		[InlineData("x", "2015-01-01", FilterExpressionType.GreaterThan, false)]
+		[InlineData("x", "2015-01-01", FilterExpressionType.GreaterThanOrEqual, true)]
+		[InlineData("x", "2015-01-01", FilterExpressionType.LessThan, false)]
+		[InlineData("x", "2015-01-01", FilterExpressionType.LessThanOrEqual, true)]
+		public static void FilterByDateTimeAsLambda(string varName, string dateTimeString, FilterExpressionType expressionType, bool expected) {
+			var filter = FilterExpression.Binary(FilterExpression.Variable(varName), FilterExpression.Constant(DateTime.Parse(dateTimeString)), expressionType);
 
 			var result = filter.Evaluate(DateTime.Parse(dateTimeString));
 
@@ -101,7 +101,7 @@
 
 		[Fact]
 		public static async Task SimpleBinaryAsAsyncLambda() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
 
 			var result = await filter.EvaluateAsync(20);
 			Assert.True(result);
@@ -109,7 +109,7 @@
 
 		[Fact]
 		public static void SimpleBinaryLambdaOnComplexObject() {
-			var filter = Filter.Binary(Filter.Variable("x.name"), Filter.Constant("antonello"), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x.name"), FilterExpression.Constant("antonello"), FilterExpressionType.Equal);
 			var obj = new {
 				name = "antonello"
 			};

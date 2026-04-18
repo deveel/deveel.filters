@@ -1,45 +1,74 @@
-﻿using MongoDB.Bson;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace Deveel.Filters {
+	/// <summary>
+	/// Provides methods to convert <see cref="FilterExpression"/> instances to and from
+	/// MongoDB <see cref="BsonDocument"/> representations.
+	/// </summary>
 	public static class BsonFilter {
+		/// <summary>
+		/// Gets the string representation of the specified CLR type for use in BSON filter documents.
+		/// </summary>
+		/// <param name="type">The CLR type to convert.</param>
+		/// <returns>A string identifier for the type.</returns>
 		public static string GetTypeString(Type type)
 			=> BsonFilterUtil.GetValueTypeString(type);
 
+		/// <summary>
+		/// Gets the CLR <see cref="Type"/> corresponding to the specified type string.
+		/// </summary>
+		/// <param name="typeString">The type string to resolve.</param>
+		/// <returns>The corresponding CLR <see cref="Type"/>.</returns>
+		/// <exception cref="FilterException">
+		/// Thrown when the type string cannot be resolved.
+		/// </exception>
 		public static Type GetTypeFromString(string typeString)
 			=> BsonFilterUtil.GetTypeFromString(typeString);
 
-		public static Filter FromBson(BsonDocument document) {
+		/// <summary>
+		/// Deserializes a <see cref="BsonDocument"/> into a <see cref="FilterExpression"/>.
+		/// </summary>
+		/// <param name="document">The BSON document to deserialize.</param>
+		/// <returns>The deserialized <see cref="FilterExpression"/>.</returns>
+		/// <exception cref="FilterException">
+		/// Thrown when the document is missing required elements or contains an unsupported filter type.
+		/// </exception>
+		public static FilterExpression FromBson(BsonDocument document) {
 			if (!document.TryGetElement("type", out var typeElement))
 				throw new FilterException("The type of the filter is not specified");
 
-			if (!Enum.TryParse<FilterType>(typeElement.Value.AsString, true, out var filterType))
+			if (!Enum.TryParse<FilterExpressionType>(typeElement.Value.AsString, true, out var filterType))
 				throw new FilterException($"The filter type '{typeElement.Value.AsString}' is not valid");
 
 			switch (filterType) {
-				case FilterType.Equal:
-				case FilterType.NotEqual:
-				case FilterType.GreaterThan:
-				case FilterType.GreaterThanOrEqual:
-				case FilterType.LessThan:
-				case FilterType.LessThanOrEqual:
-				case FilterType.And:
-				case FilterType.Or:
+				case FilterExpressionType.Equal:
+				case FilterExpressionType.NotEqual:
+				case FilterExpressionType.GreaterThan:
+				case FilterExpressionType.GreaterThanOrEqual:
+				case FilterExpressionType.LessThan:
+				case FilterExpressionType.LessThanOrEqual:
+				case FilterExpressionType.And:
+				case FilterExpressionType.Or:
 					return FromBinaryBsonDocument(filterType, document);
-				case FilterType.Not:
+				case FilterExpressionType.Not:
 					return FromNotBsonDocument(document);
-				case FilterType.Function:
+				case FilterExpressionType.Function:
 					return FromFunctionBsonDocument(document);
-				case FilterType.Constant:
+				case FilterExpressionType.Constant:
 					return FromConstantBsonDocument(document);
-				case FilterType.Variable:
+				case FilterExpressionType.Variable:
 					return FromVariableBsonDocument(document);
 				default:
 					throw new FilterException($"The filter type '{filterType}' is not supported");
 			}
 		}
 
-		private static Filter FromFunctionBsonDocument(BsonDocument document) {
+		private static FilterExpression FromFunctionBsonDocument(BsonDocument document) {
 			if (!document.TryGetElement("function", out var functionElement))
 				throw new FilterException("The function name is not specified");
 
@@ -51,27 +80,27 @@ namespace Deveel.Filters {
 
 			var variable = FromVariableBsonDocument(variableElement.Value.AsBsonDocument);
 			var functionName = functionElement.Value.AsString;
-			var arguments = new Filter[0];
+			var arguments = new FilterExpression[0];
 			if (document.TryGetElement("arguments", out var argumentsElement)) {
 				var argumentsArray = argumentsElement.Value.AsBsonArray;
-				arguments = new Filter[argumentsArray.Count];
+				arguments = new FilterExpression[argumentsArray.Count];
 				for (var i = 0; i < argumentsArray.Count; i++) {
 					var argument = argumentsArray[i].AsBsonDocument;
 					arguments[i] = FromBson(argument);
 				}
 			}
-			return Filter.Function(variable, functionName, arguments);
+			return FilterExpression.Function(variable, functionName, arguments);
 		}
 
-		private static VariableFilter FromVariableBsonDocument(BsonDocument document) {
+		private static VariableFilterExpression FromVariableBsonDocument(BsonDocument document) {
 			if (!document.TryGetElement("varRef", out var refElement))
 				throw new FilterException("The variable name is not specified");
 
 			var variableName = refElement.Value.AsString;
-			return Filter.Variable(variableName);
+			return FilterExpression.Variable(variableName);
 		}
 
-		private static ConstantFilter FromConstantBsonDocument(BsonDocument document) {
+		private static ConstantFilterExpression FromConstantBsonDocument(BsonDocument document) {
 			if (!document.TryGetElement("value", out var valueElement))
 				throw new FilterException("The value of the constant filter is not specified");
 			if (!document.TryGetElement("valueType", out var valueTypeElement))
@@ -83,9 +112,15 @@ namespace Deveel.Filters {
 
 			var value = ConvertBsonValue(valueType, valueElement.Value);
 
-			return Filter.Constant(value);
+			return FilterExpression.Constant(value);
 		}
 
+		/// <summary>
+		/// Converts a <see cref="BsonValue"/> to a CLR object of the specified type.
+		/// </summary>
+		/// <param name="valueType">The expected CLR type of the value.</param>
+		/// <param name="value">The BSON value to convert.</param>
+		/// <returns>The converted CLR value, or <c>null</c> if the value is <see cref="BsonNull"/>.</returns>
 		public static object? ConvertBsonValue(Type valueType, BsonValue value) {
 			if (valueType == typeof(BsonNull) ||
 				value == BsonNull.Value)
@@ -119,15 +154,15 @@ namespace Deveel.Filters {
 			return BsonSerializer.Deserialize(value.ToBsonDocument(), valueType);
 		}
 
-		private static UnaryFilter FromNotBsonDocument(BsonDocument document) {
+		private static UnaryFilterExpression FromNotBsonDocument(BsonDocument document) {
 			if (!document.TryGetElement("operand", out var notElement))
 				throw new FilterException("The NOT filter is not specified");
 
 			var not = FromBson(notElement.Value.AsBsonDocument);
-			return Filter.Not(not);
+			return FilterExpression.Not(not);
 		}
 
-		private static BinaryFilter FromBinaryBsonDocument(FilterType filterType, BsonDocument document) {
+		private static BinaryFilterExpression FromBinaryBsonDocument(FilterExpressionType expressionType, BsonDocument document) {
 			if (!document.TryGetElement("left", out var leftElement))
 				throw new FilterException("The left operand of the binary filter is not specified");
 			if (!document.TryGetElement("right", out var rightElement))
@@ -135,7 +170,7 @@ namespace Deveel.Filters {
 
 			var left = FromBson(leftElement.Value.AsBsonDocument);
 			var right = FromBson(rightElement.Value.AsBsonDocument);
-			return Filter.Binary(left, right, filterType);
+			return FilterExpression.Binary(left, right, expressionType);
 		}
 	}
 }

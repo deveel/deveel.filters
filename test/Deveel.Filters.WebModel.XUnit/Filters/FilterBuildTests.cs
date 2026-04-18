@@ -17,13 +17,13 @@ namespace Deveel.Filters {
 
 			var result = filter.BuildFilter();
 			Assert.NotNull(result);
-			var binary = Assert.IsType<BinaryFilter>(result);
-			Assert.Equal(FilterType.Equal, result.FilterType);
+			var binary = Assert.IsType<BinaryFilterExpression>(result);
+			Assert.Equal(FilterExpressionType.Equal, result.ExpressionType);
 
-			var left = Assert.IsType<VariableFilter>(binary.Left);
+			var left = Assert.IsType<VariableFilterExpression>(binary.Left);
 			Assert.Equal("foo", left.VariableName);
 
-			var right = Assert.IsType<ConstantFilter>(binary.Right);
+			var right = Assert.IsType<ConstantFilterExpression>(binary.Right);
 			Assert.Equal(42, right.Value);
 		}
 
@@ -38,14 +38,14 @@ namespace Deveel.Filters {
 			var result = filter.BuildFilter();
 
 			Assert.NotNull(result);
-			Assert.IsType<BinaryFilter>(result);
-			var binary = (BinaryFilter) result;
-			Assert.Equal(FilterType.Equal, binary.FilterType);
+			Assert.IsType<BinaryFilterExpression>(result);
+			var binary = (BinaryFilterExpression) result;
+			Assert.Equal(FilterExpressionType.Equal, binary.ExpressionType);
 
-			var left = Assert.IsType<VariableFilter>(binary.Left);
+			var left = Assert.IsType<VariableFilterExpression>(binary.Left);
 			Assert.Equal("foo", left.VariableName);
 
-			var right = Assert.IsType<ConstantFilter>(binary.Right);
+			var right = Assert.IsType<ConstantFilterExpression>(binary.Right);
 			Assert.Equal(42, right.Value);
 		}
 
@@ -65,16 +65,16 @@ namespace Deveel.Filters {
 			};
 			var result = filter.BuildFilter();
 			Assert.NotNull(result);
-			Assert.IsType<UnaryFilter>(result);
-			Assert.Equal(FilterType.Not, result.FilterType);
+			Assert.IsType<UnaryFilterExpression>(result);
+			Assert.Equal(FilterExpressionType.Not, result.ExpressionType);
 
-			var binary = Assert.IsType<BinaryFilter>(((UnaryFilter) result).Operand);
-			Assert.Equal(FilterType.Equal, binary.FilterType);
+			var binary = Assert.IsType<BinaryFilterExpression>(((UnaryFilterExpression) result).Operand);
+			Assert.Equal(FilterExpressionType.Equal, binary.ExpressionType);
 
-			var left = Assert.IsType<VariableFilter>(binary.Left);
+			var left = Assert.IsType<VariableFilterExpression>(binary.Left);
 			Assert.Equal("foo", left.VariableName);
 
-			var right = Assert.IsType<ConstantFilter>(binary.Right);
+			var right = Assert.IsType<ConstantFilterExpression>(binary.Right);
 			Assert.Equal(42, right.Value);
 		}
 
@@ -86,9 +86,9 @@ namespace Deveel.Filters {
 
 			var result = filter.BuildFilter();
 			Assert.NotNull(result);
-			Assert.IsType<VariableFilter>(result);
-			Assert.Equal(FilterType.Variable, result.FilterType);
-			var variable = (VariableFilter) result;
+			Assert.IsType<VariableFilterExpression>(result);
+			Assert.Equal(FilterExpressionType.Variable, result.ExpressionType);
+			var variable = (VariableFilterExpression) result;
 			Assert.Equal("foo", variable.VariableName);
 		}
 
@@ -99,9 +99,9 @@ namespace Deveel.Filters {
 			};
 			var result = filter.BuildFilter();
 			Assert.NotNull(result);
-			Assert.IsType<ConstantFilter>(result);
-			Assert.Equal(FilterType.Constant, result.FilterType);
-			var constant = (ConstantFilter) result;
+			Assert.IsType<ConstantFilterExpression>(result);
+			Assert.Equal(FilterExpressionType.Constant, result.ExpressionType);
+			var constant = (ConstantFilterExpression) result;
 			Assert.Equal(42, constant.Value);
 		}
 
@@ -113,9 +113,9 @@ namespace Deveel.Filters {
 
 			var result = filter.BuildFilter();
 			Assert.NotNull(result);
-			Assert.IsType<ConstantFilter>(result);
-			Assert.Equal(FilterType.Constant, result.FilterType);
-			var constant = (ConstantFilter) result;
+			Assert.IsType<ConstantFilterExpression>(result);
+			Assert.Equal(FilterExpressionType.Constant, result.ExpressionType);
+			var constant = (ConstantFilterExpression) result;
 			Assert.Equal(42, constant.Value);
 		}
 
@@ -139,20 +139,20 @@ namespace Deveel.Filters {
 			var result = function.BuildFilter();
 
 			Assert.NotNull(result);
-			Assert.IsType<FunctionFilter>(result);
-			Assert.Equal(FilterType.Function, result.FilterType);
+			Assert.IsType<FunctionFilterExpression>(result);
+			Assert.Equal(FilterExpressionType.Function, result.ExpressionType);
 
-			var func = (FunctionFilter) result;
+			var func = (FunctionFilterExpression) result;
 			Assert.Equal("test", func.FunctionName);
 			Assert.NotNull(func.Variable);
 			Assert.Equal("x", func.Variable.VariableName);
 			Assert.NotNull(func.Arguments);
 			Assert.Equal(2, func.Arguments.Length);
 
-			var arg1 = Assert.IsType<VariableFilter>(func.Arguments[0]);
+			var arg1 = Assert.IsType<VariableFilterExpression>(func.Arguments[0]);
 			Assert.Equal("foo", arg1.VariableName);
 
-			var arg2 = Assert.IsType<ConstantFilter>(func.Arguments[1]);
+			var arg2 = Assert.IsType<ConstantFilterExpression>(func.Arguments[1]);
 			Assert.Equal(42, arg2.Value);
 		}
 

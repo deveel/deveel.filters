@@ -4,26 +4,24 @@ using Xunit;
 
 namespace Deveel.Filters
 {
-	[Trait("Feature", "EF Core Dynamic Filter")]
-	public class EfCoreDynamicFilterTests : IAsyncLifetime
+	public abstract class EfCoreDynamicFilterTestsBase : IAsyncLifetime
 	{
 		private TestDbContext _db = null!;
 
+		protected abstract DbContextOptions<TestDbContext> CreateOptions();
+
 		public async Task InitializeAsync()
 		{
-			var options = new DbContextOptionsBuilder<TestDbContext>()
-				.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-				.Options;
-
+			var options = CreateOptions();
 			_db = new TestDbContext(options);
-
+			await _db.Database.EnsureCreatedAsync();
 			await SeedDataAsync();
 		}
 
-		public Task DisposeAsync()
+		public async Task DisposeAsync()
 		{
+			await _db.Database.EnsureDeletedAsync();
 			_db.Dispose();
-			return Task.CompletedTask;
 		}
 
 		private async Task SeedDataAsync()
@@ -66,10 +64,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_StringEquality_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("Name"),
-				Filter.Constant("John Doe"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Name"),
+				FilterExpression.Constant("John Doe"),
+				FilterExpressionType.Equal);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -81,10 +79,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_BooleanEquality_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("IsActive"),
-				Filter.Constant(true),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("IsActive"),
+				FilterExpression.Constant(true),
+				FilterExpressionType.Equal);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -98,18 +96,18 @@ namespace Deveel.Filters
 		#region Comparison Operators
 
 		[Theory]
-		[InlineData(FilterType.GreaterThan, 30, 2)]
-		[InlineData(FilterType.GreaterThanOrEqual, 30, 3)]
-		[InlineData(FilterType.LessThan, 30, 2)]
-		[InlineData(FilterType.LessThanOrEqual, 30, 3)]
-		[InlineData(FilterType.Equal, 30, 1)]
-		[InlineData(FilterType.NotEqual, 30, 4)]
-		public async Task Filter_IntComparison_ShouldQueryDbSet(FilterType filterType, int value, int expectedCount)
+		[InlineData(FilterExpressionType.GreaterThan, 30, 2)]
+		[InlineData(FilterExpressionType.GreaterThanOrEqual, 30, 3)]
+		[InlineData(FilterExpressionType.LessThan, 30, 2)]
+		[InlineData(FilterExpressionType.LessThanOrEqual, 30, 3)]
+		[InlineData(FilterExpressionType.Equal, 30, 1)]
+		[InlineData(FilterExpressionType.NotEqual, 30, 4)]
+		public async Task Filter_IntComparison_ShouldQueryDbSet(FilterExpressionType expressionType, int value, int expectedCount)
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(value),
-				filterType);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(value),
+				expressionType);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -120,10 +118,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_DoubleGreaterThan_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("Salary"),
-				Filter.Constant(70000.0),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Salary"),
+				FilterExpression.Constant(70000.0),
+				FilterExpressionType.GreaterThan);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -140,10 +138,10 @@ namespace Deveel.Filters
 		public async Task Filter_And_ShouldQueryDbSet()
 		{
 			// IsActive == true && Age > 30
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("IsActive"), Filter.Constant(true), FilterType.Equal),
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(30), FilterType.GreaterThan),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("IsActive"), FilterExpression.Constant(true), FilterExpressionType.Equal),
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(30), FilterExpressionType.GreaterThan),
+				FilterExpressionType.And);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -156,10 +154,10 @@ namespace Deveel.Filters
 		public async Task Filter_Or_ShouldQueryDbSet()
 		{
 			// Age < 26 || Age > 40
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(26), FilterType.LessThan),
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(40), FilterType.GreaterThan),
-				FilterType.Or);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(26), FilterExpressionType.LessThan),
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(40), FilterExpressionType.GreaterThan),
+				FilterExpressionType.Or);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -171,9 +169,9 @@ namespace Deveel.Filters
 		public async Task Filter_Not_ShouldQueryDbSet()
 		{
 			// !(IsActive == true)
-			var filter = Filter.Unary(
-				Filter.Binary(Filter.Variable("IsActive"), Filter.Constant(true), FilterType.Equal),
-				FilterType.Not);
+			var filter = FilterExpression.Unary(
+				FilterExpression.Binary(FilterExpression.Variable("IsActive"), FilterExpression.Constant(true), FilterExpressionType.Equal),
+				FilterExpressionType.Not);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -190,13 +188,13 @@ namespace Deveel.Filters
 		public async Task Filter_ComplexNested_ShouldQueryDbSet()
 		{
 			// (Age >= 25 && Age <= 35) && IsActive == true
-			var filter = Filter.Binary(
-				Filter.Binary(
-					Filter.Binary(Filter.Variable("Age"), Filter.Constant(25), FilterType.GreaterThanOrEqual),
-					Filter.Binary(Filter.Variable("Age"), Filter.Constant(35), FilterType.LessThanOrEqual),
-					FilterType.And),
-				Filter.Binary(Filter.Variable("IsActive"), Filter.Constant(true), FilterType.Equal),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(
+					FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(25), FilterExpressionType.GreaterThanOrEqual),
+					FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(35), FilterExpressionType.LessThanOrEqual),
+					FilterExpressionType.And),
+				FilterExpression.Binary(FilterExpression.Variable("IsActive"), FilterExpression.Constant(true), FilterExpressionType.Equal),
+				FilterExpressionType.And);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -216,10 +214,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_NavigationProperty_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("Department.Name"),
-				Filter.Constant("Engineering"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Department.Name"),
+				FilterExpression.Constant("Engineering"),
+				FilterExpressionType.Equal);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People
@@ -234,10 +232,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_NavigationPropertyIntComparison_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("Department.Budget"),
-				Filter.Constant(300000),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Department.Budget"),
+				FilterExpression.Constant(300000),
+				FilterExpressionType.GreaterThan);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People
@@ -256,10 +254,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_NullComparison_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("DepartmentId"),
-				Filter.Constant(null),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("DepartmentId"),
+				FilterExpression.Constant(null),
+				FilterExpressionType.Equal);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -271,10 +269,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_NotNullComparison_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("DepartmentId"),
-				Filter.Constant(null),
-				FilterType.NotEqual);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("DepartmentId"),
+				FilterExpression.Constant(null),
+				FilterExpressionType.NotEqual);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -289,10 +287,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_StringContains_ShouldQueryDbSet()
 		{
-			var filter = Filter.Function(
-				Filter.Variable("Name"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Name"),
 				"Contains",
-				new[] { Filter.Constant("John") });
+				new[] { FilterExpression.Constant("John") });
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -303,10 +301,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_StringStartsWith_ShouldQueryDbSet()
 		{
-			var filter = Filter.Function(
-				Filter.Variable("Name"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Name"),
 				"StartsWith",
-				new[] { Filter.Constant("J") });
+				new[] { FilterExpression.Constant("J") });
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -317,10 +315,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_StringEndsWith_ShouldQueryDbSet()
 		{
-			var filter = Filter.Function(
-				Filter.Variable("Name"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Name"),
 				"EndsWith",
-				new[] { Filter.Constant("son") });
+				new[] { FilterExpression.Constant("son") });
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -337,10 +335,10 @@ namespace Deveel.Filters
 		public async Task Filter_DateTimeComparison_ShouldQueryDbSet()
 		{
 			var cutoff = new DateTime(1995, 1, 1);
-			var filter = Filter.Binary(
-				Filter.Variable("BirthDate"),
-				Filter.Constant(cutoff),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("BirthDate"),
+				FilterExpression.Constant(cutoff),
+				FilterExpressionType.GreaterThan);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -356,10 +354,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_DecimalComparison_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Price"), Filter.Constant(100m), FilterType.GreaterThan),
-				Filter.Binary(Filter.Variable("IsAvailable"), Filter.Constant(true), FilterType.Equal),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Price"), FilterExpression.Constant(100m), FilterExpressionType.GreaterThan),
+				FilterExpression.Binary(FilterExpression.Variable("IsAvailable"), FilterExpression.Constant(true), FilterExpressionType.Equal),
+				FilterExpressionType.And);
 
 			var lambda = filter.AsDynamicLambda<Product>();
 			var results = await _db.Products.Where(lambda).ToListAsync();
@@ -375,10 +373,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_ProductByCategory_ShouldQueryDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("CategoryId"),
-				Filter.Constant(1),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("CategoryId"),
+				FilterExpression.Constant(1),
+				FilterExpressionType.Equal);
 
 			var lambda = filter.AsDynamicLambda<Product>();
 			var results = await _db.Products.Where(lambda).ToListAsync();
@@ -393,10 +391,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_WithOrderBy_ShouldQueryAndSortDbSet()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("IsActive"),
-				Filter.Constant(true),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("IsActive"),
+				FilterExpression.Constant(true),
+				FilterExpressionType.Equal);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People
@@ -417,10 +415,10 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_NoMatches_ShouldReturnEmpty()
 		{
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(100),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(100),
+				FilterExpressionType.GreaterThan);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();
@@ -435,7 +433,7 @@ namespace Deveel.Filters
 		[Fact]
 		public async Task Filter_ConstantTrue_ShouldReturnAll()
 		{
-			var filter = Filter.Constant(true);
+			var filter = FilterExpression.Constant(true);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var results = await _db.People.Where(lambda).ToListAsync();

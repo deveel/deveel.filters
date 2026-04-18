@@ -8,9 +8,9 @@ namespace Deveel.Filters {
 	public static class FilterFactoryTests {
 		[Fact]
 		public static void CreateVariable() {
-			var filter = Filter.Variable("x");
+			var filter = FilterExpression.Variable("x");
 			Assert.NotNull(filter);
-			Assert.Equal(FilterType.Variable, filter.FilterType);
+			Assert.Equal(FilterExpressionType.Variable, filter.ExpressionType);
 			Assert.Equal("x", filter.VariableName);
 		}
 
@@ -24,14 +24,14 @@ namespace Deveel.Filters {
 		[InlineData("x-2")]
 		[InlineData("x 2")]
 		public static void CreateVariableWithBadName(string? varName) {
-			Assert.Throws<ArgumentException>(() => Filter.Variable(varName));
+			Assert.Throws<ArgumentException>(() => FilterExpression.Variable(varName));
 		}
 
 		[Fact]
 		public static void CreateConstant() {
-			var filter = Filter.Constant(123);
+			var filter = FilterExpression.Constant(123);
 			Assert.NotNull(filter);
-			Assert.Equal(FilterType.Constant, filter.FilterType);
+			Assert.Equal(FilterExpressionType.Constant, filter.ExpressionType);
 			Assert.Equal(123, filter.Value);
 		}
 	}

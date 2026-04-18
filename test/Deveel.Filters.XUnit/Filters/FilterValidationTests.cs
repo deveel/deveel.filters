@@ -15,7 +15,7 @@ namespace Deveel.Filters {
 		[InlineData("x y", false)]
 		[InlineData("x+y", false)]
 		public static void IsValidReference(string? variableName, bool expected) {
-			Assert.Equal(expected, Filter.IsValidReference(variableName!));
+			Assert.Equal(expected, FilterExpression.IsValidReference(variableName!));
 		}
 
 		#endregion
@@ -23,13 +23,13 @@ namespace Deveel.Filters {
 		#region Filter.Binary invalid type
 
 		[Theory]
-		[InlineData(FilterType.Not)]
-		[InlineData(FilterType.Function)]
-		[InlineData(FilterType.Constant)]
-		[InlineData(FilterType.Variable)]
-		public static void CreateBinaryWithInvalidFilterType(FilterType filterType) {
+		[InlineData(FilterExpressionType.Not)]
+		[InlineData(FilterExpressionType.Function)]
+		[InlineData(FilterExpressionType.Constant)]
+		[InlineData(FilterExpressionType.Variable)]
+		public static void CreateBinaryWithInvalidFilterType(FilterExpressionType expressionType) {
 			Assert.Throws<ArgumentException>(() =>
-				Filter.Binary(Filter.Variable("x"), Filter.Constant(1), filterType));
+				FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(1), expressionType));
 		}
 
 		#endregion
@@ -37,13 +37,13 @@ namespace Deveel.Filters {
 		#region Filter.Unary invalid type
 
 		[Theory]
-		[InlineData(FilterType.Equal)]
-		[InlineData(FilterType.And)]
-		[InlineData(FilterType.Or)]
-		[InlineData(FilterType.Function)]
-		public static void CreateUnaryWithInvalidFilterType(FilterType filterType) {
+		[InlineData(FilterExpressionType.Equal)]
+		[InlineData(FilterExpressionType.And)]
+		[InlineData(FilterExpressionType.Or)]
+		[InlineData(FilterExpressionType.Function)]
+		public static void CreateUnaryWithInvalidFilterType(FilterExpressionType expressionType) {
 			Assert.Throws<ArgumentException>(() =>
-				Filter.Unary(Filter.Variable("x"), filterType));
+				FilterExpression.Unary(FilterExpression.Variable("x"), expressionType));
 		}
 
 		#endregion
@@ -55,20 +55,20 @@ namespace Deveel.Filters {
 		[InlineData("")]
 		public static void CreateFunctionWithInvalidName(string? funcName) {
 			Assert.Throws<ArgumentException>(() =>
-				Filter.Function(Filter.Variable("x"), funcName!));
+				FilterExpression.Function(FilterExpression.Variable("x"), funcName!));
 		}
 
 		[Fact]
 		public static void CreateFunctionWithInvalidArgumentType() {
 			// Arguments that are binary filters should not be allowed
-			var binaryArg = Filter.Binary(Filter.Variable("a"), Filter.Constant(1), FilterType.Equal);
+			var binaryArg = FilterExpression.Binary(FilterExpression.Variable("a"), FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<ArgumentException>(() =>
-				Filter.Function(Filter.Variable("x"), "test", new Filter[] { binaryArg }));
+				FilterExpression.Function(FilterExpression.Variable("x"), "test", new FilterExpression[] { binaryArg }));
 		}
 
 		[Fact]
 		public static void CreateFunctionWithNoArguments() {
-			var func = Filter.Function(Filter.Variable("x"), "Any");
+			var func = FilterExpression.Function(FilterExpression.Variable("x"), "Any");
 			Assert.NotNull(func);
 			Assert.Equal("Any", func.FunctionName);
 			Assert.Equal("x", func.Variable.VariableName);
@@ -77,10 +77,10 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void CreateFunctionWithVariableArgument() {
-			var func = Filter.Function(Filter.Variable("x"), "test", new Filter[] { Filter.Variable("y") });
+			var func = FilterExpression.Function(FilterExpression.Variable("x"), "test", new FilterExpression[] { FilterExpression.Variable("y") });
 			Assert.NotNull(func);
 			Assert.Single(func.Arguments);
-			Assert.IsType<VariableFilter>(func.Arguments[0]);
+			Assert.IsType<VariableFilterExpression>(func.Arguments[0]);
 		}
 
 		#endregion
@@ -89,18 +89,18 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void CreateAndFilter() {
-			var filter = Filter.And(
-				Filter.Binary(Filter.Variable("x"), Filter.Constant(1), FilterType.Equal),
-				Filter.Binary(Filter.Variable("y"), Filter.Constant(2), FilterType.Equal));
-			Assert.Equal(FilterType.And, filter.FilterType);
+			var filter = FilterExpression.And(
+				FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(1), FilterExpressionType.Equal),
+				FilterExpression.Binary(FilterExpression.Variable("y"), FilterExpression.Constant(2), FilterExpressionType.Equal));
+			Assert.Equal(FilterExpressionType.And, filter.ExpressionType);
 		}
 
 		[Fact]
 		public static void CreateOrFilter() {
-			var filter = Filter.Or(
-				Filter.Binary(Filter.Variable("x"), Filter.Constant(1), FilterType.Equal),
-				Filter.Binary(Filter.Variable("y"), Filter.Constant(2), FilterType.Equal));
-			Assert.Equal(FilterType.Or, filter.FilterType);
+			var filter = FilterExpression.Or(
+				FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(1), FilterExpressionType.Equal),
+				FilterExpression.Binary(FilterExpression.Variable("y"), FilterExpression.Constant(2), FilterExpressionType.Equal));
+			Assert.Equal(FilterExpressionType.Or, filter.ExpressionType);
 		}
 
 		#endregion

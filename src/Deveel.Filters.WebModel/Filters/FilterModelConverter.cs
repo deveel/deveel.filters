@@ -1,18 +1,31 @@
-﻿using System.Text.Json;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Text.Json;
 
 namespace Deveel.Filters {
-    class FilterModelConverter : FilterVisitor {
+    class FilterModelConverter : FilterExpressionVisitor {
 		private readonly FilterBuilderOptions builderOptions;
 
         public FilterModelConverter(FilterBuilderOptions binaryOptions) {
             this.builderOptions = binaryOptions;
         }
+        
+        public FilterModel? WebModel { get; private set; }
+
+        private FilterModel? VisitModel(FilterExpression filter)
+        {
+	        var visitor = new FilterModelConverter(builderOptions);
+	        visitor.Visit(filter);
+	        return visitor.WebModel;
+        }
 
 		private BinaryFilterModel MakeBinary(FilterModel left, FilterModel right, bool logicalAnd = false) {
 			if (builderOptions.PreferBinaryData &&
-				((IFilter)left).FilterType == FilterType.Variable &&
+				left.GetFilterType() == FilterExpressionType.Variable &&
 				!String.IsNullOrWhiteSpace(left.Ref) &&
-				((IFilter)right).FilterType == FilterType.Constant) {
+				right.GetFilterType() == FilterExpressionType.Constant) {
 				var variable = left.Ref;
 				var constant = JsonElementUtil.ToElement(right.Value);
 
@@ -29,94 +42,101 @@ namespace Deveel.Filters {
             };
 		}
 
-        public override IFilter VisitBinary(IBinaryFilter filter) {
-			var left = (FilterModel) Visit(filter.Left);
-			var right = (FilterModel) Visit(filter.Right);
+        public override FilterExpression VisitBinary(BinaryFilterExpression filterExpression) {
+			var left = VisitModel(filterExpression.Left);
+			var right = VisitModel(filterExpression.Right);
 
-			switch (filter.FilterType) {
-				case FilterType.Equal:
-					return new FilterModel {
+			switch (filterExpression.ExpressionType) {
+				case FilterExpressionType.Equal:
+					WebModel = new FilterModel {
 						Equal = MakeBinary(left, right)
 					};
-				case FilterType.NotEqual:
-					return new FilterModel {
+					break;
+				case FilterExpressionType.NotEqual:
+					WebModel = new FilterModel {
 						NotEqual = MakeBinary(left, right),
 					};
-				case FilterType.GreaterThan:
-					return new FilterModel {
+					break;
+				case FilterExpressionType.GreaterThan:
+					WebModel = new FilterModel {
 						GreaterThan = MakeBinary(left, right)
 					};
-				case FilterType.GreaterThanOrEqual:
-					return new FilterModel {
+					break;
+				case FilterExpressionType.GreaterThanOrEqual:
+					WebModel = new FilterModel {
 						GreaterThanOrEqual = MakeBinary(left, right),
 					};
-				case FilterType.LessThan:
-					return new FilterModel {
+					break;
+				case FilterExpressionType.LessThan:
+					WebModel = new FilterModel {
 						LessThan = MakeBinary(left, right),
 					};
-				case FilterType.LessThanOrEqual:
-					return new FilterModel {
+					break;
+				case FilterExpressionType.LessThanOrEqual:
+					WebModel = new FilterModel {
 						LessThanOrEqual = MakeBinary(left, right),
 					};
-				case FilterType.And:
-					return new FilterModel {
+					break;
+				case FilterExpressionType.And:
+					WebModel = new FilterModel {
 						And = MakeBinary(left, right, true),
 					};
-				case FilterType.Or:
-					return new FilterModel {
+					break;
+				case FilterExpressionType.Or:
+					WebModel = new FilterModel {
 						Or = MakeBinary(left, right),
 					};
+					break;
 				default:
-					throw new FilterException($"The filter type {filter.FilterType} is not binary");
+					throw new FilterException($"The filter type {filterExpression.ExpressionType} is not binary");
 			}
+			
+			return filterExpression;
 		}
 
-		public override IFilter VisitConstant(IConstantFilter filter) {
-			return new FilterModel {
-				Value = filter.Value
+		public override FilterExpression VisitConstant(ConstantFilterExpression filterExpression) {
+			WebModel = new FilterModel {
+				Value = filterExpression.Value
 			};
+
+			return base.VisitConstant(filterExpression);
 		}
 
-		public override IFilter VisitVariable(IVariableFilter filter) {
-			return new FilterModel {
-				Ref = filter.VariableName
+		public override FilterExpression VisitVariable(VariableFilterExpression filterExpression) {
+			WebModel = new FilterModel {
+				Ref = filterExpression.VariableName
 			};
+			
+			return filterExpression;
 		}
 
-		public override IFilter VisitUnary(IUnaryFilter filter) {
-			if (filter.FilterType != FilterType.Not)
-				throw new FilterException($"The filter type {filter.FilterType} is not unary");
+		public override FilterExpression VisitUnary(UnaryFilterExpression filterExpression) {
+			if (filterExpression.ExpressionType != FilterExpressionType.Not)
+				throw new FilterException($"The filter type {filterExpression.ExpressionType} is not unary");
 
-			var operand = (FilterModel)Visit(filter.Operand);
-			return new FilterModel {
+			var operand = VisitModel(filterExpression.Operand);
+			WebModel = new FilterModel {
 				Not = operand
 			};
+			
+			return filterExpression;
 		}
-
-		public override IList<IFilter> VisitFunctionArguments(IList<IFilter>? arguments) {
-			if (arguments == null)
-				return new FilterModel[0];
-
-			var list = new List<IFilter>(arguments.Count);
-			foreach (var argument in arguments) {
-				list.Add(Visit(argument));
-			}
-			return list;
-		}
-
-		public override IFilter VisitFunction(IFunctionFilter filter) {
-			var arguments = VisitFunctionArguments(filter.Arguments);
+		
+		public override FilterExpression VisitFunction(FunctionFilterExpression filterExpression) {
+			var arguments = VisitFunctionArguments(filterExpression.Arguments);
 			var args = new FilterModel[arguments.Count];
 			for (var i = 0; i < arguments.Count; i++) {
-				args[i] = (FilterModel)arguments[i];
+				args[i] = VisitModel(arguments[i]);
 			}
-			return new FilterModel {
+			WebModel = new FilterModel {
 				Function = new FunctionFilterModel {
-					Instance = filter.Variable.VariableName,
-					Name = filter.FunctionName,
+					Instance = filterExpression.Variable.VariableName,
+					Name = filterExpression.FunctionName,
 					Arguments = args
 				}
 			};
+			
+			return filterExpression;
 		}
 	}
 }

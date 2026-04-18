@@ -22,14 +22,14 @@ namespace Deveel.Filters {
     public class FilterTests {
         [Benchmark]
         public void BuildSimpleEqual() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
+            var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.Equal);
 
             filter.AsLambda(typeof(int), "x");
         }
 
         [Benchmark]
         public void BuildSimpleEqualOfT() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
+            var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.Equal);
 
             filter.AsLambda<int>("x");
         }
@@ -37,14 +37,14 @@ namespace Deveel.Filters {
 
         [Benchmark]
         public void BuildAsyncSimpleEqual() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
+            var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.Equal);
 
             filter.AsAsyncLambda(typeof(int), "x");
         }
 
         [Benchmark]
         public void BuildAsyncSimpleEqualOfT() {
-            var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
+            var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.Equal);
 
             filter.AsAsyncLambda<int>("x");
         }
@@ -53,8 +53,8 @@ namespace Deveel.Filters {
         public void BuildLogicalAndOfComplexObject() {
             var obj = new {value = 25};
 
-            var filter = Filter.And(Filter.GreaterThan(Filter.Variable("x.value"), Filter.Constant(22)),
-                               Filter.LessThanOrEqual(Filter.Variable("x.value"), Filter.Constant(33)));
+            var filter = FilterExpression.And(FilterExpression.GreaterThan(FilterExpression.Variable("x.value"), FilterExpression.Constant(22)),
+                               FilterExpression.LessThanOrEqual(FilterExpression.Variable("x.value"), FilterExpression.Constant(33)));
 
             filter.AsLambda(obj.GetType(), "x");
         }

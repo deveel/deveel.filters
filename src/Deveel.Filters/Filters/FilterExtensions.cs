@@ -1,25 +1,25 @@
-﻿using System.Linq.Expressions;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Deveel.Filters {
+	/// <summary>
+	/// Provides extension methods for <see cref="FilterExpression"/> to build
+	/// lambda expressions, evaluate filters, and perform asynchronous evaluation.
+	/// </summary>
 	public static class FilterExtensions {
-		public static bool IsEmpty(this IFilter filter) {
-			return filter is null || Filter.Empty.Equals(filter);
-		}
-
-		public static string AsString(this IFilter filter) {
-			var builder = new StringBuilder();
-			var visitor = new FilterStringBuilder(builder);
-			visitor.Visit(filter);
-			return builder.ToString();
-		}
-
 		/// <summary>
-		/// Produces a lambda expression that represents the filter
+		/// Produces a lambda expression that represents the filter.
 		/// </summary>
 		/// <typeparam name="T">
 		/// The type of the parameter of the expression.
 		/// </typeparam>
+		/// <param name="filter">
+		/// The filter expression to convert to a lambda.
+		/// </param>
 		/// <param name="parameterName">
 		/// The name of the parameter to use in the expression. 
 		/// <strong>Note</strong>: this name must match the variable references
@@ -32,7 +32,7 @@ namespace Deveel.Filters {
 		/// <exception cref="ArgumentException">
 		/// Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
 		/// </exception>
-		public static Expression<Func<T, bool>> AsLambda<T>(this IFilter filter, string parameterName = "x") {
+		public static Expression<Func<T, bool>> AsLambda<T>(this FilterExpression filter, string parameterName = "x") {
 			return (Expression<Func<T, bool>>)filter.AsLambda(typeof(T), parameterName);
 		}
 
@@ -60,7 +60,7 @@ namespace Deveel.Filters {
 		/// <exception cref="ArgumentNullException">
 		/// Thrown when <paramref name="parameterType"/> is <c>null</c>.
 		/// </exception>
-		public static LambdaExpression AsLambda(this IFilter filter, Type parameterType, string parameterName = "x") {
+		public static LambdaExpression AsLambda(this FilterExpression filter, Type parameterType, string parameterName = "x") {
 			if (parameterType is null)
 				throw new ArgumentNullException(nameof(parameterType));
 
@@ -90,7 +90,7 @@ namespace Deveel.Filters {
 		/// Returns a <see cref="LambdaExpression"/> that represents the
 		/// expression tree of the filter, that can be used to compile an asynchrouns delegate.
 		/// </returns>
-		public static LambdaExpression AsAsyncLambda(this IFilter filter, Type parameterType, string parameterName = "x") {
+		public static LambdaExpression AsAsyncLambda(this FilterExpression filter, Type parameterType, string parameterName = "x") {
 			if (parameterType is null)
 				throw new ArgumentNullException(nameof(parameterType));
 			if (String.IsNullOrWhiteSpace(parameterName))
@@ -119,7 +119,7 @@ namespace Deveel.Filters {
 		/// Returns a <see cref="Expression{TDelegate}"/> that represents the
 		/// expression tree of the filter, that can be used to compile an asynchrouns delegate.
 		/// </returns>
-		public static Expression<Func<T, Task<bool>>> AsAsyncLambda<T>(this IFilter filter, string parameterName = "x") {
+		public static Expression<Func<T, Task<bool>>> AsAsyncLambda<T>(this FilterExpression filter, string parameterName = "x") {
 			return (Expression<Func<T, Task<bool>>>)filter.AsAsyncLambda(typeof(T), parameterName);
 		}
 
@@ -149,7 +149,7 @@ namespace Deveel.Filters {
 		/// Thrown when the filter cannot be evaluated because of an
 		/// unhandled error.
 		/// </exception>
-		public static bool Evaluate(this IFilter filter, Type parameterType, string parameterName, object parameterValue) {
+		public static bool Evaluate(this FilterExpression filter, Type parameterType, string parameterName, object parameterValue) {
 			if (parameterType is null)
 				throw new ArgumentNullException(nameof(parameterType));
 			if (String.IsNullOrWhiteSpace(parameterName))
@@ -177,10 +177,23 @@ namespace Deveel.Filters {
 		/// <returns>
 		/// Returns <c>true</c> if the given value matches the filter, otherwise
 		/// </returns>
-		public static bool Evaluate(this IFilter filter, Type parameterType, object parameterValue)
+		public static bool Evaluate(this FilterExpression filter, Type parameterType, object parameterValue)
 			=> filter.Evaluate(parameterType, "x", parameterValue);
 
-		public static bool Evaluate<T>(this IFilter filter, string parameterName, T parameterValue) {
+		/// <summary>
+		/// Compiles and evaluates the filter against the given typed parameter value.
+		/// </summary>
+		/// <typeparam name="T">The type of the parameter.</typeparam>
+		/// <param name="filter">The filter expression to evaluate.</param>
+		/// <param name="parameterName">The name of the parameter used in the filter.</param>
+		/// <param name="parameterValue">The value to evaluate against the filter.</param>
+		/// <returns>
+		/// Returns <c>true</c> if the value matches the filter; otherwise <c>false</c>.
+		/// </returns>
+		/// <exception cref="FilterEvaluationException">
+		/// Thrown when the filter cannot be evaluated.
+		/// </exception>
+		public static bool Evaluate<T>(this FilterExpression filter, string parameterName, T parameterValue) {
 			try {
 				var lambda = filter.AsLambda<T>(parameterName);
 				var compiled = lambda.Compile();
@@ -191,10 +204,30 @@ namespace Deveel.Filters {
 			}
 		}
 
-		public static bool Evaluate<T>(this IFilter filter, T parameterValue)
+		/// <summary>
+		/// Compiles and evaluates the filter against the given typed parameter value,
+		/// using the default parameter name "x".
+		/// </summary>
+		/// <typeparam name="T">The type of the parameter.</typeparam>
+		/// <param name="filter">The filter expression to evaluate.</param>
+		/// <param name="parameterValue">The value to evaluate against the filter.</param>
+		/// <returns>
+		/// Returns <c>true</c> if the value matches the filter; otherwise <c>false</c>.
+		/// </returns>
+		public static bool Evaluate<T>(this FilterExpression filter, T parameterValue)
 			=> filter.Evaluate("x", parameterValue);
 
-		public static Task<bool> EvaluateAsync(this IFilter filter, Type parameterType, string parameterName, object parameterValue) {
+		/// <summary>
+		/// Asynchronously compiles and evaluates the filter against the given parameter value.
+		/// </summary>
+		/// <param name="filter">The filter expression to evaluate.</param>
+		/// <param name="parameterType">The type of the parameter.</param>
+		/// <param name="parameterName">The name of the parameter used in the filter.</param>
+		/// <param name="parameterValue">The value to evaluate against the filter.</param>
+		/// <returns>
+		/// A <see cref="Task{Boolean}"/> that resolves to <c>true</c> if the value matches; otherwise <c>false</c>.
+		/// </returns>
+		public static Task<bool> EvaluateAsync(this FilterExpression filter, Type parameterType, string parameterName, object parameterValue) {
 			var asyncLambda = filter.AsAsyncLambda(parameterType, parameterName);
 			var compiled = asyncLambda.Compile();
 
@@ -203,14 +236,34 @@ namespace Deveel.Filters {
 			return (Task<bool>)task;
 		}
 
-		public static Task<bool> EvaluateAsync<T>(this IFilter filter, string parameterName, T parameterValue) {
+		/// <summary>
+		/// Asynchronously compiles and evaluates the filter against the given typed parameter value.
+		/// </summary>
+		/// <typeparam name="T">The type of the parameter.</typeparam>
+		/// <param name="filter">The filter expression to evaluate.</param>
+		/// <param name="parameterName">The name of the parameter used in the filter.</param>
+		/// <param name="parameterValue">The value to evaluate against the filter.</param>
+		/// <returns>
+		/// A <see cref="Task{Boolean}"/> that resolves to <c>true</c> if the value matches; otherwise <c>false</c>.
+		/// </returns>
+		public static Task<bool> EvaluateAsync<T>(this FilterExpression filter, string parameterName, T parameterValue) {
 			var asyncLambda = filter.AsAsyncLambda<T>(parameterName);
 			var compiled = asyncLambda.Compile();
 
 			return compiled.Invoke(parameterValue);
 		}
 
-		public static Task<bool> EvaluateAsync<T>(this IFilter filter, T parameterValue)
+		/// <summary>
+		/// Asynchronously compiles and evaluates the filter against the given typed parameter value,
+		/// using the default parameter name "x".
+		/// </summary>
+		/// <typeparam name="T">The type of the parameter.</typeparam>
+		/// <param name="filter">The filter expression to evaluate.</param>
+		/// <param name="parameterValue">The value to evaluate against the filter.</param>
+		/// <returns>
+		/// A <see cref="Task{Boolean}"/> that resolves to <c>true</c> if the value matches; otherwise <c>false</c>.
+		/// </returns>
+		public static Task<bool> EvaluateAsync<T>(this FilterExpression filter, T parameterValue)
 			=> filter.EvaluateAsync("x", parameterValue);
 
 	}

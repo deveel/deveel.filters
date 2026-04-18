@@ -1,8 +1,12 @@
-﻿using System.Linq.Expressions;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Deveel.Filters {
-	class LambdaFilterBuilder : FilterVisitor {
+	class LambdaFilterBuilder : FilterExpressionVisitor {
 		private readonly string parameterName;
 		private readonly Type parameterType;
 		private readonly ParameterExpression parameter;
@@ -14,7 +18,7 @@ namespace Deveel.Filters {
 			parameter = Expression.Parameter(parameterType, parameterName);
 		}
 
-		public LambdaExpression BuildLambda(IFilter filter) {
+		public LambdaExpression BuildLambda(Filters.FilterExpression filter) {
 			var result = Visit(filter);
 			if (!(result is FilterExpression filterExp))
 				throw new InvalidOperationException("Could not parse the filter");
@@ -25,7 +29,7 @@ namespace Deveel.Filters {
 			return Expression.Lambda(delegateType, body, parameter);
 		}
 
-		public LambdaExpression BuildAsyncLambda(IFilter filter) {
+		public LambdaExpression BuildAsyncLambda(Filters.FilterExpression filter) {
 			var result = Visit(filter);
 			if (!(result is FilterExpression filterExp))
 				throw new InvalidOperationException("Could not parse the filter");
@@ -68,43 +72,43 @@ namespace Deveel.Filters {
 			return instance;
 		}
 
-		public override IFilter VisitVariable(IVariableFilter variable) {
+		public override Filters.FilterExpression VisitVariable(VariableFilterExpression variable) {
 			var expression = ResolveVariable(variable.VariableName);
-			return new FilterExpression(variable.FilterType, expression);
+			return new FilterExpression(variable.ExpressionType, expression);
 		}
 
-		public override IFilter VisitConstant(IConstantFilter constant) {
+		public override Filters.FilterExpression VisitConstant(ConstantFilterExpression constant) {
 			var expression = Expression.Constant(constant.Value);
-			return new FilterExpression(constant.FilterType, expression);
+			return new FilterExpression(constant.ExpressionType, expression);
 		}
 
-		public override IFilter VisitUnary(IUnaryFilter filter) {
-			if (filter.Operand.IsEmpty())
+		public override Filters.FilterExpression VisitUnary(UnaryFilterExpression filterExpression) {
+			if (filterExpression.Operand.IsEmpty)
 				throw new FilterException("The operand of a unary filter cannot be empty");
 
-			var operand = Visit(filter.Operand);
+			var operand = Visit(filterExpression.Operand);
 			var operandExp = ((FilterExpression) operand).Expression;
 			
 			Expression expression;
-			switch (filter.FilterType) {
-				case FilterType.Not:
+			switch (filterExpression.ExpressionType) {
+				case FilterExpressionType.Not:
 					expression = Expression.Not(operandExp);
 					break;
 				default:
-					throw new InvalidOperationException($"The filter of type '{filter.FilterType}' is not a unary");
+					throw new InvalidOperationException($"The filter of type '{filterExpression.ExpressionType}' is not a unary");
 			}
 
-			return new FilterExpression(filter.FilterType, expression);
+			return new FilterExpression(filterExpression.ExpressionType, expression);
 		}
 
-		public override IFilter VisitFunction(IFunctionFilter filter) {
-			var variable = VisitVariable(filter.Variable);
+		public override Filters.FilterExpression VisitFunction(FunctionFilterExpression filterExpression) {
+			var variable = VisitVariable(filterExpression.Variable);
 			var variableExp = ((FilterExpression) variable).Expression;
 
-			var arguments = new Expression[filter.Arguments?.Count ?? 0];
-			if (filter.Arguments != null) {
-				for (int i = 0; i < filter.Arguments.Count; i++) {
-					var arg = Visit(filter.Arguments[i]);
+			var arguments = new Expression[filterExpression.Arguments?.Length ?? 0];
+			if (filterExpression.Arguments != null) {
+				for (int i = 0; i < filterExpression.Arguments.Length; i++) {
+					var arg = Visit(filterExpression.Arguments[i]);
 					arguments[i] = ((FilterExpression) arg).Expression;
 				}
 			}
@@ -118,76 +122,76 @@ namespace Deveel.Filters {
 				throw new NotSupportedException($"The variable expression '{variableExp}' is not supported");
 			}
 
-			var methodInfo = reflectTye.GetMethod(filter.FunctionName, arguments.Select(x => x.Type).ToArray());
+			var methodInfo = reflectTye.GetMethod(filterExpression.FunctionName, arguments.Select(x => x.Type).ToArray());
 
 			if (methodInfo == null)
-				throw new FilterException($"The method '{filter.FunctionName}' is not found in the type '{reflectTye}'");
+				throw new FilterException($"The method '{filterExpression.FunctionName}' is not found in the type '{reflectTye}'");
 
 			var functionCall = Expression.Call(variableExp, methodInfo,arguments);
-			return new FilterExpression(filter.FilterType, functionCall);
+			return new FilterExpression(filterExpression.ExpressionType, functionCall);
 		}
 
-		public override IFilter VisitBinary(IBinaryFilter filter) {
-			if (filter.Left.IsEmpty() &&
-				filter.Right.IsEmpty())
+		public override Filters.FilterExpression VisitBinary(BinaryFilterExpression filterExpression) {
+			if (filterExpression.Left.IsEmpty &&
+				filterExpression.Right.IsEmpty)
 				throw new FilterException("The left and right filter cannot be empty");
 
-			if (filter.FilterType == FilterType.And ||
-				filter.FilterType == FilterType.Or) {
-				if (filter.Left.IsEmpty() && !filter.Right.IsEmpty())
-					return Visit(filter.Right);
-				if (!filter.Left.IsEmpty() && filter.Right.IsEmpty())
-					return Visit(filter.Left);
-			} else if (filter.Left.IsEmpty() || filter.Right.IsEmpty())
-				throw new FilterException($"The filter of type '{filter.FilterType}' must have either left or right part not empty");
+			if (filterExpression.ExpressionType == FilterExpressionType.And ||
+				filterExpression.ExpressionType == FilterExpressionType.Or) {
+				if (filterExpression.Left.IsEmpty && !filterExpression.Right.IsEmpty)
+					return Visit(filterExpression.Right);
+				if (!filterExpression.Left.IsEmpty && filterExpression.Right.IsEmpty)
+					return Visit(filterExpression.Left);
+			} else if (filterExpression.Left.IsEmpty || filterExpression.Right.IsEmpty)
+				throw new FilterException($"The filter of type '{filterExpression.ExpressionType}' must have either left or right part not empty");
 
-			var left = Visit(filter.Left);
-			var right = Visit(filter.Right);
+			var left = Visit(filterExpression.Left);
+			var right = Visit(filterExpression.Right);
 			var leftExp = ((FilterExpression) left).Expression;
 			var rightExp = ((FilterExpression) right).Expression;
 
 			Expression expression;
-			switch (filter.FilterType) {
-				case FilterType.Equal:
+			switch (filterExpression.ExpressionType) {
+				case FilterExpressionType.Equal:
 					expression = Expression.Equal(leftExp, rightExp);
 					break;
-				case FilterType.NotEqual:
+				case FilterExpressionType.NotEqual:
 					expression = Expression.NotEqual(leftExp, rightExp);
 					break;
-				case FilterType.GreaterThan:
+				case FilterExpressionType.GreaterThan:
 					expression = Expression.GreaterThan(leftExp, rightExp);
 					break;
-				case FilterType.GreaterThanOrEqual:
+				case FilterExpressionType.GreaterThanOrEqual:
 					expression = Expression.GreaterThanOrEqual(leftExp, rightExp);
 					break;
-				case FilterType.LessThan:
+				case FilterExpressionType.LessThan:
 					expression = Expression.LessThan(leftExp, rightExp);
 					break;
-				case FilterType.LessThanOrEqual:
+				case FilterExpressionType.LessThanOrEqual:
 					expression = Expression.LessThanOrEqual(leftExp, rightExp);
 					break;
-				case FilterType.And:
+				case FilterExpressionType.And:
 					expression = Expression.AndAlso(leftExp, rightExp);
 					break;
-				case FilterType.Or:
+				case FilterExpressionType.Or:
 					expression = Expression.OrElse(leftExp, rightExp);
 					break;
 				default:
-					throw new FilterException($"The filter of type '{filter.FilterType}' is not a binary");
+					throw new FilterException($"The filter of type '{filterExpression.ExpressionType}' is not a binary");
 			}
 
-			return new FilterExpression(filter.FilterType, expression);
+			return new FilterExpression(filterExpression.ExpressionType, expression);
 		}
 
 		#region FilterExpression
 
-		class FilterExpression : IFilter {
-			public FilterExpression(FilterType filterType, Expression expression) {
-				FilterType = filterType;
+		class FilterExpression : Filters.FilterExpression {
+			public FilterExpression(FilterExpressionType expressionType, Expression expression) {
+				ExpressionType = expressionType;
 				Expression = expression;
 			}
 
-			public FilterType FilterType { get; }
+			public override FilterExpressionType ExpressionType { get; }
 
 			public Expression Expression { get; }
 		}

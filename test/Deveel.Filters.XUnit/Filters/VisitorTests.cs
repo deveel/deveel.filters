@@ -9,55 +9,55 @@ namespace Deveel.Filters {
 	public static class VisitorTests {
 		[Fact]
 		public static void VisitVariable() {
-			var variable = Filter.Variable("test");
-			var visitor = new FilterVisitor();
+			var variable = FilterExpression.Variable("test");
+			var visitor = new FilterExpressionVisitor();
 			var result = visitor.Visit(variable);
 
-			var resultVariable = Assert.IsType<VariableFilter>(result);
+			var resultVariable = Assert.IsType<VariableFilterExpression>(result);
 			Assert.Equal(variable.VariableName, resultVariable.VariableName);
 		}
 
 		[Fact]
 		public static void VisitConstant() {
-			var constant = Filter.Constant(123);
-			var visitor = new FilterVisitor();
+			var constant = FilterExpression.Constant(123);
+			var visitor = new FilterExpressionVisitor();
 			var result = visitor.Visit(constant);
-			var resultConstant = Assert.IsType<ConstantFilter>(result);
+			var resultConstant = Assert.IsType<ConstantFilterExpression>(result);
 			Assert.Equal(constant.Value, resultConstant.Value);
 		}
 
 		[Fact]
 		public static void VisitBinary() {
-			var left = Filter.Variable("test");
-			var right = Filter.Constant(123);
-			var binary = Filter.Equal(left, right);
-			var visitor = new FilterVisitor();
+			var left = FilterExpression.Variable("test");
+			var right = FilterExpression.Constant(123);
+			var binary = FilterExpression.Equal(left, right);
+			var visitor = new FilterExpressionVisitor();
 			var result = visitor.Visit(binary);
-			var resultBinary = Assert.IsType<BinaryFilter>(result);
-			Assert.Equal(binary.FilterType, resultBinary.FilterType);
-			Assert.Equal(binary.Left.FilterType, resultBinary.Left.FilterType);
-			Assert.Equal(binary.Right.FilterType, resultBinary.Right.FilterType);
+			var resultBinary = Assert.IsType<BinaryFilterExpression>(result);
+			Assert.Equal(binary.ExpressionType, resultBinary.ExpressionType);
+			Assert.Equal(binary.Left.ExpressionType, resultBinary.Left.ExpressionType);
+			Assert.Equal(binary.Right.ExpressionType, resultBinary.Right.ExpressionType);
 		}
 
 		[Fact]
 		public static void VisitUnary() {
-			var operand = Filter.Variable("test");
-			var unary = Filter.Not(operand);
-			var visitor = new FilterVisitor();
+			var operand = FilterExpression.Variable("test");
+			var unary = FilterExpression.Not(operand);
+			var visitor = new FilterExpressionVisitor();
 			var result = visitor.Visit(unary);
-			var resultUnary = Assert.IsType<UnaryFilter>(result);
-			Assert.Equal(unary.FilterType, resultUnary.FilterType);
-			Assert.Equal(unary.Operand.FilterType, resultUnary.Operand.FilterType);
+			var resultUnary = Assert.IsType<UnaryFilterExpression>(result);
+			Assert.Equal(unary.ExpressionType, resultUnary.ExpressionType);
+			Assert.Equal(unary.Operand.ExpressionType, resultUnary.Operand.ExpressionType);
 		}
 
 		[Fact]
 		public static void VisitFunction() {
-			var function = Filter.Function(Filter.Variable("x"), "test", new[] { Filter.Constant(123) });
+			var function = FilterExpression.Function(FilterExpression.Variable("x"), "test", new[] { FilterExpression.Constant(123) });
 
-			var visitor = new FilterVisitor();
+			var visitor = new FilterExpressionVisitor();
 			var result = visitor.Visit(function);
-			var resultFunction = Assert.IsType<FunctionFilter>(result);
-			Assert.Equal(function.FilterType, resultFunction.FilterType);
+			var resultFunction = Assert.IsType<FunctionFilterExpression>(result);
+			Assert.Equal(function.ExpressionType, resultFunction.ExpressionType);
 			Assert.NotNull(resultFunction.Arguments);
 			Assert.Equal(function.Arguments.Length, resultFunction.Arguments.Length);
 		}

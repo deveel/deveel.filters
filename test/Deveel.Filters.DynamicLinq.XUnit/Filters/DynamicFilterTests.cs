@@ -67,10 +67,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_SimpleStringEquality_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Name"),
-				Filter.Constant("John"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Name"),
+				FilterExpression.Constant("John"),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -91,10 +91,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_IntegerComparison_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -113,10 +113,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_BooleanEquality_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("IsActive"),
-				Filter.Constant(true),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("IsActive"),
+				FilterExpression.Constant(true),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -135,10 +135,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_DoubleComparison_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Salary"),
-				Filter.Constant(50000.0),
-				FilterType.GreaterThanOrEqual);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Salary"),
+				FilterExpression.Constant(50000.0),
+				FilterExpressionType.GreaterThanOrEqual);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -154,25 +154,25 @@ namespace Deveel.Filters
 		}
 
 		[Theory]
-		[InlineData(FilterType.Equal, 25, 25, true)]
-		[InlineData(FilterType.Equal, 25, 30, false)]
-		[InlineData(FilterType.NotEqual, 25, 30, true)]
-		[InlineData(FilterType.NotEqual, 25, 25, false)]
-		[InlineData(FilterType.GreaterThan, 25, 30, true)]
-		[InlineData(FilterType.GreaterThan, 25, 20, false)]
-		[InlineData(FilterType.GreaterThanOrEqual, 25, 25, true)]
-		[InlineData(FilterType.GreaterThanOrEqual, 25, 20, false)]
-		[InlineData(FilterType.LessThan, 25, 20, true)]
-		[InlineData(FilterType.LessThan, 25, 30, false)]
-		[InlineData(FilterType.LessThanOrEqual, 25, 25, true)]
-		[InlineData(FilterType.LessThanOrEqual, 25, 30, false)]
-		public static void AsDynamicLambda_AllComparisonOperators_ShouldWork(FilterType filterType, int filterValue, int testValue, bool expectedResult)
+		[InlineData(FilterExpressionType.Equal, 25, 25, true)]
+		[InlineData(FilterExpressionType.Equal, 25, 30, false)]
+		[InlineData(FilterExpressionType.NotEqual, 25, 30, true)]
+		[InlineData(FilterExpressionType.NotEqual, 25, 25, false)]
+		[InlineData(FilterExpressionType.GreaterThan, 25, 30, true)]
+		[InlineData(FilterExpressionType.GreaterThan, 25, 20, false)]
+		[InlineData(FilterExpressionType.GreaterThanOrEqual, 25, 25, true)]
+		[InlineData(FilterExpressionType.GreaterThanOrEqual, 25, 20, false)]
+		[InlineData(FilterExpressionType.LessThan, 25, 20, true)]
+		[InlineData(FilterExpressionType.LessThan, 25, 30, false)]
+		[InlineData(FilterExpressionType.LessThanOrEqual, 25, 25, true)]
+		[InlineData(FilterExpressionType.LessThanOrEqual, 25, 30, false)]
+		public static void AsDynamicLambda_AllComparisonOperators_ShouldWork(FilterExpressionType expressionType, int filterValue, int testValue, bool expectedResult)
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(filterValue),
-				filterType);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(filterValue),
+				expressionType);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -187,10 +187,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_LogicalAnd_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(18), FilterType.GreaterThan),
-				Filter.Binary(Filter.Variable("IsActive"), Filter.Constant(true), FilterType.Equal),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(18), FilterExpressionType.GreaterThan),
+				FilterExpression.Binary(FilterExpression.Variable("IsActive"), FilterExpression.Constant(true), FilterExpressionType.Equal),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -214,10 +214,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_LogicalOr_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(65), FilterType.GreaterThan),
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(18), FilterType.LessThan),
-				FilterType.Or);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(65), FilterExpressionType.GreaterThan),
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(18), FilterExpressionType.LessThan),
+				FilterExpressionType.Or);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -239,9 +239,9 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_UnaryNot_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Unary(
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(25), FilterType.GreaterThan),
-				FilterType.Not);
+			var filter = FilterExpression.Unary(
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(25), FilterExpressionType.GreaterThan),
+				FilterExpressionType.Not);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -261,10 +261,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NestedPropertyAccess_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Address.City"),
-				Filter.Constant("New York"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Address.City"),
+				FilterExpression.Constant("New York"),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -286,10 +286,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_StringMethods_ShouldConvertToLambda()
 		{
 			// Arrange - Using Contains method
-			var filter = Filter.Function(
-				Filter.Variable("Name"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Name"),
 				"Contains",
-				new[] { Filter.Constant("John") });
+				new[] { FilterExpression.Constant("John") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -309,10 +309,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_WithCustomParameterName_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Name"),
-				Filter.Constant("John"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Name"),
+				FilterExpression.Constant("John"),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>("person");
@@ -329,10 +329,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_WithCustomParsingConfig_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("x.name"),
-				Filter.Constant("john"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("x.name"),
+				FilterExpression.Constant("john"),
+				FilterExpressionType.Equal);
 
 			var config = new ParsingConfig
 			{
@@ -358,10 +358,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLamda_NonGeneric_ShouldConvertToLambda()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Name"),
-				Filter.Constant("John"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Name"),
+				FilterExpression.Constant("John"),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda(typeof(Person));
@@ -382,10 +382,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLamda_NonGenericWithCustomParameterName_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda(typeof(Person), "person");
@@ -402,10 +402,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLamda_NonGenericWithConfig_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("x.name"),
-				Filter.Constant("John"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("x.name"),
+				FilterExpression.Constant("John"),
+				FilterExpressionType.Equal);
 
 			var config = new ParsingConfig
 			{
@@ -427,14 +427,14 @@ namespace Deveel.Filters
 		public static void AsDynamicLamda_PrimitiveTypes_ShouldWork()
 		{
 			// Test with int
-			var intFilter = Filter.Binary(Filter.Variable("x"), Filter.Constant(5), FilterType.GreaterThan);
+			var intFilter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(5), FilterExpressionType.GreaterThan);
 			var intLambda = intFilter.AsDynamicLambda(typeof(int), "x");
 			var intCompiled = intLambda.Compile();
 			Assert.True((bool)intCompiled.DynamicInvoke(10)!);
 			Assert.False((bool)intCompiled.DynamicInvoke(3)!);
 
 			// Test with string
-			var stringFilter = Filter.Function(Filter.Variable("x"), "StartsWith", new[] { Filter.Constant("Hello") });
+			var stringFilter = FilterExpression.Function(FilterExpression.Variable("x"), "StartsWith", new[] { FilterExpression.Constant("Hello") });
 			var stringLambda = stringFilter.AsDynamicLambda(typeof(string));
 			var stringCompiled = stringLambda.Compile();
 			Assert.True((bool)stringCompiled.DynamicInvoke("Hello World")!);
@@ -449,10 +449,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ProductType_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Price"), Filter.Constant(100m), FilterType.GreaterThan),
-				Filter.Binary(Filter.Variable("IsAvailable"), Filter.Constant(true), FilterType.Equal),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Price"), FilterExpression.Constant(100m), FilterExpressionType.GreaterThan),
+				FilterExpression.Binary(FilterExpression.Variable("IsAvailable"), FilterExpression.Constant(true), FilterExpressionType.Equal),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Product>();
@@ -475,10 +475,10 @@ namespace Deveel.Filters
 		{
 			// Arrange
 			var obj = new { Value = 42, Name = "Test" };
-			var filter = Filter.Binary(
-				Filter.Variable("Value"),
-				Filter.Constant(40),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Value"),
+				FilterExpression.Constant(40),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda(obj.GetType());
@@ -499,16 +499,16 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ComplexNestedExpression_ShouldWork()
 		{
 			// Arrange - ((Age > 18 && Age < 65) || IsActive) && Name != null
-			var filter = Filter.Binary(
-				Filter.Binary(
-					Filter.Binary(
-						Filter.Binary(Filter.Variable("Age"), Filter.Constant(18), FilterType.GreaterThan),
-						Filter.Binary(Filter.Variable("Age"), Filter.Constant(65), FilterType.LessThan),
-						FilterType.And),
-					Filter.Variable("IsActive"),
-					FilterType.Or),
-				Filter.Binary(Filter.Variable("Name"), Filter.Constant(null), FilterType.NotEqual),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(
+					FilterExpression.Binary(
+						FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(18), FilterExpressionType.GreaterThan),
+						FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(65), FilterExpressionType.LessThan),
+						FilterExpressionType.And),
+					FilterExpression.Variable("IsActive"),
+					FilterExpressionType.Or),
+				FilterExpression.Binary(FilterExpression.Variable("Name"), FilterExpression.Constant(null), FilterExpressionType.NotEqual),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -532,11 +532,11 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_MultipleNegations_ShouldWork()
 		{
 			// Arrange - !(!(Age > 25))  which should be equivalent to (Age > 25)
-			var filter = Filter.Unary(
-				Filter.Unary(
-					Filter.Binary(Filter.Variable("Age"), Filter.Constant(25), FilterType.GreaterThan),
-					FilterType.Not),
-				FilterType.Not);
+			var filter = FilterExpression.Unary(
+				FilterExpression.Unary(
+					FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(25), FilterExpressionType.GreaterThan),
+					FilterExpressionType.Not),
+				FilterExpressionType.Not);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -560,10 +560,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NullComparison_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Address"),
-				Filter.Constant(null),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Address"),
+				FilterExpression.Constant(null),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -583,10 +583,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NotNullComparison_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Address"),
-				Filter.Constant(null),
-				FilterType.NotEqual);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Address"),
+				FilterExpression.Constant(null),
+				FilterExpressionType.NotEqual);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -606,10 +606,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_EmptyStringComparison_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Name"),
-				Filter.Constant(""),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Name"),
+				FilterExpression.Constant(""),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -629,7 +629,7 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ConstantFilter_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Constant(true);
+			var filter = FilterExpression.Constant(true);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -646,7 +646,7 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_VariableFilter_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Variable("IsActive");
+			var filter = FilterExpression.Variable("IsActive");
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -671,10 +671,10 @@ namespace Deveel.Filters
 		{
 			// Arrange
 			var date = new DateTime(2000, 1, 1);
-			var filter = Filter.Binary(
-				Filter.Variable("BirthDate"),
-				Filter.Constant(date),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("BirthDate"),
+				FilterExpression.Constant(date),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -698,10 +698,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_StringStartsWith_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Function(
-				Filter.Variable("Name"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Name"),
 				"StartsWith",
-				new[] { Filter.Constant("J") });
+				new[] { FilterExpression.Constant("J") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -721,10 +721,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_StringEndsWith_ShouldWork()
 		{
 			// Arrange
-			var filter = Filter.Function(
-				Filter.Variable("Name"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Name"),
 				"EndsWith",
-				new[] { Filter.Constant("son") });
+				new[] { FilterExpression.Constant("son") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -744,10 +744,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_StringLength_ShouldWork()
 		{
 			// Arrange - Name.Length > 5
-			var filter = Filter.Binary(
-				Filter.Function(Filter.Variable("Name"), "get_Length"),
-				Filter.Constant(5),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Function(FilterExpression.Variable("Name"), "get_Length"),
+				FilterExpression.Constant(5),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -771,10 +771,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_InvalidFilterString_ShouldThrowFilterException()
 		{
 			// Arrange - Create a filter that will produce invalid dynamic LINQ
-			var filter = Filter.Binary(
-				Filter.Variable("NonExistentProperty"),
-				Filter.Constant("value"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("NonExistentProperty"),
+				FilterExpression.Constant("value"),
+				FilterExpressionType.Equal);
 
 			// Act & Assert
 			var exception = Assert.Throws<FilterException>(() => filter.AsDynamicLambda<Person>());
@@ -785,10 +785,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLamda_NullParameterType_ShouldThrowArgumentNullException()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Name"),
-				Filter.Constant("John"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Name"),
+				FilterExpression.Constant("John"),
+				FilterExpressionType.Equal);
 
 			// Act & Assert
 			Assert.Throws<ArgumentNullException>(() => filter.AsDynamicLambda(null!));
@@ -802,10 +802,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_MultipleCompilations_ShouldWorkConsistently()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act - Compile multiple times
 			var lambda1 = filter.AsDynamicLambda<Person>();
@@ -823,10 +823,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_CachedCompilation_ShouldWorkCorrectly()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Name"),
-				Filter.Constant("John"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Name"),
+				FilterExpression.Constant("John"),
+				FilterExpressionType.Equal);
 
 			var lambda = filter.AsDynamicLambda<Person>();
 			var compiled = lambda.Compile();
@@ -850,10 +850,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_FilterToStringIntegration_ShouldProduceValidExpression()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(18), FilterType.GreaterThan),
-				Filter.Binary(Filter.Variable("IsActive"), Filter.Constant(true), FilterType.Equal),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(18), FilterExpressionType.GreaterThan),
+				FilterExpression.Binary(FilterExpression.Variable("IsActive"), FilterExpression.Constant(true), FilterExpressionType.Equal),
+				FilterExpressionType.And);
 
 			// Act
 			var filterString = filter.ToString();
@@ -877,10 +877,10 @@ namespace Deveel.Filters
 		public static void FilterToLambdaRoundTrip_SimpleExpression_ShouldMaintainSemantics()
 		{
 			// Arrange
-			var originalFilter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var originalFilter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = originalFilter.AsDynamicLambda<Person>();
@@ -899,10 +899,10 @@ namespace Deveel.Filters
 		public static void FilterToLambdaRoundTrip_ComplexExpression_ShouldMaintainSemantics()
 		{
 			// Arrange
-			var originalFilter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Age"), Filter.Constant(18), FilterType.GreaterThan),
-				Filter.Binary(Filter.Variable("Name"), Filter.Constant(null), FilterType.NotEqual),
-				FilterType.And);
+			var originalFilter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Age"), FilterExpression.Constant(18), FilterExpressionType.GreaterThan),
+				FilterExpression.Binary(FilterExpression.Variable("Name"), FilterExpression.Constant(null), FilterExpressionType.NotEqual),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = originalFilter.AsDynamicLambda<Person>();
@@ -932,10 +932,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_DifferentParameterNames_ShouldWork(string parameterName)
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>(parameterName);
@@ -952,10 +952,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ParameterNameInExpression_ShouldWork()
 		{
 			// Arrange - Using parameter name in variable reference
-			var filter = Filter.Binary(
-				Filter.Variable("employee.Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("employee.Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>("employee");
@@ -972,10 +972,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ParameterWithParsingConfig_ShouldRespectConfig()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("user.NAME"),  // Uppercase property name
-				Filter.Constant("john"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("user.NAME"),  // Uppercase property name
+				FilterExpression.Constant("john"),
+				FilterExpressionType.Equal);
 
 			var config = new ParsingConfig
 			{
@@ -997,10 +997,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_EmptyParameterName_ShouldUseDefault()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>("");
@@ -1017,10 +1017,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NullParameterName_ShouldUseDefault()
 		{
 			// Arrange
-			var filter = Filter.Binary(
-				Filter.Variable("Age"),
-				Filter.Constant(25),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Age"),
+				FilterExpression.Constant(25),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>(null!);
@@ -1041,10 +1041,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_DeepNestedObjectComparison_ShouldWork()
 		{
 			// Arrange - Address.ContactInfo.Email
-			var filter = Filter.Binary(
-				Filter.Variable("Address.ContactInfo.Email"),
-				Filter.Constant("john@example.com"),
-				FilterType.Equal);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Variable("Address.ContactInfo.Email"),
+				FilterExpression.Constant("john@example.com"),
+				FilterExpressionType.Equal);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1076,10 +1076,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NestedObjectWithNullCheck_ShouldWork()
 		{
 			// Arrange - Check both nested property and null safety
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Address"), Filter.Constant(null), FilterType.NotEqual),
-				Filter.Binary(Filter.Variable("Address.ZipCode"), Filter.Constant(12345), FilterType.Equal),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Address"), FilterExpression.Constant(null), FilterExpressionType.NotEqual),
+				FilterExpression.Binary(FilterExpression.Variable("Address.ZipCode"), FilterExpression.Constant(12345), FilterExpressionType.Equal),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1101,10 +1101,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_MultipleNestedObjectComparisons_ShouldWork()
 		{
 			// Arrange - Address.City and Department.Manager.Name
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Address.City"), Filter.Constant("New York"), FilterType.Equal),
-				Filter.Binary(Filter.Variable("Department.Manager.Name"), Filter.Constant("Smith"), FilterType.Equal),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Address.City"), FilterExpression.Constant("New York"), FilterExpressionType.Equal),
+				FilterExpression.Binary(FilterExpression.Variable("Department.Manager.Name"), FilterExpression.Constant("Smith"), FilterExpressionType.Equal),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1132,10 +1132,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NestedObjectMethodCall_ShouldWork()
 		{
 			// Arrange - Address.City.Contains("York")
-			var filter = Filter.Function(
-				Filter.Variable("Address.City"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Address.City"),
 				"Contains",
-				new[] { Filter.Constant("York") });
+				new[] { FilterExpression.Constant("York") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1155,10 +1155,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NestedObjectPropertyLength_ShouldWork()
 		{
 			// Arrange - Address.Street.Length > 10
-			var filter = Filter.Binary(
-				Filter.Function(Filter.Variable("Address.Street"), "get_Length"),
-				Filter.Constant(10),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Function(FilterExpression.Variable("Address.Street"), "get_Length"),
+				FilterExpression.Constant(10),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1178,10 +1178,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ComplexNestedObjectComparison_ShouldWork()
 		{
 			// Arrange - Department.Manager.YearsExperience >= 5 && Address.ContactInfo.Phone != null
-			var filter = Filter.Binary(
-				Filter.Binary(Filter.Variable("Department.Manager.YearsExperience"), Filter.Constant(5), FilterType.GreaterThanOrEqual),
-				Filter.Binary(Filter.Variable("Address.ContactInfo.Phone"), Filter.Constant(null), FilterType.NotEqual),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Binary(FilterExpression.Variable("Department.Manager.YearsExperience"), FilterExpression.Constant(5), FilterExpressionType.GreaterThanOrEqual),
+				FilterExpression.Binary(FilterExpression.Variable("Address.ContactInfo.Phone"), FilterExpression.Constant(null), FilterExpressionType.NotEqual),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1213,8 +1213,8 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ListAnyExtension_ShouldWork()
 		{
 			// Arrange - Tags.Any()
-			var filter = Filter.Function(
-				Filter.Variable("Tags"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Tags"),
 				"Any");
 
 			// Act
@@ -1259,10 +1259,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ListContainsExtension_ShouldWork()
 		{
 			// Arrange - Tags.Contains("developer")
-			var filter = Filter.Function(
-				Filter.Variable("Tags"),
+			var filter = FilterExpression.Function(
+				FilterExpression.Variable("Tags"),
 				"Contains",
-				new[] { Filter.Constant("developer") });
+				new[] { FilterExpression.Constant("developer") });
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1282,10 +1282,10 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_ListCountExtension_ShouldWork()
 		{
 			// Arrange - Tags.Count() > 2
-			var filter = Filter.Binary(
-				Filter.Function(Filter.Variable("Tags"), "Count"),
-				Filter.Constant(2),
-				FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Function(FilterExpression.Variable("Tags"), "Count"),
+				FilterExpression.Constant(2),
+				FilterExpressionType.GreaterThan);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();
@@ -1305,13 +1305,13 @@ namespace Deveel.Filters
 		public static void AsDynamicLambda_NestedListExtensions_ShouldWork()
 		{
 			// Arrange - Addresses.Any() && Addresses.Count() > 1
-			var filter = Filter.Binary(
-				Filter.Function(Filter.Variable("Addresses"), "Any"),
-				Filter.Binary(
-					Filter.Function(Filter.Variable("Addresses"), "Count"),
-					Filter.Constant(1),
-					FilterType.GreaterThan),
-				FilterType.And);
+			var filter = FilterExpression.Binary(
+				FilterExpression.Function(FilterExpression.Variable("Addresses"), "Any"),
+				FilterExpression.Binary(
+					FilterExpression.Function(FilterExpression.Variable("Addresses"), "Count"),
+					FilterExpression.Constant(1),
+					FilterExpressionType.GreaterThan),
+				FilterExpressionType.And);
 
 			// Act
 			var lambda = filter.AsDynamicLambda<Person>();

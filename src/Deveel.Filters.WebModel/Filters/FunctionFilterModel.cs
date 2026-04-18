@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Deveel.Filters {
@@ -26,10 +30,10 @@ namespace Deveel.Filters {
 		[JsonPropertyName("args")]
 		public FilterModel[]? Arguments { get; set; }
 
-		internal Filter BuildFilter() {
-			var variable = Filter.Variable(Instance);
-			var args = Arguments?.Select(x => x.BuildFilter()).ToArray() ?? Array.Empty<Filter>();
-			return Filter.Function(variable, Name, args);
+		internal FilterExpression BuildFilter() {
+			var variable = FilterExpression.Variable(Instance);
+			var args = Arguments?.Select(x => x.BuildFilter()).ToArray() ?? Array.Empty<FilterExpression>();
+			return FilterExpression.Function(variable, Name, args);
 		}
 	}
 }
