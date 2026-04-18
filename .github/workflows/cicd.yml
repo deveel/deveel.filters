@@ -95,7 +95,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/publish-packages.yml
     with:
-      version: ${{ needs.version.outputs.nuget-version }}
+      version: ${{ needs.version.outputs.version }}
       assembly-version: ${{ needs.version.outputs.assembly-version }}
       file-version: ${{ needs.version.outputs.file-version }}
       informational-version: ${{ needs.version.outputs.informational-version }}
