@@ -104,6 +104,7 @@ jobs:
       assembly-version: ${{ needs.version.outputs.assembly-version }}
       file-version: ${{ needs.version.outputs.file-version }}
       informational-version: ${{ needs.version.outputs.informational-version }}
+    secrets: inherit
 
   clean:
     name: "Cleaning Old Packages"
