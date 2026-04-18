@@ -1,159 +1,268 @@
-![Codecov](https://img.shields.io/codecov/c/github/deveel/deveel.filters?logo=codecov&token=37K687Z96N)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/deveel/deveel.filters/cicd.yml?logo=github)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/deveel/deveel.filters/cicd.yml?logo=github&label=build)](https://github.com/deveel/deveel.filters/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/deveel/deveel.filters?logo=codecov&token=37K687Z96N)](https://codecov.io/gh/deveel/deveel.filters)
+[![NuGet Version](https://img.shields.io/nuget/v/Deveel.Filters?logo=nuget&label=nuget)](https://www.nuget.org/packages/Deveel.Filters)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Deveel.Filters?logo=nuget&label=downloads)](https://www.nuget.org/packages/Deveel.Filters)
+[![GitHub License](https://img.shields.io/github/license/deveel/deveel.filters)](https://github.com/deveel/deveel.filters/blob/main/LICENSE)
+
+<img src="deveel-logo.png" alt="Deveel Logo" width="64" align="right" />
 
 # Deveel Filters
 
-Provides a generic and structured approach to create filters to be applied to a data source, supporting multiple target frameworks and flexible filter expressions.
+A .NET library that provides a **structured, serializable, and extensible** model for building dynamic filter expressions. Filters can be evaluated in-memory, compiled to LINQ expressions, converted to Dynamic LINQ queries, or serialized to BSON for MongoDB — all from a single, unified API.
 
-## Features
+## Scope
 
-- **Dynamic Filters**: Create filters dynamically using a fluent API.
-- **LINQ Support**: Use LINQ expressions to build complex filters.
-- **Asynchronous Evaluation**: Evaluate filters asynchronously for better performance in I/O-bound scenarios.
-- **Web Integration**: DTOs and validation for web APIs to ensure data integrity.
-- **Extensible**: Easily extendable to support custom filter types and operations.
-- **Performance Optimized**: Designed for high performance with minimal allocations.
-- **Cross-Platform**: Compatible with .NET 6.0, 7.0, and 8.0.
-- **Benchmarked**: Performance benchmarks available to compare different filter implementations.
+The library addresses the need for a **portable, technology-agnostic filter representation** that can be:
+
+- **Built** programmatically using a fluent factory API
+- **Evaluated** synchronously or asynchronously against any .NET object
+- **Compiled** to strongly-typed `Expression<Func<T, bool>>` lambda expressions
+- **Converted** to Dynamic LINQ strings for use with Entity Framework or other LINQ providers
+- **Serialized** to JSON, BSON, or other formats for network transmission and storage
+- **Validated** via web-friendly DTOs for API scenarios
 
 ## Motivation
 
-Deveel Filters is designed to provide a robust and flexible filtering mechanism that can be used across various applications, from web APIs to data processing tasks. It aims to simplify the creation and evaluation of filters while maintaining high performance and extensibility.
+In many applications — web APIs, data pipelines, reporting engines, multi-tenant SaaS platforms — filters need to be **defined at runtime** rather than compiled into the code. Common approaches include:
 
-### Why Not System.Linq.Expressions?
+- **Hand-rolled string parsing**: error-prone, hard to validate, and not type-safe
+- **`System.Linq.Expressions` directly**: powerful but verbose for simple predicates, not serializable, and tightly coupled to LINQ semantics
+- **OData / GraphQL**: heavyweight protocol-level solutions when you just need a lightweight filter model
 
-While it is powerful, it can be complex and verbose for many common filtering scenarios. 
+**Deveel Filters** fills the gap by providing a **minimal, composable expression tree** purpose-built for filtering:
 
-* Also, the set of expressions in the System.Linq.Expressions namespace is limited to LINQ operations, which may not cover all use cases.
-* Furthermore, the _System.Linq.Expressions_ framework provides a more extensive set of operations, but it can be cumbersome to use for simple filtering tasks.
-* _Deveel Filters_ provides a more user-friendly API and supports a wider range of filter types and operations, making it easier to work with complex data structures and scenarios.
-* It also allows for more straightforward integration with web APIs and other data sources, providing a consistent and efficient way to handle filtering across different contexts.
-* The Filter objects are serializable to JSON, BSON and other formats, making it easy to transmit filters over the network or store them in a database.
+| Concern | `System.Linq.Expressions` | Deveel Filters |
+|---|---|---|
+| Serializable to JSON/BSON | ❌ | ✅ |
+| Built-in async evaluation | ❌ | ✅ |
+| Web DTO + validation layer | ❌ | ✅ (WebModel package) |
+| Dynamic LINQ integration | Manual | ✅ (DynamicLinq package) |
+| MongoDB BSON support | ❌ | ✅ (MongoBson package) |
+| Concise factory API | ❌ | ✅ |
 
 ## Supported Frameworks
 
 - .NET 6.0
-- .NET 7.0  
+- .NET 7.0
 - .NET 8.0
 
 ## Packages
 
-### Core Package
-- **Deveel.Filter.Model** - Core filtering models and utilities
-
-### Extension Packages
-- **Deveel.Filter.Model.Web** - Web DTOs and validation for APIs
-- **Deveel.Filter.DynamicLinq** - LINQ-based filter implementations
+| Package | Description | NuGet |
+|---|---|---|
+| **Deveel.Filters** | Core filter expression model, factory API, evaluation, and lambda compilation | [![NuGet](https://img.shields.io/nuget/v/Deveel.Filters?logo=nuget)](https://www.nuget.org/packages/Deveel.Filters) |
+| **Deveel.Filters.WebModel** | Web DTOs and validation for API scenarios | [![NuGet](https://img.shields.io/nuget/v/Deveel.Filters.WebModel?logo=nuget)](https://www.nuget.org/packages/Deveel.Filters.WebModel) |
+| **Deveel.Filters.DynamicLinq** | Conversion of filter expressions to Dynamic LINQ queries | [![NuGet](https://img.shields.io/nuget/v/Deveel.Filters.DynamicLinq?logo=nuget)](https://www.nuget.org/packages/Deveel.Filters.DynamicLinq) |
+| **Deveel.Filters.MongoBson** | Serialization/deserialization of filters to/from MongoDB BSON documents | [![NuGet](https://img.shields.io/nuget/v/Deveel.Filters.MongoBson?logo=nuget)](https://www.nuget.org/packages/Deveel.Filters.MongoBson) |
 
 ## Installation
 
+Install the core package (and any extension packages you need) via the .NET CLI or the NuGet Package Manager.
+
 ### .NET CLI
+
 ```bash
-dotnet add package Deveel.Filter.Model
+# Core package
+dotnet add package Deveel.Filters
+
+# Optional extensions
+dotnet add package Deveel.Filters.WebModel
+dotnet add package Deveel.Filters.DynamicLinq
+dotnet add package Deveel.Filters.MongoBson
 ```
-### Package Manager
-```bash
-Install-Package Deveel.Filter.Model
+
+### Package Manager Console
+
+```powershell
+Install-Package Deveel.Filters
+
+# Optional extensions
+Install-Package Deveel.Filters.WebModel
+Install-Package Deveel.Filters.DynamicLinq
+Install-Package Deveel.Filters.MongoBson
 ```
+
+### PackageReference (MSBuild)
+
+```xml
+<PackageReference Include="Deveel.Filters" Version="1.0.*" />
+```
+
 ## Usage
 
-### Creating a Filter
-```csharp
-var filter = Filter.Equal(
-	Filter.Variable("x.name"),
-	Filter.Constant("Antonello"),
-	FilterType.Equals);
+All filter expressions are created through static factory methods on the `FilterExpression` class (namespace `Deveel.Filters`). The API uses three building blocks: **variables** (references to object properties), **constants** (literal values), and **operators** (equality, comparison, logical, etc.) that combine them into a filter tree.
 
-var result = filter.Evaluate(new {name = "antonello"});
-	Filter.Equal(
-		Filter.Variable("x.age"),
-		Filter.Constant(30),
-		FilterType.Equals));
+### Building a Simple Equality Filter
 
-var result = filter.Evaluate(new {name = "antonello", age = 30});
-var filter = Filter.Function("x.name", "StartsWith", Filter.Constant("Anto"));
-
-var result = filter.Evaluate(new {name = "Antonello"});
-```
-
-Navigating through complex objects:
+The simplest filter compares a single property to a constant value. Use `FilterExpression.Variable` to reference a property path and `FilterExpression.Constant` to wrap a literal value, then combine them with an operator such as `Equal`.
 
 ```csharp
-var filter = Filter.LogicalAnd(
-	Filter.Equal(
-		Filter.Variable("x.name"),
-		Filter.Constant("Antonello"),
-		FilterType.Equals),
-	Filter.Equal(
-		Filter.Variable("x.age"),
-		Filter.Constant(30),
-		FilterType.Equals));
+using Deveel.Filters;
 
-var result = filter.Evaluate(new {name = "Antonello", age = 30});
-
-var filter = Filter.LogicalAnd(
-	Filter.Equal(
-		Filter.Variable("x.name"),
-		Filter.Constant("Antonello"),
-		FilterType.Equals),
-	Filter.Equal(
-		Filter.Variable("x.address.city"),
-		Filter.Constant("Rome"),
-		FilterType.Equals));
-
-var result = filter.Evaluate(new {name = "Antonello", address = new {city = "Rome"}});
-
+// "x.Name == "Antonello""
+var filter = FilterExpression.Equal(
+    FilterExpression.Variable("x.Name"),
+    FilterExpression.Constant("Antonello"));
 ```
+
+The variable name is prefixed with `x.` because the default parameter name used during evaluation is `x`. The dot-separated path after the prefix maps to property access on the target object.
+
+### Evaluating a Filter In-Memory
+
+Once a filter is built, you can evaluate it directly against an object using the `Evaluate` extension method. The method compiles the filter into a lambda, invokes it, and returns `true` or `false`.
+
+```csharp
+var filter = FilterExpression.Equal(
+    FilterExpression.Variable("x.Name"),
+    FilterExpression.Constant("Antonello"));
+
+bool match = filter.Evaluate(new { Name = "Antonello" }); // true
+```
+
+The generic overload `Evaluate<T>` infers the type from the argument, so you can pass anonymous objects, POCOs, or records without specifying the type explicitly.
+
+### Combining Filters with Logical Operators
+
+Multiple conditions can be joined with `And` or `Or` to form compound filters. The example below matches objects where _both_ the `Name` equals `"Antonello"` **and** the `Age` is greater than or equal to `30`.
+
+```csharp
+var filter = FilterExpression.And(
+    FilterExpression.Equal(
+        FilterExpression.Variable("x.Name"),
+        FilterExpression.Constant("Antonello")),
+    FilterExpression.GreaterThanOrEqual(
+        FilterExpression.Variable("x.Age"),
+        FilterExpression.Constant(30)));
+
+bool match = filter.Evaluate(new { Name = "Antonello", Age = 35 }); // true
+```
+
+You can nest `And` / `Or` nodes arbitrarily to express complex boolean logic.
+
+### Navigating Nested Properties
+
+Variable paths support dot notation to reach into nested objects. In the following example, `x.Address.City` navigates from the root object through the `Address` property to its `City` sub-property.
+
+```csharp
+var filter = FilterExpression.And(
+    FilterExpression.Equal(
+        FilterExpression.Variable("x.Name"),
+        FilterExpression.Constant("Antonello")),
+    FilterExpression.Equal(
+        FilterExpression.Variable("x.Address.City"),
+        FilterExpression.Constant("Rome")));
+
+var person = new { Name = "Antonello", Address = new { City = "Rome" } };
+bool match = filter.Evaluate(person); // true
+```
+
+There is no depth limit — you can traverse as many levels as your object graph requires.
+
+### Using Function Filters
+
+Function filters invoke a named method on a variable's value. This is useful for string operations like `StartsWith`, `EndsWith`, or `Contains` that don't map to simple comparison operators.
+
+```csharp
+var filter = FilterExpression.Function(
+    FilterExpression.Variable("x.Name"),
+    "StartsWith",
+    new[] { FilterExpression.Constant("Anto") });
+
+bool match = filter.Evaluate(new { Name = "Antonello" }); // true
+```
+
+The function name must match a public instance method on the runtime type of the property. Arguments are passed as an array of filter expressions (typically constants).
+
+### Negating a Filter
+
+Wrap any filter in `FilterExpression.Not` to invert its result. The example below matches all objects whose `Status` is _not_ `"Archived"`.
+
+```csharp
+var filter = FilterExpression.Not(
+    FilterExpression.Equal(
+        FilterExpression.Variable("x.Status"),
+        FilterExpression.Constant("Archived")));
+
+bool match = filter.Evaluate(new { Status = "Active" }); // true
+```
+
+Negation can be applied to any expression node — simple comparisons, logical combinations, or function calls.
 
 ### Asynchronous Evaluation
-```csharp
-var filter = Filter.Equal(
-	Filter.Variable("x.name"),
-	Filter.Constant("Antonello"),
-	FilterType.Equals);
 
-	var result = await filter.EvaluateAsync(new {name = "Antonello"});
-```
-
-### Convert to LINQ Expression
+For I/O-bound or high-throughput scenarios you can evaluate filters asynchronously with `EvaluateAsync`. This compiles the filter into an `async` lambda that returns `Task<bool>`.
 
 ```csharp
-var filter = Filter.Equal(
-	Filter.Variable("x.name"),
-	Filter.Constant("Antonello"),
-	FilterType.Equals);
+var filter = FilterExpression.Equal(
+    FilterExpression.Variable("x.Name"),
+    FilterExpression.Constant("Antonello"));
 
-	var lambda = filter.AsLambda<Person>();
-	var result = lambda(new Person { Name = "Antonello" });
+bool match = await filter.EvaluateAsync(new { Name = "Antonello" });
 ```
 
-## Performances
+The async path avoids blocking the calling thread and integrates naturally with `async` / `await` pipelines.
+
+### Compiling to a Lambda Expression
+
+When you need to pass a filter to a LINQ provider (e.g., Entity Framework Core), compile it to a strongly-typed `Expression<Func<T, bool>>` using `AsLambda<T>`. The resulting expression tree can be translated to SQL or any other query language by the provider.
+
+```csharp
+var filter = FilterExpression.Equal(
+    FilterExpression.Variable("x.Name"),
+    FilterExpression.Constant("Antonello"));
+
+// Compile to Expression<Func<Person, bool>> for use with LINQ / EF Core
+Expression<Func<Person, bool>> predicate = filter.AsLambda<Person>();
+
+// Use it in a LINQ query
+var results = dbContext.People.Where(predicate).ToList();
+```
+
+Because the result is a standard `Expression<Func<T, bool>>`, it is fully compatible with any library that accepts LINQ expression trees.
+
+### Converting to Dynamic LINQ (requires `Deveel.Filters.DynamicLinq`)
+
+If you prefer string-based dynamic queries (useful when the target type is not known at compile time), the **DynamicLinq** extension package converts a filter into a Dynamic LINQ predicate string that can be applied to any `IQueryable`.
+
+```csharp
+using Deveel.Filters;
+using Deveel.Filters.DynamicLinq;
+
+var filter = FilterExpression.Equal(
+    FilterExpression.Variable("x.Name"),
+    FilterExpression.Constant("Antonello"));
+
+// Convert to a Dynamic LINQ string and apply to an IQueryable
+var results = dbContext.People
+    .Where(filter.ToDynamicLinq())
+    .ToList();
+```
+
+This is particularly helpful in multi-tenant or plugin-based architectures where filter definitions are stored externally (e.g., in a database or configuration file) and applied at runtime against varying entity types.
+
+## Performance
+
+The library is designed for high throughput with minimal allocations. Below are representative benchmarks from `BenchmarkDotNet`:
 
 _Deveel.Filters v1.0.0-c18 / 2025-07-21_
 
-BenchmarkDotNet=v0.13.5, OS=Windows 11 (10.0.22621.1635/22H2/2022Update/SunValley2)
-Intel Core i7-10510U CPU 1.80GHz, 1 CPU, 8 logical and 4 physical cores
-.NET SDK=8.0.100-preview.2.23157.25
-  [Host]   : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+| Method | Runtime | Mean | Allocated |
+|---|---|---:|---:|
+| BuildSimpleEqual | .NET 7.0 | 846 ns | 824 B |
+| BuildSimpleEqual | .NET 6.0 | 1,784 ns | 824 B |
+| BuildLogicalAndOfComplexObject | .NET 7.0 | 2,180 ns | 1,592 B |
+| BuildAsyncSimpleEqual | .NET 7.0 | 4,489 ns | 3,616 B |
+| BuildSimpleEqualDynamicLinq | .NET 7.0 | 34,458 ns | 25,238 B |
+| BuildLogicalAndOfComplexObjectDynamicLinq | .NET 7.0 | 49,006 ns | 28,331 B |
 
+> Full benchmark results are available in the [`test/FiltersBenchmark`](test/FiltersBenchmark) project.
 
-|                                    Method |      Job |  Runtime |        Mean |     Error |      StdDev |      Median | Rank |   Gen0 |   Gen1 | Allocated |
-|------------------------------------------ |--------- |--------- |------------:|----------:|------------:|------------:|-----:|-------:|-------:|----------:|
-|                          BuildSimpleEqual | .NET 7.0 | .NET 7.0 |    846.2 ns |  16.85 ns |    31.24 ns |    848.6 ns |    1 | 0.1965 |      - |     824 B |
-|                       BuildSimpleEqualOfT | .NET 7.0 | .NET 7.0 |    866.3 ns |  16.91 ns |    27.78 ns |    870.5 ns |    2 | 0.1965 |      - |     824 B |
-|                       BuildSimpleEqualOfT | .NET 6.0 | .NET 6.0 |  1,241.9 ns |  79.50 ns |   216.28 ns |  1,142.7 ns |    3 | 0.1945 |      - |     824 B |
-|                          BuildSimpleEqual | .NET 6.0 | .NET 6.0 |  1,784.2 ns | 301.84 ns |   889.98 ns |  1,302.8 ns |    4 | 0.1965 |      - |     824 B |
-|            BuildLogicalAndOfComplexObject | .NET 7.0 | .NET 7.0 |  2,180.0 ns |  43.33 ns |    79.23 ns |  2,196.5 ns |    5 | 0.3777 |      - |    1592 B |
-|            BuildLogicalAndOfComplexObject | .NET 6.0 | .NET 6.0 |  2,649.2 ns |  52.48 ns |    66.37 ns |  2,648.5 ns |    6 | 0.3777 |      - |    1592 B |
-|                     BuildAsyncSimpleEqual | .NET 7.0 | .NET 7.0 |  4,489.1 ns |  89.75 ns |   122.85 ns |  4,469.1 ns |    7 | 0.8621 |      - |    3616 B |
-|                  BuildAsyncSimpleEqualOfT | .NET 7.0 | .NET 7.0 |  4,605.1 ns |  91.85 ns |   193.74 ns |  4,623.4 ns |    7 | 0.8621 |      - |    3616 B |
-|                     BuildAsyncSimpleEqual | .NET 6.0 | .NET 6.0 |  6,464.4 ns | 164.59 ns |   469.59 ns |  6,404.1 ns |    8 | 1.0223 |      - |    4328 B |
-|                  BuildAsyncSimpleEqualOfT | .NET 6.0 | .NET 6.0 |  7,186.7 ns | 274.47 ns |   760.57 ns |  6,899.9 ns |    9 | 1.0300 |      - |    4328 B |
-|            BuildSimpleEqualDynamicLinqOfT | .NET 7.0 | .NET 7.0 | 31,883.4 ns | 624.50 ns |   934.72 ns | 31,787.3 ns |   10 | 5.9814 |      - |   25246 B |
-|               BuildSimpleEqualDynamicLinq | .NET 7.0 | .NET 7.0 | 34,457.7 ns | 615.90 ns |   756.38 ns | 34,311.7 ns |   11 | 5.9814 |      - |   25238 B |
-|               BuildSimpleEqualDynamicLinq | .NET 6.0 | .NET 6.0 | 35,823.3 ns | 712.13 ns | 1,209.25 ns | 35,983.2 ns |   12 | 5.9814 |      - |   25231 B |
-|            BuildSimpleEqualDynamicLinqOfT | .NET 6.0 | .NET 6.0 | 36,224.7 ns | 724.19 ns | 1,324.22 ns | 36,154.9 ns |   12 | 5.9814 | 0.0610 |   25239 B |
-| BuildLogicalAndOfComplexObjectDynamicLinq | .NET 6.0 | .NET 6.0 | 44,806.9 ns | 886.78 ns | 1,021.22 ns | 45,005.1 ns |   13 | 6.7139 |      - |   28317 B |
-| BuildLogicalAndOfComplexObjectDynamicLinq | .NET 7.0 | .NET 7.0 | 49,006.3 ns | 954.51 ns | 1,368.94 ns | 48,910.4 ns |   14 | 6.7139 |      - |   28331 B |
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request on [GitHub](https://github.com/deveel/deveel.filters).
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+Copyright © 2023–2026 Antonello Provenzano.

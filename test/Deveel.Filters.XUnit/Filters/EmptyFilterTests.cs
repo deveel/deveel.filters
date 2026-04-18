@@ -2,16 +2,16 @@
 	public class EmptyFilterTests {
 		[Fact]
 		public static void BuildEmptyFilter() {
-			var filter = Filter.Empty;
+			var filter = FilterExpression.Empty;
 			Assert.NotNull(filter);
 			Assert.True(filter.IsEmpty);
-			Assert.Equal(Filter.Empty, filter);
+			Assert.Equal(FilterExpression.Empty, filter);
 		}
 
 		[Fact]
 		public static void CompareEmptyToNotEmptyFilter() {
-			var emptyFilter = Filter.Empty;
-			var binary = Filter.Binary(Filter.Variable("x.l"), Filter.Constant(22), FilterType.LessThanOrEqual);
+			var emptyFilter = FilterExpression.Empty;
+			var binary = FilterExpression.Binary(FilterExpression.Variable("x.l"), FilterExpression.Constant(22), FilterExpressionType.LessThanOrEqual);
 
 			Assert.NotEqual(emptyFilter, binary);
 			Assert.NotEqual(binary, emptyFilter);
@@ -22,14 +22,14 @@
 
 		[Fact]
 		public static void CreateBinaryWithTwoEmpty() {
-			var binary = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.LessThanOrEqual);
+			var binary = FilterExpression.Binary(FilterExpression.Empty, FilterExpression.Empty, FilterExpressionType.LessThanOrEqual);
 
 			Assert.NotNull(binary);
 			Assert.True(binary.Left.IsEmpty);
-			Assert.Equal(Filter.Empty, binary.Left);
+			Assert.Equal(FilterExpression.Empty, binary.Left);
 
 			Assert.True(binary.Right.IsEmpty);
-			Assert.Equal(Filter.Empty, binary.Right);
+			Assert.Equal(FilterExpression.Empty, binary.Right);
 		}
 	}
 }

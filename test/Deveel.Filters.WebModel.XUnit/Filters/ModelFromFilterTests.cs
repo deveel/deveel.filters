@@ -4,7 +4,7 @@ namespace Deveel.Filters {
 	public static class ModelFromFilterTests {
 		[Fact]
 		public static void BuildEqualModel() {
-            var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
+            var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.Equal);
             var model = binary.ToFilterModel();
 
             Assert.NotNull(model);
@@ -22,7 +22,7 @@ namespace Deveel.Filters {
 
         [Fact]
 		public static void BuildEqualModelExtended() {
-			var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.Equal);
+			var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.Equal);
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false});
 			Assert.NotNull(model);
 			Assert.NotNull(model.Equal);
@@ -36,7 +36,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildNotEqualModel() {
-            var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.NotEqual);
+            var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.NotEqual);
             var model = binary.ToFilterModel();
             Assert.NotNull(model);
             Assert.NotNull(model.NotEqual);
@@ -51,7 +51,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildNotEqualModelExtended() {
-			var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.NotEqual);
+			var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.NotEqual);
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false });
 			Assert.NotNull(model);
 			Assert.NotNull(model.NotEqual);
@@ -65,7 +65,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildGreaterThanModel() {
-            var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.GreaterThan);
+            var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.GreaterThan);
             var model = binary.ToFilterModel();
             Assert.NotNull(model);
             Assert.NotNull(model.GreaterThan);
@@ -80,7 +80,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildGreaterThanModelExtended() {
-			var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.GreaterThan);
+			var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.GreaterThan);
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false});
 			Assert.NotNull(model);
 			Assert.NotNull(model.GreaterThan);
@@ -94,7 +94,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildGreaterThanOrEqualModel() {
-            var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.GreaterThanOrEqual);
+            var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.GreaterThanOrEqual);
             var model = binary.ToFilterModel();
             Assert.NotNull(model);
             Assert.NotNull(model.GreaterThanOrEqual);
@@ -109,7 +109,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildGreaterThanOrEqualModelExtended() {
-			var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.GreaterThanOrEqual);
+			var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.GreaterThanOrEqual);
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false });
 			Assert.NotNull(model);
 			Assert.NotNull(model.GreaterThanOrEqual);
@@ -123,7 +123,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildLessThanModel() {
-            var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.LessThan);
+            var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.LessThan);
             var model = binary.ToFilterModel();
             Assert.NotNull(model);
             Assert.NotNull(model.LessThan);
@@ -138,7 +138,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildLessThanModelExtended() {
-			var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.LessThan);
+			var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.LessThan);
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false});
 			Assert.NotNull(model);
 			Assert.NotNull(model.LessThan);
@@ -152,7 +152,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildLessThanOrEqualModel() {
-            var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.LessThanOrEqual);
+            var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.LessThanOrEqual);
             var model = binary.ToFilterModel();
             Assert.NotNull(model);
             Assert.NotNull(model.LessThanOrEqual);
@@ -167,7 +167,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildLessThanOrEqualModelExtended() {
-			var binary = Filter.Binary(Filter.Variable("x"), Filter.Constant(22), FilterType.LessThanOrEqual);
+			var binary = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(22), FilterExpressionType.LessThanOrEqual);
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false});
 			Assert.NotNull(model);
 
@@ -184,7 +184,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildAndModel() {
-			var binary = Filter.And(Filter.Equal(Filter.Variable("x"), Filter.Constant(22)), Filter.NotEquals(Filter.Variable("y"), Filter.Constant(45)));
+			var binary = FilterExpression.And(FilterExpression.Equal(FilterExpression.Variable("x"), FilterExpression.Constant(22)), FilterExpression.NotEquals(FilterExpression.Variable("y"), FilterExpression.Constant(45)));
             var model = binary.ToFilterModel();
             Assert.NotNull(model);
             Assert.NotNull(model.And);
@@ -209,7 +209,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildAndModelExtended() {
-			var binary = Filter.And(Filter.Equal(Filter.Variable("x"), Filter.Constant(22)), Filter.NotEquals(Filter.Variable("y"), Filter.Constant(45)));
+			var binary = FilterExpression.And(FilterExpression.Equal(FilterExpression.Variable("x"), FilterExpression.Constant(22)), FilterExpression.NotEquals(FilterExpression.Variable("y"), FilterExpression.Constant(45)));
 
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false });
 
@@ -241,7 +241,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildOrModelExtended() {
-			var binary = Filter.Or(Filter.Equal(Filter.Variable("x"), Filter.Constant(22)), Filter.NotEquals(Filter.Variable("y"), Filter.Constant(45)));
+			var binary = FilterExpression.Or(FilterExpression.Equal(FilterExpression.Variable("x"), FilterExpression.Constant(22)), FilterExpression.NotEquals(FilterExpression.Variable("y"), FilterExpression.Constant(45)));
 			var model = binary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false });
 			Assert.NotNull(model);
 			Assert.NotNull(model.Or);
@@ -265,7 +265,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildNotModelWithExtendedOperand() {
-			var unary = Filter.Not(Filter.Equal(Filter.Variable("x"), Filter.Constant(22)));
+			var unary = FilterExpression.Not(FilterExpression.Equal(FilterExpression.Variable("x"), FilterExpression.Constant(22)));
 			var model = unary.ToFilterModel(new FilterBuilderOptions { PreferBinaryData = false });
 			Assert.NotNull(model);
 			Assert.NotNull(model.Not);
@@ -280,7 +280,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildConstantModel() {
-			var constant = Filter.Constant(22);
+			var constant = FilterExpression.Constant(22);
 			var model = constant.ToFilterModel();
 			Assert.NotNull(model);
 			Assert.NotNull(model.Value);
@@ -289,7 +289,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildVariableModel() {
-			var variable = Filter.Variable("x");
+			var variable = FilterExpression.Variable("x");
 			var model = variable.ToFilterModel();
 			Assert.NotNull(model);
 			Assert.NotNull(model.Ref);
@@ -298,7 +298,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void BuildFunctionModel() {
-			var function = Filter.Function(Filter.Variable("x"), "f", new[] { Filter.Constant(22), Filter.Constant(45) });
+			var function = FilterExpression.Function(FilterExpression.Variable("x"), "f", new[] { FilterExpression.Constant(22), FilterExpression.Constant(45) });
 			var model = function.ToFilterModel();
 			Assert.NotNull(model);
 			Assert.NotNull(model.Function);

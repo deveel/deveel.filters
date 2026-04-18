@@ -4,7 +4,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_NullParameterType_Throws() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(1), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<ArgumentNullException>(() => filter.AsLambda(null!));
 		}
 
@@ -13,13 +13,13 @@ namespace Deveel.Filters {
 		[InlineData("")]
 		[InlineData("  ")]
 		public static void AsLambda_InvalidParameterName_Throws(string? paramName) {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(1), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<ArgumentException>(() => filter.AsLambda(typeof(int), paramName!));
 		}
 
 		[Fact]
 		public static void AsLambda_InvalidMember_ThrowsFilterException() {
-			var filter = Filter.Binary(Filter.Variable("nonExistent"), Filter.Constant(1), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("nonExistent"), FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<FilterException>(() => filter.AsLambda<int>());
 		}
 
@@ -29,7 +29,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsAsyncLambda_NullParameterType_Throws() {
-			var filter = Filter.Variable("x");
+			var filter = FilterExpression.Variable("x");
 			Assert.Throws<ArgumentNullException>(() => filter.AsAsyncLambda(null!));
 		}
 
@@ -38,7 +38,7 @@ namespace Deveel.Filters {
 		[InlineData("")]
 		[InlineData("  ")]
 		public static void AsAsyncLambda_InvalidParameterName_Throws(string? paramName) {
-			var filter = Filter.Variable("x");
+			var filter = FilterExpression.Variable("x");
 			Assert.Throws<ArgumentException>(() => filter.AsAsyncLambda(typeof(int), paramName!));
 		}
 
@@ -48,7 +48,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void Evaluate_NullParameterType_Throws() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(1), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<ArgumentNullException>(() => filter.Evaluate(null!, "x", 1));
 		}
 
@@ -57,13 +57,13 @@ namespace Deveel.Filters {
 		[InlineData("")]
 		[InlineData("  ")]
 		public static void Evaluate_InvalidParameterName_Throws(string? paramName) {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(1), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<ArgumentException>(() => filter.Evaluate(typeof(int), paramName!, 1));
 		}
 
 		[Fact]
 		public static void Evaluate_InvalidFilter_ThrowsFilterEvaluationException() {
-			var filter = Filter.Binary(Filter.Variable("nonExistent"), Filter.Constant(1), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("nonExistent"), FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<FilterEvaluationException>(() => filter.Evaluate<int>("x", 1));
 		}
 
@@ -73,14 +73,14 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void Evaluate_WithType_DefaultParamName() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
 			Assert.True(filter.Evaluate(typeof(int), 20));
 			Assert.False(filter.Evaluate(typeof(int), 5));
 		}
 
 		[Fact]
 		public static void Evaluate_GenericDefaultParamName() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
 			Assert.True(filter.Evaluate(20));
 			Assert.False(filter.Evaluate(5));
 		}
@@ -91,13 +91,13 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static async Task EvaluateAsync_WithTypeAndName() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
 			Assert.True(await filter.EvaluateAsync(typeof(int), "x", 20));
 		}
 
 		[Fact]
 		public static async Task EvaluateAsync_GenericWithName() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
 			Assert.True(await filter.EvaluateAsync("x", 20));
 		}
 
@@ -107,25 +107,25 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void ToString_Variable() {
-			var filter = Filter.Variable("x");
+			var filter = FilterExpression.Variable("x");
 			Assert.Equal("x", filter.ToString());
 		}
 
 		[Fact]
 		public static void ToString_NullConstant() {
-			var filter = Filter.Constant(null);
+			var filter = FilterExpression.Constant(null);
 			Assert.Equal("null", filter.ToString());
 		}
 
 		[Fact]
 		public static void ToString_BoolConstant() {
-			Assert.Equal("true", Filter.Constant(true).ToString());
-			Assert.Equal("false", Filter.Constant(false).ToString());
+			Assert.Equal("true", FilterExpression.Constant(true).ToString());
+			Assert.Equal("false", FilterExpression.Constant(false).ToString());
 		}
 
 		[Fact]
 		public static void AsString_StringConstant() {
-			Assert.Equal("\"hello\"", Filter.Constant("hello").ToString());
+			Assert.Equal("\"hello\"", FilterExpression.Constant("hello").ToString());
 		}
 
 		#endregion
@@ -134,12 +134,12 @@ namespace Deveel.Filters {
 		
 		[Fact]
 		public static void IsEmpty_EmptyFilter() {
-			Assert.True(Filter.Empty.IsEmpty);
+			Assert.True(FilterExpression.Empty.IsEmpty);
 		}
 
 		[Fact]
 		public static void IsEmpty_NonEmptyFilter() {
-			Assert.False(Filter.Variable("x").IsEmpty);
+			Assert.False(FilterExpression.Variable("x").IsEmpty);
 		}
 
 		#endregion
@@ -148,9 +148,9 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void Visitor_EmptyFilter_ReturnsEmpty() {
-			var visitor = new FilterVisitor();
-			var result = visitor.Visit(Filter.Empty);
-			Assert.Equal(Filter.Empty, result);
+			var visitor = new FilterExpressionVisitor();
+			var result = visitor.Visit(FilterExpression.Empty);
+			Assert.Equal(FilterExpression.Empty, result);
 		}
 
 		#endregion

@@ -10,7 +10,7 @@ namespace Deveel.Filters {
 	public static class BsonFilterSerializationTests {
 		[Fact]
 		public static void SerializeVariable() {
-			var filter = Filter.Variable("x");
+			var filter = FilterExpression.Variable("x");
 
 			var bson = filter.AsBsonDocument();
 
@@ -32,7 +32,7 @@ namespace Deveel.Filters {
 			var valueType = (value?.GetType() ?? typeof(DBNull));
 			var valueTypeString = BsonFilter.GetTypeString(valueType);
 
-			var filter = Filter.Constant(value);
+			var filter = FilterExpression.Constant(value);
 			var bson = filter.AsBsonDocument();
 
 			Assert.NotNull(bson);
@@ -54,7 +54,7 @@ namespace Deveel.Filters {
 		public static void SerializeDateTime(string dateTimeString) {
 			var dateTime = DateTime.Parse(dateTimeString);
 
-			var filter = Filter.Constant(dateTime);
+			var filter = FilterExpression.Constant(dateTime);
 			var bson = filter.AsBsonDocument();
 
 			Assert.NotNull(bson);
@@ -76,7 +76,7 @@ namespace Deveel.Filters {
 		[InlineData("2009-12-01T01:23:56+01:00")]
 		public static void SerializeDateTimeOffset(string dateTimeString) {
             var dateTime = DateTimeOffset.Parse(dateTimeString);
-            var filter = Filter.Constant(dateTime);
+            var filter = FilterExpression.Constant(dateTime);
             var bson = filter.AsBsonDocument();
             Assert.NotNull(bson);
             Assert.Equal("constant", bson["type"].AsString);
@@ -89,20 +89,20 @@ namespace Deveel.Filters {
         }
 
 		[Theory]
-		[InlineData("x", 123, FilterType.Equal)]
-		[InlineData("x", "test", FilterType.Equal)]
-		[InlineData("x", 123, FilterType.NotEqual)]
-		[InlineData("x", "test", FilterType.NotEqual)]
-		[InlineData("x", 123, FilterType.GreaterThan)]
-		[InlineData("x", 123, FilterType.GreaterThanOrEqual)]
-		[InlineData("x", 123, FilterType.LessThan)]
-		[InlineData("x", 123, FilterType.LessThanOrEqual)]
-		public static void SerializeBinary(string varName, object value, FilterType filterType) {
-			var variable = Filter.Variable(varName);
-			var filter = Filter.Binary(variable, Filter.Constant(value), filterType);
+		[InlineData("x", 123, FilterExpressionType.Equal)]
+		[InlineData("x", "test", FilterExpressionType.Equal)]
+		[InlineData("x", 123, FilterExpressionType.NotEqual)]
+		[InlineData("x", "test", FilterExpressionType.NotEqual)]
+		[InlineData("x", 123, FilterExpressionType.GreaterThan)]
+		[InlineData("x", 123, FilterExpressionType.GreaterThanOrEqual)]
+		[InlineData("x", 123, FilterExpressionType.LessThan)]
+		[InlineData("x", 123, FilterExpressionType.LessThanOrEqual)]
+		public static void SerializeBinary(string varName, object value, FilterExpressionType expressionType) {
+			var variable = FilterExpression.Variable(varName);
+			var filter = FilterExpression.Binary(variable, FilterExpression.Constant(value), expressionType);
 			var bson = filter.AsBsonDocument();
 			Assert.NotNull(bson);
-			Assert.Equal(filterType.ToString().ToLowerInvariant(), bson["type"].AsString);
+			Assert.Equal(expressionType.ToString().ToLowerInvariant(), bson["type"].AsString);
 			var left = bson["left"].AsBsonDocument;
 			Assert.NotNull(left);
 			Assert.Equal("variable", left["type"].AsString);
@@ -117,8 +117,8 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void SerializeNot() {
-			var variable = Filter.Variable("x");
-			var filter = Filter.Not(variable);
+			var variable = FilterExpression.Variable("x");
+			var filter = FilterExpression.Not(variable);
 			var bson = filter.AsBsonDocument();
 			Assert.NotNull(bson);
 			Assert.Equal("not", bson["type"].AsString);
@@ -131,8 +131,8 @@ namespace Deveel.Filters {
 		[Theory]
 		[InlineData("x", "Contains", 123)]
 		public static void SerializeFunction(string varName, string functionName, object arg) {
-			var variable = Filter.Variable(varName);
-			var filter = Filter.Function(variable, functionName, new[] { Filter.Constant(arg) });
+			var variable = FilterExpression.Variable(varName);
+			var filter = FilterExpression.Function(variable, functionName, new[] { FilterExpression.Constant(arg) });
 			var bson = filter.AsBsonDocument();
 			Assert.NotNull(bson);
 			Assert.Equal("function", bson["type"].AsString);
@@ -157,7 +157,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void SerializeLogicalAndWithEmpty() {
-			var filter = Filter.And(Filter.GreaterThan(Filter.Constant(22), Filter.Variable("x")), Filter.Empty);
+			var filter = FilterExpression.And(FilterExpression.GreaterThan(FilterExpression.Constant(22), FilterExpression.Variable("x")), FilterExpression.Empty);
 
 			var bson = filter.AsBsonDocument();
 			Assert.NotNull(bson);
@@ -183,9 +183,9 @@ namespace Deveel.Filters {
 			var filter = BsonFilter.FromBson(bson);
 
 			Assert.NotNull(filter);
-			Assert.Equal(FilterType.Variable, filter.FilterType);
+			Assert.Equal(FilterExpressionType.Variable, filter.ExpressionType);
 
-			var variable = Assert.IsType<VariableFilter>(filter);
+			var variable = Assert.IsType<VariableFilterExpression>(filter);
 			Assert.Equal("x", variable.VariableName);
 		}
 
@@ -208,23 +208,23 @@ namespace Deveel.Filters {
 			};
 			var filter = BsonFilter.FromBson(bson);
 			Assert.NotNull(filter);
-			Assert.Equal(FilterType.Constant, filter.FilterType);
-			var constant = Assert.IsType<ConstantFilter>(filter);
+			Assert.Equal(FilterExpressionType.Constant, filter.ExpressionType);
+			var constant = Assert.IsType<ConstantFilterExpression>(filter);
 			Assert.Equal(value, constant.Value);
 		}
 
 		[Theory]
-		[InlineData("x", 123, FilterType.Equal)]
-		[InlineData("x", "test", FilterType.Equal)]
-		[InlineData("x", 123, FilterType.NotEqual)]
-		[InlineData("x", "test", FilterType.NotEqual)]
-		[InlineData("x", 123, FilterType.GreaterThan)]
-		[InlineData("x", 123, FilterType.GreaterThanOrEqual)]
-		[InlineData("x", 123, FilterType.LessThan)]
-		[InlineData("x", 123, FilterType.LessThanOrEqual)]
-		public static void DeserializeBinary(string varName, object value, FilterType filterType) {
+		[InlineData("x", 123, FilterExpressionType.Equal)]
+		[InlineData("x", "test", FilterExpressionType.Equal)]
+		[InlineData("x", 123, FilterExpressionType.NotEqual)]
+		[InlineData("x", "test", FilterExpressionType.NotEqual)]
+		[InlineData("x", 123, FilterExpressionType.GreaterThan)]
+		[InlineData("x", 123, FilterExpressionType.GreaterThanOrEqual)]
+		[InlineData("x", 123, FilterExpressionType.LessThan)]
+		[InlineData("x", 123, FilterExpressionType.LessThanOrEqual)]
+		public static void DeserializeBinary(string varName, object value, FilterExpressionType expressionType) {
 			var bson = new BsonDocument {
-				{"type", filterType.ToString().ToLowerInvariant()},
+				{"type", expressionType.ToString().ToLowerInvariant()},
 				{"left", new BsonDocument {
 					{"type", "variable"},
 					{"varRef", varName}
@@ -238,20 +238,20 @@ namespace Deveel.Filters {
 
 			var filter = BsonFilter.FromBson(bson);
 			Assert.NotNull(filter);
-			Assert.Equal(filterType, filter.FilterType);
+			Assert.Equal(expressionType, filter.ExpressionType);
 
-			var binary = Assert.IsType<BinaryFilter>(filter);
+			var binary = Assert.IsType<BinaryFilterExpression>(filter);
 
-			var left = Assert.IsType<VariableFilter>(binary.Left);
-			var right = Assert.IsType<ConstantFilter>(binary.Right);
+			var left = Assert.IsType<VariableFilterExpression>(binary.Left);
+			var right = Assert.IsType<ConstantFilterExpression>(binary.Right);
 
 			Assert.Equal(varName, left.VariableName);
 			Assert.Equal(value, right.Value);
 		}
 
 		[Theory]
-		[InlineData("x", FilterType.Not)]
-		public static void DeserializeNot(string varName, FilterType filterType) {
+		[InlineData("x", FilterExpressionType.Not)]
+		public static void DeserializeNot(string varName, FilterExpressionType expressionType) {
 			var bson = new BsonDocument {
 				{"type", "not"},
 				{"operand", new BsonDocument {
@@ -261,9 +261,9 @@ namespace Deveel.Filters {
 			};
 			var filter = BsonFilter.FromBson(bson);
 			Assert.NotNull(filter);
-			Assert.Equal(filterType, filter.FilterType);
-			var unary = Assert.IsType<UnaryFilter>(filter);
-			var operand = Assert.IsType<VariableFilter>(unary.Operand);
+			Assert.Equal(expressionType, filter.ExpressionType);
+			var unary = Assert.IsType<UnaryFilterExpression>(filter);
+			var operand = Assert.IsType<VariableFilterExpression>(unary.Operand);
 			Assert.Equal(varName, operand.VariableName);
 		}
 
@@ -288,11 +288,11 @@ namespace Deveel.Filters {
 
 			var filter = BsonFilter.FromBson(bson);
 			Assert.NotNull(filter);
-			Assert.Equal(FilterType.Function, filter.FilterType);
-			var function = Assert.IsType<FunctionFilter>(filter);
+			Assert.Equal(FilterExpressionType.Function, filter.ExpressionType);
+			var function = Assert.IsType<FunctionFilterExpression>(filter);
 			Assert.Equal(functionName, function.FunctionName);
 			var args = Assert.Single(function.Arguments);
-			var argConstant = Assert.IsType<ConstantFilter>(args);
+			var argConstant = Assert.IsType<ConstantFilterExpression>(args);
 			Assert.Equal(arg, argConstant.Value);
 		}
 	}

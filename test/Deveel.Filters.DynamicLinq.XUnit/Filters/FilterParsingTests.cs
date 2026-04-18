@@ -47,13 +47,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>(expression);
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Name", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(expectedValue, rightConstant.Value);
 		}
 
@@ -66,13 +66,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>(expression);
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Age", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(expectedValue, rightConstant.Value);
 		}
 
@@ -84,13 +84,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>(expression);
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("IsActive", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(expectedValue, rightConstant.Value);
 		}
 
@@ -103,13 +103,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>(expression);
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Salary", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(expectedValue, rightConstant.Value);
 		}
 
@@ -118,23 +118,23 @@ namespace Deveel.Filters
 		#region Comparison Operators Tests
 
 		[Theory]
-		[InlineData("Age > 25", FilterType.GreaterThan)]
-		[InlineData("Age >= 25", FilterType.GreaterThanOrEqual)]
-		[InlineData("Age < 25", FilterType.LessThan)]
-		[InlineData("Age <= 25", FilterType.LessThanOrEqual)]
-		[InlineData("Age != 25", FilterType.NotEqual)]
-		public void ParseComparisonOperators(string expression, FilterType expectedFilterType)
+		[InlineData("Age > 25", FilterExpressionType.GreaterThan)]
+		[InlineData("Age >= 25", FilterExpressionType.GreaterThanOrEqual)]
+		[InlineData("Age < 25", FilterExpressionType.LessThan)]
+		[InlineData("Age <= 25", FilterExpressionType.LessThanOrEqual)]
+		[InlineData("Age != 25", FilterExpressionType.NotEqual)]
+		public void ParseComparisonOperators(string expression, FilterExpressionType expectedFilterType)
 		{
 			var filter = FilterExpressionParser.Parse<Person>(expression);
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(expectedFilterType, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(expectedFilterType, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Age", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(25, rightConstant.Value);
 		}
 
@@ -148,20 +148,20 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Age > 18 && IsActive == true");
 
 			Assert.NotNull(filter);
-			var andFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.And, andFilter.FilterType);
+			var andFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.And, andFilter.ExpressionType);
 
 			// Left side: Age > 18
-			var leftBinary = Assert.IsType<BinaryFilter>(andFilter.Left);
-			Assert.Equal(FilterType.GreaterThan, leftBinary.FilterType);
-			Assert.Equal("Age", ((VariableFilter)leftBinary.Left).VariableName);
-			Assert.Equal(18, ((ConstantFilter)leftBinary.Right).Value);
+			var leftBinary = Assert.IsType<BinaryFilterExpression>(andFilter.Left);
+			Assert.Equal(FilterExpressionType.GreaterThan, leftBinary.ExpressionType);
+			Assert.Equal("Age", ((VariableFilterExpression)leftBinary.Left).VariableName);
+			Assert.Equal(18, ((ConstantFilterExpression)leftBinary.Right).Value);
 
 			// Right side: IsActive == true
-			var rightBinary = Assert.IsType<BinaryFilter>(andFilter.Right);
-			Assert.Equal(FilterType.Equal, rightBinary.FilterType);
-			Assert.Equal("IsActive", ((VariableFilter)rightBinary.Left).VariableName);
-			Assert.Equal(true, ((ConstantFilter)rightBinary.Right).Value);
+			var rightBinary = Assert.IsType<BinaryFilterExpression>(andFilter.Right);
+			Assert.Equal(FilterExpressionType.Equal, rightBinary.ExpressionType);
+			Assert.Equal("IsActive", ((VariableFilterExpression)rightBinary.Left).VariableName);
+			Assert.Equal(true, ((ConstantFilterExpression)rightBinary.Right).Value);
 		}
 
 		[Fact]
@@ -170,20 +170,20 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Age < 18 || Age > 65");
 
 			Assert.NotNull(filter);
-			var orFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Or, orFilter.FilterType);
+			var orFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Or, orFilter.ExpressionType);
 
 			// Left side: Age < 18
-			var leftBinary = Assert.IsType<BinaryFilter>(orFilter.Left);
-			Assert.Equal(FilterType.LessThan, leftBinary.FilterType);
-			Assert.Equal("Age", ((VariableFilter)leftBinary.Left).VariableName);
-			Assert.Equal(18, ((ConstantFilter)leftBinary.Right).Value);
+			var leftBinary = Assert.IsType<BinaryFilterExpression>(orFilter.Left);
+			Assert.Equal(FilterExpressionType.LessThan, leftBinary.ExpressionType);
+			Assert.Equal("Age", ((VariableFilterExpression)leftBinary.Left).VariableName);
+			Assert.Equal(18, ((ConstantFilterExpression)leftBinary.Right).Value);
 
 			// Right side: Age > 65
-			var rightBinary = Assert.IsType<BinaryFilter>(orFilter.Right);
-			Assert.Equal(FilterType.GreaterThan, rightBinary.FilterType);
-			Assert.Equal("Age", ((VariableFilter)rightBinary.Left).VariableName);
-			Assert.Equal(65, ((ConstantFilter)rightBinary.Right).Value);
+			var rightBinary = Assert.IsType<BinaryFilterExpression>(orFilter.Right);
+			Assert.Equal(FilterExpressionType.GreaterThan, rightBinary.ExpressionType);
+			Assert.Equal("Age", ((VariableFilterExpression)rightBinary.Left).VariableName);
+			Assert.Equal(65, ((ConstantFilterExpression)rightBinary.Right).Value);
 		}
 
 		[Fact]
@@ -192,16 +192,16 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("(Age > 18 && Age < 65) || IsActive == false");
 
 			Assert.NotNull(filter);
-			var orFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Or, orFilter.FilterType);
+			var orFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Or, orFilter.ExpressionType);
 
 			// Left side: (Age > 18 && Age < 65)
-			var leftAnd = Assert.IsType<BinaryFilter>(orFilter.Left);
-			Assert.Equal(FilterType.And, leftAnd.FilterType);
+			var leftAnd = Assert.IsType<BinaryFilterExpression>(orFilter.Left);
+			Assert.Equal(FilterExpressionType.And, leftAnd.ExpressionType);
 
 			// Right side: IsActive == false
-			var rightBinary = Assert.IsType<BinaryFilter>(orFilter.Right);
-			Assert.Equal(FilterType.Equal, rightBinary.FilterType);
+			var rightBinary = Assert.IsType<BinaryFilterExpression>(orFilter.Right);
+			Assert.Equal(FilterExpressionType.Equal, rightBinary.ExpressionType);
 		}
 
 		#endregion
@@ -214,13 +214,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("!(Age > 25)");
 
 			Assert.NotNull(filter);
-			var notFilter = Assert.IsType<UnaryFilter>(filter);
-			Assert.Equal(FilterType.Not, notFilter.FilterType);
+			var notFilter = Assert.IsType<UnaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Not, notFilter.ExpressionType);
 
-			var innerBinary = Assert.IsType<BinaryFilter>(notFilter.Operand);
-			Assert.Equal(FilterType.GreaterThan, innerBinary.FilterType);
-			Assert.Equal("Age", ((VariableFilter)innerBinary.Left).VariableName);
-			Assert.Equal(25, ((ConstantFilter)innerBinary.Right).Value);
+			var innerBinary = Assert.IsType<BinaryFilterExpression>(notFilter.Operand);
+			Assert.Equal(FilterExpressionType.GreaterThan, innerBinary.ExpressionType);
+			Assert.Equal("Age", ((VariableFilterExpression)innerBinary.Left).VariableName);
+			Assert.Equal(25, ((ConstantFilterExpression)innerBinary.Right).Value);
 		}
 
 		[Fact]
@@ -229,11 +229,11 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("!(Age > 18 && IsActive == true)");
 
 			Assert.NotNull(filter);
-			var notFilter = Assert.IsType<UnaryFilter>(filter);
-			Assert.Equal(FilterType.Not, notFilter.FilterType);
+			var notFilter = Assert.IsType<UnaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Not, notFilter.ExpressionType);
 
-			var innerAnd = Assert.IsType<BinaryFilter>(notFilter.Operand);
-			Assert.Equal(FilterType.And, innerAnd.FilterType);
+			var innerAnd = Assert.IsType<BinaryFilterExpression>(notFilter.Operand);
+			Assert.Equal(FilterExpressionType.And, innerAnd.ExpressionType);
 		}
 
 		#endregion
@@ -246,13 +246,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Address.City == \"New York\"");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Address.City", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal("New York", rightConstant.Value);
 		}
 
@@ -262,13 +262,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Address.ZipCode > 10000");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.GreaterThan, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.GreaterThan, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Address.ZipCode", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(10000, rightConstant.Value);
 		}
 
@@ -282,14 +282,14 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Name.Contains(\"John\")");
 
 			Assert.NotNull(filter);
-			var functionFilter = Assert.IsType<FunctionFilter>(filter);
+			var functionFilter = Assert.IsType<FunctionFilterExpression>(filter);
 			Assert.Equal("Contains", functionFilter.FunctionName);
 
-			var variable = Assert.IsType<VariableFilter>(functionFilter.Variable);
+			var variable = Assert.IsType<VariableFilterExpression>(functionFilter.Variable);
 			Assert.Equal("Name", variable.VariableName);
 
 			Assert.Single(functionFilter.Arguments);
-			var argument = Assert.IsType<ConstantFilter>(functionFilter.Arguments[0]);
+			var argument = Assert.IsType<ConstantFilterExpression>(functionFilter.Arguments[0]);
 			Assert.Equal("John", argument.Value);
 		}
 
@@ -299,14 +299,14 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Name.StartsWith(\"J\")");
 
 			Assert.NotNull(filter);
-			var functionFilter = Assert.IsType<FunctionFilter>(filter);
+			var functionFilter = Assert.IsType<FunctionFilterExpression>(filter);
 			Assert.Equal("StartsWith", functionFilter.FunctionName);
 
-			var variable = Assert.IsType<VariableFilter>(functionFilter.Variable);
+			var variable = Assert.IsType<VariableFilterExpression>(functionFilter.Variable);
 			Assert.Equal("Name", variable.VariableName);
 
 			Assert.Single(functionFilter.Arguments);
-			var argument = Assert.IsType<ConstantFilter>(functionFilter.Arguments[0]);
+			var argument = Assert.IsType<ConstantFilterExpression>(functionFilter.Arguments[0]);
 			Assert.Equal("J", argument.Value);
 		}
 
@@ -316,14 +316,14 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Name.EndsWith(\"son\")");
 
 			Assert.NotNull(filter);
-			var functionFilter = Assert.IsType<FunctionFilter>(filter);
+			var functionFilter = Assert.IsType<FunctionFilterExpression>(filter);
 			Assert.Equal("EndsWith", functionFilter.FunctionName);
 
-			var variable = Assert.IsType<VariableFilter>(functionFilter.Variable);
+			var variable = Assert.IsType<VariableFilterExpression>(functionFilter.Variable);
 			Assert.Equal("Name", variable.VariableName);
 
 			Assert.Single(functionFilter.Arguments);
-			var argument = Assert.IsType<ConstantFilter>(functionFilter.Arguments[0]);
+			var argument = Assert.IsType<ConstantFilterExpression>(functionFilter.Arguments[0]);
 			Assert.Equal("son", argument.Value);
 		}
 
@@ -337,13 +337,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("person.Name == \"John\"", "person");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Name", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal("John", rightConstant.Value);
 		}
 
@@ -353,13 +353,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("it.Age > 25", "it");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.GreaterThan, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.GreaterThan, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Age", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(25, rightConstant.Value);
 		}
 
@@ -373,18 +373,18 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Product>("Price > 100m && IsAvailable == true");
 
 			Assert.NotNull(filter);
-			var andFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.And, andFilter.FilterType);
+			var andFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.And, andFilter.ExpressionType);
 
 			// Left side: Price > 100m
-			var leftBinary = Assert.IsType<BinaryFilter>(andFilter.Left);
-			Assert.Equal(FilterType.GreaterThan, leftBinary.FilterType);
-			Assert.Equal("Price", ((VariableFilter)leftBinary.Left).VariableName);
+			var leftBinary = Assert.IsType<BinaryFilterExpression>(andFilter.Left);
+			Assert.Equal(FilterExpressionType.GreaterThan, leftBinary.ExpressionType);
+			Assert.Equal("Price", ((VariableFilterExpression)leftBinary.Left).VariableName);
 
 			// Right side: IsAvailable == true
-			var rightBinary = Assert.IsType<BinaryFilter>(andFilter.Right);
-			Assert.Equal(FilterType.Equal, rightBinary.FilterType);
-			Assert.Equal("IsAvailable", ((VariableFilter)rightBinary.Left).VariableName);
+			var rightBinary = Assert.IsType<BinaryFilterExpression>(andFilter.Right);
+			Assert.Equal(FilterExpressionType.Equal, rightBinary.ExpressionType);
+			Assert.Equal("IsAvailable", ((VariableFilterExpression)rightBinary.Left).VariableName);
 		}
 
 		[Fact]
@@ -393,13 +393,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<int>("x > 5");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.GreaterThan, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.GreaterThan, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("x", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(5, rightConstant.Value);
 		}
 
@@ -409,10 +409,10 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<string>("x.Contains(\"test\")");
 
 			Assert.NotNull(filter);
-			var functionFilter = Assert.IsType<FunctionFilter>(filter);
+			var functionFilter = Assert.IsType<FunctionFilterExpression>(filter);
 			Assert.Equal("Contains", functionFilter.FunctionName);
 
-			var variable = Assert.IsType<VariableFilter>(functionFilter.Variable);
+			var variable = Assert.IsType<VariableFilterExpression>(functionFilter.Variable);
 			Assert.Equal("x", variable.VariableName);
 		}
 
@@ -426,13 +426,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("BirthDate > DateTime(2000, 1, 1)");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.GreaterThan, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.GreaterThan, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("BirthDate", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.IsType<DateTime>(rightConstant.Value);
 		}
 
@@ -446,13 +446,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Address == null");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Address", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Null(rightConstant.Value);
 		}
 
@@ -462,13 +462,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("Address != null");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.NotEqual, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.NotEqual, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Address", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Null(rightConstant.Value);
 		}
 
@@ -521,8 +521,8 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("name == \"John\"", "x", config);
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 		}
 
 		#endregion
@@ -535,13 +535,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse("Name == \"John\"", typeof(Person));
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Equal, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Equal, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Name", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal("John", rightConstant.Value);
 		}
 
@@ -551,13 +551,13 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("person.Age > 25", "person");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.GreaterThan, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.GreaterThan, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("Age", leftVariable.VariableName);
 
-			var rightConstant = Assert.IsType<ConstantFilter>(binaryFilter.Right);
+			var rightConstant = Assert.IsType<ConstantFilterExpression>(binaryFilter.Right);
 			Assert.Equal(25, rightConstant.Value);
 		}
 
@@ -572,16 +572,16 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>(expression);
 
 			Assert.NotNull(filter);
-			var orFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.Or, orFilter.FilterType);
+			var orFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Or, orFilter.ExpressionType);
 
 			// Left side should be an AND operation
-			var leftAnd = Assert.IsType<BinaryFilter>(orFilter.Left);
-			Assert.Equal(FilterType.And, leftAnd.FilterType);
+			var leftAnd = Assert.IsType<BinaryFilterExpression>(orFilter.Left);
+			Assert.Equal(FilterExpressionType.And, leftAnd.ExpressionType);
 
 			// Right side should be an AND operation
-			var rightAnd = Assert.IsType<BinaryFilter>(orFilter.Right);
-			Assert.Equal(FilterType.And, rightAnd.FilterType);
+			var rightAnd = Assert.IsType<BinaryFilterExpression>(orFilter.Right);
+			Assert.Equal(FilterExpressionType.And, rightAnd.ExpressionType);
 		}
 
 		[Fact]
@@ -591,16 +591,16 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>(expression);
 
 			Assert.NotNull(filter);
-			var andFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.And, andFilter.FilterType);
+			var andFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.And, andFilter.ExpressionType);
 
 			// Left side should be an OR operation with nested conditions
-			var leftOr = Assert.IsType<BinaryFilter>(andFilter.Left);
-			Assert.Equal(FilterType.Or, leftOr.FilterType);
+			var leftOr = Assert.IsType<BinaryFilterExpression>(andFilter.Left);
+			Assert.Equal(FilterExpressionType.Or, leftOr.ExpressionType);
 
 			// Right side should be IsActive == true
-			var rightBinary = Assert.IsType<BinaryFilter>(andFilter.Right);
-			Assert.Equal(FilterType.Equal, rightBinary.FilterType);
+			var rightBinary = Assert.IsType<BinaryFilterExpression>(andFilter.Right);
+			Assert.Equal(FilterExpressionType.Equal, rightBinary.ExpressionType);
 		}
 
 		#endregion
@@ -613,7 +613,7 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("IsActive");
 
 			Assert.NotNull(filter);
-			var variableFilter = Assert.IsType<VariableFilter>(filter);
+			var variableFilter = Assert.IsType<VariableFilterExpression>(filter);
 			Assert.Equal("IsActive", variableFilter.VariableName);
 		}
 
@@ -623,7 +623,7 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<bool>("true");
 
 			Assert.NotNull(filter);
-			var constantFilter = Assert.IsType<ConstantFilter>(filter);
+			var constantFilter = Assert.IsType<ConstantFilterExpression>(filter);
 			Assert.Equal(true, constantFilter.Value);
 		}
 
@@ -633,10 +633,10 @@ namespace Deveel.Filters
 			var filter = FilterExpressionParser.Parse<Person>("x != null", "x");
 
 			Assert.NotNull(filter);
-			var binaryFilter = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.NotEqual, binaryFilter.FilterType);
+			var binaryFilter = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.NotEqual, binaryFilter.ExpressionType);
 
-			var leftVariable = Assert.IsType<VariableFilter>(binaryFilter.Left);
+			var leftVariable = Assert.IsType<VariableFilterExpression>(binaryFilter.Left);
 			Assert.Equal("x", leftVariable.VariableName);
 		}
 

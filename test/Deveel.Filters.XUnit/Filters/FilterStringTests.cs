@@ -2,51 +2,51 @@
 	[Trait("Feature", "String Building")]
 	public static class FilterStringTests {
 		[Theory]
-		[InlineData("a", FilterType.Equal, 1, "a == 1")]
-		[InlineData("a", FilterType.NotEqual, 1, "a != 1")]
-		[InlineData("a", FilterType.GreaterThan, 1, "a > 1")]
-		[InlineData("a", FilterType.GreaterThanOrEqual, 1, "a >= 1")]
-		[InlineData("a", FilterType.LessThan, 1, "a < 1")]
-		[InlineData("a", FilterType.LessThanOrEqual, 1, "a <= 1")]
-		public static void SimpleBinaryToString(string variable, FilterType filterType, object value, string expected) {
-			var variableFilter = Filter.Variable(variable);
-			var constantFilter = Filter.Constant(value);
-			var binaryFilter = Filter.Binary(variableFilter, constantFilter, filterType);
+		[InlineData("a", FilterExpressionType.Equal, 1, "a == 1")]
+		[InlineData("a", FilterExpressionType.NotEqual, 1, "a != 1")]
+		[InlineData("a", FilterExpressionType.GreaterThan, 1, "a > 1")]
+		[InlineData("a", FilterExpressionType.GreaterThanOrEqual, 1, "a >= 1")]
+		[InlineData("a", FilterExpressionType.LessThan, 1, "a < 1")]
+		[InlineData("a", FilterExpressionType.LessThanOrEqual, 1, "a <= 1")]
+		public static void SimpleBinaryToString(string variable, FilterExpressionType expressionType, object value, string expected) {
+			var variableFilter = FilterExpression.Variable(variable);
+			var constantFilter = FilterExpression.Constant(value);
+			var binaryFilter = FilterExpression.Binary(variableFilter, constantFilter, expressionType);
 			var actual = binaryFilter.ToString();
 
 			Assert.Equal(expected, actual);
 		}
 
 		[Theory]
-		[InlineData("a", FilterType.Equal, 1, "b", FilterType.Equal, 2, FilterType.And, "(a == 1) && (b == 2)")]
-		[InlineData("a", FilterType.Equal, 1, "b", FilterType.Equal, 2, FilterType.Or, "(a == 1) || (b == 2)")]
-		public static void BinaryWithLogicalToString(string leftVar, FilterType leftType, object leftValue, string rightVar, FilterType rightType, object rightValue, FilterType logicalType, string expected) {
-			var left = Filter.Binary(Filter.Variable(leftVar), Filter.Constant(leftValue), leftType);
-			var right = Filter.Binary(Filter.Variable(rightVar), Filter.Constant(rightValue), rightType);
+		[InlineData("a", FilterExpressionType.Equal, 1, "b", FilterExpressionType.Equal, 2, FilterExpressionType.And, "(a == 1) && (b == 2)")]
+		[InlineData("a", FilterExpressionType.Equal, 1, "b", FilterExpressionType.Equal, 2, FilterExpressionType.Or, "(a == 1) || (b == 2)")]
+		public static void BinaryWithLogicalToString(string leftVar, FilterExpressionType leftType, object leftValue, string rightVar, FilterExpressionType rightType, object rightValue, FilterExpressionType logicalType, string expected) {
+			var left = FilterExpression.Binary(FilterExpression.Variable(leftVar), FilterExpression.Constant(leftValue), leftType);
+			var right = FilterExpression.Binary(FilterExpression.Variable(rightVar), FilterExpression.Constant(rightValue), rightType);
 
-			var logicalFilter = Filter.Binary(left, right, logicalType);
+			var logicalFilter = FilterExpression.Binary(left, right, logicalType);
 			var actual = logicalFilter.ToString();
 			Assert.Equal(expected, actual);
 		}
 
 		[Theory]
-		[InlineData("a", FilterType.Equal, 1, FilterType.And, "a == 1")]
-		[InlineData("a", FilterType.NotEqual, 1, FilterType.And, "a != 1")]
-		[InlineData("a", FilterType.GreaterThan, 1, FilterType.And, "a > 1")]
-		[InlineData("a", FilterType.GreaterThanOrEqual, 1, FilterType.And, "a >= 1")]
-		[InlineData("a", FilterType.LessThan, 1, FilterType.And, "a < 1")]
-		[InlineData("a", FilterType.LessThanOrEqual, 1, FilterType.And, "a <= 1")]
-		[InlineData("a", FilterType.Equal, 1, FilterType.Or, "a == 1")]
-		[InlineData("a", FilterType.NotEqual, 1, FilterType.Or, "a != 1")]
-		[InlineData("a", FilterType.GreaterThan, 1, FilterType.Or, "a > 1")]
-		[InlineData("a", FilterType.GreaterThanOrEqual, 1, FilterType.Or, "a >= 1")]
-		[InlineData("a", FilterType.LessThan, 1, FilterType.Or, "a < 1")]
-		[InlineData("a", FilterType.LessThanOrEqual, 1, FilterType.Or, "a <= 1")]
-		public static void LogicalBinaryOfEmptyWithNotEmpty(string leftVar, FilterType leftType, object leftValue, FilterType logicalType, string expected) {
-			var left = Filter.Binary(Filter.Variable(leftVar), Filter.Constant(leftValue), leftType);
-			var right = Filter.Empty;
+		[InlineData("a", FilterExpressionType.Equal, 1, FilterExpressionType.And, "a == 1")]
+		[InlineData("a", FilterExpressionType.NotEqual, 1, FilterExpressionType.And, "a != 1")]
+		[InlineData("a", FilterExpressionType.GreaterThan, 1, FilterExpressionType.And, "a > 1")]
+		[InlineData("a", FilterExpressionType.GreaterThanOrEqual, 1, FilterExpressionType.And, "a >= 1")]
+		[InlineData("a", FilterExpressionType.LessThan, 1, FilterExpressionType.And, "a < 1")]
+		[InlineData("a", FilterExpressionType.LessThanOrEqual, 1, FilterExpressionType.And, "a <= 1")]
+		[InlineData("a", FilterExpressionType.Equal, 1, FilterExpressionType.Or, "a == 1")]
+		[InlineData("a", FilterExpressionType.NotEqual, 1, FilterExpressionType.Or, "a != 1")]
+		[InlineData("a", FilterExpressionType.GreaterThan, 1, FilterExpressionType.Or, "a > 1")]
+		[InlineData("a", FilterExpressionType.GreaterThanOrEqual, 1, FilterExpressionType.Or, "a >= 1")]
+		[InlineData("a", FilterExpressionType.LessThan, 1, FilterExpressionType.Or, "a < 1")]
+		[InlineData("a", FilterExpressionType.LessThanOrEqual, 1, FilterExpressionType.Or, "a <= 1")]
+		public static void LogicalBinaryOfEmptyWithNotEmpty(string leftVar, FilterExpressionType leftType, object leftValue, FilterExpressionType logicalType, string expected) {
+			var left = FilterExpression.Binary(FilterExpression.Variable(leftVar), FilterExpression.Constant(leftValue), leftType);
+			var right = FilterExpression.Empty;
 
-			var logicalFilter = Filter.Binary(left, right, logicalType);
+			var logicalFilter = FilterExpression.Binary(left, right, logicalType);
 			var actual = logicalFilter.ToString();
 
 			Assert.Equal(expected, actual);
@@ -54,27 +54,27 @@
 
 		[Fact]
 		public static void LogicalBinaryOfEmptyParts() {
-			var logicalFilter = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.And);
+			var logicalFilter = FilterExpression.Binary(FilterExpression.Empty, FilterExpression.Empty, FilterExpressionType.And);
 
 			Assert.Throws<FilterException>(() => logicalFilter.ToString());
 		}
 
 		[Theory]
-		[InlineData("a", FilterType.Equal, 1, FilterType.Not, "!(a == 1)")]
-		public static void UnaryOfBinaryToString(string variable, FilterType filterType, object value, FilterType unaryType, string expected) {
-			var variableFilter = Filter.Variable(variable);
-			var constantFilter = Filter.Constant(value);
-			var binaryFilter = Filter.Binary(variableFilter, constantFilter, filterType);
-			var unaryFilter = Filter.Unary(binaryFilter, unaryType);
+		[InlineData("a", FilterExpressionType.Equal, 1, FilterExpressionType.Not, "!(a == 1)")]
+		public static void UnaryOfBinaryToString(string variable, FilterExpressionType expressionType, object value, FilterExpressionType unaryType, string expected) {
+			var variableFilter = FilterExpression.Variable(variable);
+			var constantFilter = FilterExpression.Constant(value);
+			var binaryFilter = FilterExpression.Binary(variableFilter, constantFilter, expressionType);
+			var unaryFilter = FilterExpression.Unary(binaryFilter, unaryType);
 			var actual = unaryFilter.ToString();
 			Assert.Equal(expected, actual);
 		}
 
 		[Theory]
-		[InlineData(false, FilterType.Not, "!(false)")]
-		public static void UnaryOfConstantToString(object value, FilterType filterType, string expected) {
-			var constantFilter = Filter.Constant(value);
-			var unaryFilter = Filter.Unary(constantFilter, filterType);
+		[InlineData(false, FilterExpressionType.Not, "!(false)")]
+		public static void UnaryOfConstantToString(object value, FilterExpressionType expressionType, string expected) {
+			var constantFilter = FilterExpression.Constant(value);
+			var unaryFilter = FilterExpression.Unary(constantFilter, expressionType);
 			var actual = unaryFilter.ToString();
 			Assert.Equal(expected, actual);
 		}
@@ -83,9 +83,9 @@
 		[InlineData("a", "func", 1, "a.func(1)")]
 		[InlineData("a", "StartsWith", "foo", "a.StartsWith(\"foo\")")]
 		public static void FunctionToString(string variable, string functionName, object arg, string expected) {
-			var variableFilter = Filter.Variable(variable);
-			var constantFilter = Filter.Constant(arg);
-			var functionFilter = Filter.Function(variableFilter, functionName, new[] { constantFilter });
+			var variableFilter = FilterExpression.Variable(variable);
+			var constantFilter = FilterExpression.Constant(arg);
+			var functionFilter = FilterExpression.Function(variableFilter, functionName, new[] { constantFilter });
 			var actual = functionFilter.ToString();
 			Assert.Equal(expected, actual);
 		}

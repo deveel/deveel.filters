@@ -1,16 +1,26 @@
-﻿using System.Text.Json;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Deveel.Filters
 {
-	public class JsonFilterConverter : JsonConverter<Filter>
+	/// <summary>
+	/// A <see cref="JsonConverter{T}"/> that serializes and deserializes
+	/// <see cref="FilterExpression"/> instances to and from JSON.
+	/// </summary>
+	public class JsonFilterConverter : JsonConverter<FilterExpression>
 	{
+		/// <inheritdoc/>
 		public override bool CanConvert(Type typeToConvert)
 		{
-			return typeof(Filter).IsAssignableFrom(typeToConvert);
+			return typeof(FilterExpression).IsAssignableFrom(typeToConvert);
 		}
 
-		public override Filter? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+		/// <inheritdoc/>
+		public override FilterExpression? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
 		{
 			if (reader.TokenType != JsonTokenType.StartObject)
 				throw new JsonException("Expected start of object");
@@ -21,42 +31,43 @@ namespace Deveel.Filters
 			if (!root.TryGetProperty("filterType", out var filterTypeElement))
 				throw new JsonException("Missing 'filterType' property");
 
-			if (!Enum.TryParse<FilterType>(filterTypeElement.GetString(), out var filterType))
+			if (!Enum.TryParse<FilterExpressionType>(filterTypeElement.GetString(), out var filterType))
 				throw new JsonException("Invalid 'filterType' value");
 
 			return filterType switch
 			{
-				FilterType.Constant => DeserializeConstant(root),
-				FilterType.Variable => DeserializeVariable(root),
-				FilterType.Equal or FilterType.NotEqual or FilterType.GreaterThan or 
-				FilterType.GreaterThanOrEqual or FilterType.LessThan or FilterType.LessThanOrEqual or
-				FilterType.And or FilterType.Or => DeserializeBinary(root, filterType, options),
-				FilterType.Not => DeserializeUnary(root, filterType, options),
-				FilterType.Function => DeserializeFunction(root, options),
+				FilterExpressionType.Constant => DeserializeConstant(root),
+				FilterExpressionType.Variable => DeserializeVariable(root),
+				FilterExpressionType.Equal or FilterExpressionType.NotEqual or FilterExpressionType.GreaterThan or 
+				FilterExpressionType.GreaterThanOrEqual or FilterExpressionType.LessThan or FilterExpressionType.LessThanOrEqual or
+				FilterExpressionType.And or FilterExpressionType.Or => DeserializeBinary(root, filterType, options),
+				FilterExpressionType.Not => DeserializeUnary(root, filterType, options),
+				FilterExpressionType.Function => DeserializeFunction(root, options),
 				_ => throw new JsonException($"Unsupported filter type: {filterType}")
 			};
 		}
 
-		public override void Write(Utf8JsonWriter writer, Filter value, JsonSerializerOptions options)
+		/// <inheritdoc/>
+		public override void Write(Utf8JsonWriter writer, FilterExpression value, JsonSerializerOptions options)
 		{
 			writer.WriteStartObject();
-			writer.WriteString("filterType", value.FilterType.ToString());
+			writer.WriteString("filterType", value.ExpressionType.ToString());
 
 			switch (value)
 			{
-				case ConstantFilter constant:
+				case ConstantFilterExpression constant:
 					WriteConstant(writer, constant, options);
 					break;
-				case VariableFilter variable:
+				case VariableFilterExpression variable:
 					WriteVariable(writer, variable);
 					break;
-				case BinaryFilter binary:
+				case BinaryFilterExpression binary:
 					WriteBinary(writer, binary, options);
 					break;
-				case UnaryFilter unary:
+				case UnaryFilterExpression unary:
 					WriteUnary(writer, unary, options);
 					break;
-				case FunctionFilter function:
+				case FunctionFilterExpression function:
 					WriteFunction(writer, function, options);
 					break;
 				default:
@@ -66,13 +77,13 @@ namespace Deveel.Filters
 			writer.WriteEndObject();
 		}
 
-		private static ConstantFilter DeserializeConstant(JsonElement root)
+		private static ConstantFilterExpression DeserializeConstant(JsonElement root)
 		{
 			if (!root.TryGetProperty("value", out var valueElement))
 				throw new JsonException("Missing 'value' property for constant filter");
 
 			var value = DeserializeValue(valueElement);
-			return new ConstantFilter(value);
+			return new ConstantFilterExpression(value);
 		}
 
 		private static object? DeserializeValue(JsonElement valueElement)
@@ -96,7 +107,7 @@ namespace Deveel.Filters
 			return JsonElementUtil.InferValue(valueElement);
 		}
 
-		private static VariableFilter DeserializeVariable(JsonElement root)
+		private static VariableFilterExpression DeserializeVariable(JsonElement root)
 		{
 			if (!root.TryGetProperty("variableName", out var nameElement))
 				throw new JsonException("Missing 'variableName' property for variable filter");
@@ -105,10 +116,10 @@ namespace Deveel.Filters
 			if (string.IsNullOrEmpty(variableName))
 				throw new JsonException("Variable name cannot be null or empty");
 
-			return Filter.Variable(variableName);
+			return FilterExpression.Variable(variableName);
 		}
 
-		private static BinaryFilter DeserializeBinary(JsonElement root, FilterType filterType, JsonSerializerOptions options)
+		private static BinaryFilterExpression DeserializeBinary(JsonElement root, FilterExpressionType expressionType, JsonSerializerOptions options)
 		{
 			if (!root.TryGetProperty("left", out var leftElement))
 				throw new JsonException("Missing 'left' property for binary filter");
@@ -116,28 +127,28 @@ namespace Deveel.Filters
 			if (!root.TryGetProperty("right", out var rightElement))
 				throw new JsonException("Missing 'right' property for binary filter");
 
-			var left = JsonSerializer.Deserialize<Filter>(leftElement.GetRawText(), options);
-			var right = JsonSerializer.Deserialize<Filter>(rightElement.GetRawText(), options);
+			var left = JsonSerializer.Deserialize<FilterExpression>(leftElement.GetRawText(), options);
+			var right = JsonSerializer.Deserialize<FilterExpression>(rightElement.GetRawText(), options);
 
 			if (left == null || right == null)
 				throw new JsonException("Left and right operands cannot be null");
 
-			return Filter.Binary(left, right, filterType);
+			return FilterExpression.Binary(left, right, expressionType);
 		}
 
-		private static UnaryFilter DeserializeUnary(JsonElement root, FilterType filterType, JsonSerializerOptions options)
+		private static UnaryFilterExpression DeserializeUnary(JsonElement root, FilterExpressionType expressionType, JsonSerializerOptions options)
 		{
 			if (!root.TryGetProperty("operand", out var operandElement))
 				throw new JsonException("Missing 'operand' property for unary filter");
 
-			var operand = JsonSerializer.Deserialize<Filter>(operandElement.GetRawText(), options);
+			var operand = JsonSerializer.Deserialize<FilterExpression>(operandElement.GetRawText(), options);
 			if (operand == null)
 				throw new JsonException("Operand cannot be null");
 
-			return Filter.Unary(operand, filterType);
+			return FilterExpression.Unary(operand, expressionType);
 		}
 
-		private static FunctionFilter DeserializeFunction(JsonElement root, JsonSerializerOptions options)
+		private static FunctionFilterExpression DeserializeFunction(JsonElement root, JsonSerializerOptions options)
 		{
 			if (!root.TryGetProperty("variable", out var variableElement))
 				throw new JsonException("Missing 'variable' property for function filter");
@@ -145,7 +156,7 @@ namespace Deveel.Filters
 			if (!root.TryGetProperty("functionName", out var functionNameElement))
 				throw new JsonException("Missing 'functionName' property for function filter");
 
-			var variable = JsonSerializer.Deserialize<VariableFilter>(variableElement.GetRawText(), options);
+			var variable = JsonSerializer.Deserialize<VariableFilterExpression>(variableElement.GetRawText(), options);
 			var functionName = functionNameElement.GetString();
 
 			if (variable == null)
@@ -154,23 +165,23 @@ namespace Deveel.Filters
 			if (string.IsNullOrEmpty(functionName))
 				throw new JsonException("Function name cannot be null or empty");
 
-			Filter[]? arguments = null;
+			FilterExpression[]? arguments = null;
 			if (root.TryGetProperty("arguments", out var argumentsElement) && argumentsElement.ValueKind == JsonValueKind.Array)
 			{
-				var argList = new List<Filter>();
+				var argList = new List<FilterExpression>();
 				foreach (var argElement in argumentsElement.EnumerateArray())
 				{
-					var arg = JsonSerializer.Deserialize<Filter>(argElement.GetRawText(), options);
+					var arg = JsonSerializer.Deserialize<FilterExpression>(argElement.GetRawText(), options);
 					if (arg != null)
 						argList.Add(arg);
 				}
 				arguments = argList.ToArray();
 			}
 
-			return Filter.Function(variable, functionName, arguments ?? Array.Empty<Filter>());
+			return FilterExpression.Function(variable, functionName, arguments ?? Array.Empty<FilterExpression>());
 		}
 
-		private static void WriteConstant(Utf8JsonWriter writer, ConstantFilter constant, JsonSerializerOptions options)
+		private static void WriteConstant(Utf8JsonWriter writer, ConstantFilterExpression constant, JsonSerializerOptions options)
 		{
 			writer.WritePropertyName("value");
 			WriteValue(writer, constant.Value, options);
@@ -205,12 +216,12 @@ namespace Deveel.Filters
 			}
 		}
 
-		private static void WriteVariable(Utf8JsonWriter writer, VariableFilter variable)
+		private static void WriteVariable(Utf8JsonWriter writer, VariableFilterExpression variable)
 		{
 			writer.WriteString("variableName", variable.VariableName);
 		}
 
-		private static void WriteBinary(Utf8JsonWriter writer, BinaryFilter binary, JsonSerializerOptions options)
+		private static void WriteBinary(Utf8JsonWriter writer, BinaryFilterExpression binary, JsonSerializerOptions options)
 		{
 			writer.WritePropertyName("left");
 			JsonSerializer.Serialize(writer, binary.Left, options);
@@ -219,13 +230,13 @@ namespace Deveel.Filters
 			JsonSerializer.Serialize(writer, binary.Right, options);
 		}
 
-		private static void WriteUnary(Utf8JsonWriter writer, UnaryFilter unary, JsonSerializerOptions options)
+		private static void WriteUnary(Utf8JsonWriter writer, UnaryFilterExpression unary, JsonSerializerOptions options)
 		{
 			writer.WritePropertyName("operand");
 			JsonSerializer.Serialize(writer, unary.Operand, options);
 		}
 
-		private static void WriteFunction(Utf8JsonWriter writer, FunctionFilter function, JsonSerializerOptions options)
+		private static void WriteFunction(Utf8JsonWriter writer, FunctionFilterExpression function, JsonSerializerOptions options)
 		{
 			writer.WritePropertyName("variable");
 			JsonSerializer.Serialize(writer, function.Variable, options);

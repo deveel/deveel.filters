@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -25,9 +29,9 @@ namespace Deveel.Filters {
 		[JsonExtensionData, SimpleValue]
 		public IDictionary<string, JsonElement>? BinaryData { get; set; }
 
-		internal BinaryFilter BuildFilter(FilterType filterType) {
+		internal BinaryFilterExpression BuildFilter(FilterExpressionType expressionType) {
 			if (BinaryData != null)
-				return JsonElementUtil.BuildFilter(BinaryData, filterType);
+				return JsonElementUtil.BuildFilter(BinaryData, expressionType);
 
 			if (Left == null || Right == null)
 				throw new FilterException("The left and right side of the binary filter must be specified");
@@ -35,7 +39,7 @@ namespace Deveel.Filters {
 			var left = Left.BuildFilter();
 			var right = Right.BuildFilter();
 
-			return Filter.Binary(left, right, filterType);
+			return FilterExpression.Binary(left, right, expressionType);
 		}
 
 		IEnumerable<ValidationResult> IValidatableObject.Validate(ValidationContext validationContext) {

@@ -1,4 +1,8 @@
-﻿using System.Linq.Dynamic.Core;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
 namespace Deveel.Filters
@@ -11,14 +15,14 @@ namespace Deveel.Filters
 		/// <summary>
 		/// Parses a string expression into a Filter object.
 		/// </summary>
-		/// <param name="expression">The string expression to parse (e.g., "Name == \"John\" && Age > 25")</param>
+		/// <param name="expression">The string expression to parse (e.g., "Name == \"John\" &amp;&amp; Age > 25")</param>
 		/// <param name="parameterType">The type of the parameter in the expression</param>
 		/// <param name="parameterName">The name of the parameter (default: "x")</param>
 		/// <param name="config">Optional parsing configuration</param>
 		/// <returns>A Filter object representing the parsed expression</returns>
 		/// <exception cref="ArgumentException">Thrown when the expression is null or empty</exception>
 		/// <exception cref="FilterException">Thrown when the expression cannot be parsed or converted</exception>
-		public static Filter Parse(string expression, Type parameterType, string parameterName = "x", ParsingConfig? config = null)
+		public static FilterExpression Parse(string expression, Type parameterType, string parameterName = "x", ParsingConfig? config = null)
 		{
 			if (string.IsNullOrWhiteSpace(expression))
 				throw new ArgumentException("Expression cannot be null or empty", nameof(expression));
@@ -55,7 +59,7 @@ namespace Deveel.Filters
 		/// <param name="parameterName">The name of the parameter (default: "x")</param>
 		/// <param name="config">Optional parsing configuration</param>
 		/// <returns>A Filter object representing the parsed expression</returns>
-		public static Filter Parse<T>(string expression, string parameterName = "x", ParsingConfig? config = null)
+		public static FilterExpression Parse<T>(string expression, string parameterName = "x", ParsingConfig? config = null)
 		{
 			return Parse(expression, typeof(T), parameterName, config);
 		}
@@ -76,7 +80,7 @@ namespace Deveel.Filters
 		/// <summary>
 		/// Converts an Expression to a Filter object.
 		/// </summary>
-		public Filter ConvertToFilter(Expression expression)
+		public FilterExpression ConvertToFilter(Expression expression)
 		{
 			return expression switch
 			{
@@ -91,7 +95,7 @@ namespace Deveel.Filters
 			};
 		}
 
-		private Filter ConvertNewExpression(NewExpression newExpr)
+		private FilterExpression ConvertNewExpression(NewExpression newExpr)
 		{
 			// check if any of the arguments are not constant or variable
 			if (newExpr.Arguments.Any(arg => !(arg is ConstantExpression)))
@@ -107,71 +111,71 @@ namespace Deveel.Filters
 
 			// var obj = newExpr.Constructor.Invoke(null, args);
 			var obj = Activator.CreateInstance(newExpr.Type, args);
-			return Filter.Constant(obj);
+			return FilterExpression.Constant(obj);
 		}
 
-		private Filter ConvertBinaryExpression(BinaryExpression binary)
+		private FilterExpression ConvertBinaryExpression(BinaryExpression binary)
 		{
 			var left = ConvertToFilter(binary.Left);
 			var right = ConvertToFilter(binary.Right);
 
 			var filterType = binary.NodeType switch
 			{
-				ExpressionType.Equal => FilterType.Equal,
-				ExpressionType.NotEqual => FilterType.NotEqual,
-				ExpressionType.GreaterThan => FilterType.GreaterThan,
-				ExpressionType.GreaterThanOrEqual => FilterType.GreaterThanOrEqual,
-				ExpressionType.LessThan => FilterType.LessThan,
-				ExpressionType.LessThanOrEqual => FilterType.LessThanOrEqual,
-				ExpressionType.AndAlso => FilterType.And,
-				ExpressionType.OrElse => FilterType.Or,
+				ExpressionType.Equal => FilterExpressionType.Equal,
+				ExpressionType.NotEqual => FilterExpressionType.NotEqual,
+				ExpressionType.GreaterThan => FilterExpressionType.GreaterThan,
+				ExpressionType.GreaterThanOrEqual => FilterExpressionType.GreaterThanOrEqual,
+				ExpressionType.LessThan => FilterExpressionType.LessThan,
+				ExpressionType.LessThanOrEqual => FilterExpressionType.LessThanOrEqual,
+				ExpressionType.AndAlso => FilterExpressionType.And,
+				ExpressionType.OrElse => FilterExpressionType.Or,
 				_ => throw new FilterException($"Unsupported binary expression type: {binary.NodeType}")
 			};
 
-			return Filter.Binary(left, right, filterType);
+			return FilterExpression.Binary(left, right, filterType);
 		}
 
-		private Filter ConvertUnaryExpression(UnaryExpression unary)
+		private FilterExpression ConvertUnaryExpression(UnaryExpression unary)
 		{
 			var operand = ConvertToFilter(unary.Operand);
 
 			var filterType = unary.NodeType switch
 			{
-				ExpressionType.Not => FilterType.Not,
+				ExpressionType.Not => FilterExpressionType.Not,
 				_ => throw new FilterException($"Unsupported unary expression type: {unary.NodeType}")
 			};
 
-			return Filter.Unary(operand, filterType);
+			return FilterExpression.Unary(operand, filterType);
 		}
 
-		private Filter ConvertConstantExpression(ConstantExpression constant)
+		private FilterExpression ConvertConstantExpression(ConstantExpression constant)
 		{
-			return Filter.Constant(constant.Value);
+			return FilterExpression.Constant(constant.Value);
 		}
 
-		private Filter ConvertMemberExpression(MemberExpression member)
+		private FilterExpression ConvertMemberExpression(MemberExpression member)
 		{
 			// Build the variable name by traversing the member access chain
 			var variableName = BuildVariableName(member);
-			return Filter.Variable(variableName);
+			return FilterExpression.Variable(variableName);
 		}
 
-		private Filter ConvertParameterExpression(ParameterExpression parameter)
+		private FilterExpression ConvertParameterExpression(ParameterExpression parameter)
 		{
-			return Filter.Variable(parameter.Name ?? _parameterName);
+			return FilterExpression.Variable(parameter.Name ?? _parameterName);
 		}
 
-		private Filter ConvertMethodCallExpression(MethodCallExpression methodCall)
+		private FilterExpression ConvertMethodCallExpression(MethodCallExpression methodCall)
 		{
 			// Handle method calls as function filters
 			if (methodCall.Object != null)
 			{
 				var variable = ConvertToFilter(methodCall.Object);
-				if (variable is not VariableFilter variableFilter)
+				if (variable is not VariableFilterExpression variableFilter)
 					throw new FilterException("Function calls must be made on variable expressions");
 
 				var arguments = methodCall.Arguments.Select(ConvertToFilter).ToArray();
-				return Filter.Function(variableFilter, methodCall.Method.Name, arguments);
+				return FilterExpression.Function(variableFilter, methodCall.Method.Name, arguments);
 			}
 
 			throw new FilterException("Static method calls are not supported");

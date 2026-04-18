@@ -4,75 +4,56 @@
         <name>Deveel.Filters</name>
     </assembly>
     <members>
-        <member name="T:Deveel.Filters.Filter">
+        <member name="T:Deveel.Filters.BinaryFilterExpression">
             <summary>
-            Represents a default implementation of a filter that 
-            can be used to restrict the result of a query.
+            Represents a binary filter expression that combines two operands
+            (left and right) with a binary operator (e.g., equality, comparison, logical).
             </summary>
         </member>
-        <member name="P:Deveel.Filters.Filter.FilterType">
+        <member name="M:Deveel.Filters.BinaryFilterExpression.#ctor(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpressionType)">
             <summary>
-            Gets the type of filter.
+            Initializes a new instance of the <see cref="T:Deveel.Filters.BinaryFilterExpression"/> class
+            with the specified left and right operands and expression type.
             </summary>
+            <param name="left">The left operand of the binary expression.</param>
+            <param name="right">The right operand of the binary expression.</param>
+            <param name="expressionType">The type of the binary expression.</param>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="left"/> or <paramref name="right"/> is <c>null</c>.
+            </exception>
         </member>
-        <member name="F:Deveel.Filters.Filter.Empty">
-            <summary>
-            An empty filter that has no effect on the result.
-            </summary>
-        </member>
-        <member name="M:Deveel.Filters.Filter.ToString">
+        <member name="P:Deveel.Filters.BinaryFilterExpression.ExpressionType">
             <inheritdoc/>
         </member>
-        <member name="M:Deveel.Filters.Filter.Unary(Deveel.Filters.Filter,Deveel.Filters.FilterType)">
+        <member name="P:Deveel.Filters.BinaryFilterExpression.Left">
             <summary>
-            Creates a new unary filter with the given operand and filter type.
+            Gets the left operand of the binary expression.
             </summary>
-            <param name="operand">
-            The operand of the unary filter.
-            </param>
-            <param name="filterType">
-            The type of the unary filter.
-            </param>
-            <returns>
-            Returns a new <see cref="T:Deveel.Filters.UnaryFilter"/> with the given operand and
-            of the given type.
-            </returns>
-            <exception cref="T:System.ArgumentException">
-            Thrown when <paramref name="filterType"/> is not a unary filter type.
-            </exception>
         </member>
-        <member name="M:Deveel.Filters.Filter.Not(Deveel.Filters.Filter)">
+        <member name="P:Deveel.Filters.BinaryFilterExpression.Right">
             <summary>
-            Creates an unary filter that negates the given operand.
+            Gets the right operand of the binary expression.
             </summary>
-            <param name="operand">
-            The filter operand to negate.
-            </param>
-            <returns>
-            Returns a new <see cref="T:Deveel.Filters.UnaryFilter"/> that negates the given
-            filter operand.
-            </returns>
         </member>
-        <member name="M:Deveel.Filters.Filter.Binary(Deveel.Filters.Filter,Deveel.Filters.Filter,Deveel.Filters.FilterType)">
+        <member name="T:Deveel.Filters.ConstantFilterExpression">
             <summary>
-            Creates a new binary filter with the given left and right operands
+            Represents a constant value expression within a filter tree.
             </summary>
-            <param name="left">
-            The left operand of the binary filter.
-            </param>
-            <param name="right">
-            The right operand of the binary filter.
-            </param>
-            <param name="filterType">
-            The type of the binary filter.
-            </param>
-            <returns>
-            Returns a new <see cref="T:Deveel.Filters.BinaryFilter"/> of the given type with 
-            the given left and right operands.
-            </returns>
-            <exception cref="T:System.ArgumentException">
-            Thrown when <paramref name="filterType"/> is not a valid binary filter type.
-            </exception>
+        </member>
+        <member name="M:Deveel.Filters.ConstantFilterExpression.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Deveel.Filters.ConstantFilterExpression"/> class
+            with the specified constant value.
+            </summary>
+            <param name="value">The constant value of the expression, or <c>null</c>.</param>
+        </member>
+        <member name="P:Deveel.Filters.ConstantFilterExpression.Value">
+            <summary>
+            Gets the constant value of this expression.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.ConstantFilterExpression.ExpressionType">
+            <inheritdoc/>
         </member>
         <member name="T:Deveel.Filters.FilterEvaluationException">
             <summary>
@@ -130,13 +111,366 @@
             <param name="message">The message of the exception.</param>
             <param name="innerException">The inner exception of this exception.</param>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsLambda``1(Deveel.Filters.Filter,System.String)">
+        <member name="T:Deveel.Filters.FilterExpression">
             <summary>
-            Produces a lambda expression that represents the filter
+            Represents a default implementation of a filter that 
+            can be used to restrict the result of a query.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterExpression.ExpressionType">
+            <summary>
+            Gets the type of filter.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpression.Empty">
+            <summary>
+            An empty filter that has no effect on the result.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterExpression.IsEmpty">
+            <summary>
+            Gets a value indicating whether this filter expression is empty.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.IsValidReference(System.String)">
+            <summary>
+            Determines whether the specified variable name is a valid filter variable reference.
+            </summary>
+            <param name="variableName">The variable name to validate.</param>
+            <returns>
+            Returns <c>true</c> if the variable name is not null or whitespace and contains
+            only letters, digits, underscores, or dots; otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Unary(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpressionType)">
+            <summary>
+            Creates a new unary filter with the given operand and filter type.
+            </summary>
+            <param name="operand">
+            The operand of the unary filter.
+            </param>
+            <param name="expressionType">
+            The type of the unary filter.
+            </param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.UnaryFilterExpression"/> with the given operand and
+            of the given type.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="expressionType"/> is not a unary filter type.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Not(Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates an unary filter that negates the given operand.
+            </summary>
+            <param name="operand">
+            The filter operand to negate.
+            </param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.UnaryFilterExpression"/> that negates the given
+            filter operand.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Binary(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpressionType)">
+            <summary>
+            Creates a new binary filter with the given left and right operands
+            </summary>
+            <param name="left">
+            The left operand of the binary filter.
+            </param>
+            <param name="right">
+            The right operand of the binary filter.
+            </param>
+            <param name="expressionType">
+            The type of the binary filter.
+            </param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> of the given type with 
+            the given left and right operands.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="expressionType"/> is not a valid binary filter type.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.And(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that combines two operands with a logical AND.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.And"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Or(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that combines two operands with a logical OR.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.Or"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Equal(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that compares two operands for equality.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.Equal"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.NotEquals(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that compares two operands for inequality.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.NotEqual"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.GreaterThan(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that checks if the left operand is greater than the right.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.GreaterThan"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.GreaterThanOrEqual(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that checks if the left operand is greater than or equal to the right.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.GreaterThanOrEqual"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.LessThan(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that checks if the left operand is less than the right.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.LessThan"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.LessThanOrEqual(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpression)">
+            <summary>
+            Creates a binary filter that checks if the left operand is less than or equal to the right.
+            </summary>
+            <param name="left">The left operand.</param>
+            <param name="right">The right operand.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.BinaryFilterExpression"/> with <see cref="F:Deveel.Filters.FilterExpressionType.LessThanOrEqual"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Function(Deveel.Filters.VariableFilterExpression,System.String,Deveel.Filters.FilterExpression[])">
+            <summary>
+            Creates a function filter expression that invokes the specified function
+            on the given variable with the provided arguments.
+            </summary>
+            <param name="variable">The variable on which the function is invoked.</param>
+            <param name="functionName">The name of the function to invoke.</param>
+            <param name="arguments">The arguments to pass to the function.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.FunctionFilterExpression"/>.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Function(Deveel.Filters.VariableFilterExpression,System.String)">
+            <summary>
+            Creates a function filter expression that invokes the specified function
+            on the given variable with no arguments.
+            </summary>
+            <param name="variable">The variable on which the function is invoked.</param>
+            <param name="functionName">The name of the function to invoke.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.FunctionFilterExpression"/> with no arguments.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Constant(System.Object)">
+            <summary>
+            Creates a constant filter expression with the specified value.
+            </summary>
+            <param name="value">The constant value, or <c>null</c>.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.ConstantFilterExpression"/> wrapping the given value.
+            </returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpression.Variable(System.String)">
+            <summary>
+            Creates a variable filter expression referencing the specified variable name.
+            </summary>
+            <param name="variableName">The name of the variable to reference.</param>
+            <returns>
+            Returns a new <see cref="T:Deveel.Filters.VariableFilterExpression"/> for the given variable name.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="variableName"/> is <c>null</c>, whitespace,
+            or not a valid variable reference.
+            </exception>
+        </member>
+        <member name="T:Deveel.Filters.FilterExpressionType">
+            <summary>
+            Enumerates the types of filters that are known
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.Equal">
+            <summary>
+            A filter that compares two parties for equality
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.NotEqual">
+            <summary>
+            A filter that compares two parties for inequality
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.GreaterThan">
+            <summary>
+            Compares two parties to determine if the first part is greater 
+            than the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.GreaterThanOrEqual">
+            <summary>
+            Compares two parties to determine if the first part is greater
+            or equal to the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.LessThan">
+            <summary>
+            Compares two parties to determine if the first part is less than
+            the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.LessThanOrEqual">
+            <summary>
+            Compares two parties to determine if the first part is less than
+            or equal to the second one.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.And">
+            <summary>
+            A logical AND between two filters
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.Or">
+            <summary>
+            A logical OR between two filters
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.Not">
+            <summary>
+            An unary filter that negates the result of another filter
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.Function">
+            <summary>
+            The invocation of a function that returns a boolean value
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.Constant">
+            <summary>
+            A constant and immutable value.
+            </summary>
+        </member>
+        <member name="F:Deveel.Filters.FilterExpressionType.Variable">
+            <summary>
+            The reference to a variable in the filter context.
+            </summary>
+        </member>
+        <member name="T:Deveel.Filters.FilterExpressionVisitor">
+            <summary>
+            Provides a base visitor for traversing and transforming a <see cref="T:Deveel.Filters.FilterExpression"/> tree.
+            </summary>
+            <remarks>
+            Subclasses can override individual <c>Visit*</c> methods to customize behavior
+            for specific expression types.
+            </remarks>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionVisitor.Visit(Deveel.Filters.FilterExpression)">
+            <summary>
+            Visits the specified filter expression and dispatches to the
+            appropriate typed visit method based on its <see cref="P:Deveel.Filters.FilterExpression.ExpressionType"/>.
+            </summary>
+            <param name="filter">The filter expression to visit.</param>
+            <returns>The resulting <see cref="T:Deveel.Filters.FilterExpression"/> after visiting.</returns>
+            <exception cref="T:System.NotSupportedException">
+            Thrown when the expression type is not supported by this visitor.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionVisitor.VisitFunctionArguments(System.Collections.Generic.IList{Deveel.Filters.FilterExpression})">
+            <summary>
+            Visits the arguments of a function filter expression.
+            </summary>
+            <param name="arguments">The list of argument expressions, or <c>null</c>.</param>
+            <returns>A new list of visited argument expressions.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionVisitor.VisitFunction(Deveel.Filters.FunctionFilterExpression)">
+            <summary>
+            Visits a function filter expression.
+            </summary>
+            <param name="filterExpression">The function filter expression to visit.</param>
+            <returns>The resulting <see cref="T:Deveel.Filters.FilterExpression"/> after visiting.</returns>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when the visited variable is not a <see cref="T:Deveel.Filters.VariableFilterExpression"/>.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionVisitor.VisitConstant(Deveel.Filters.ConstantFilterExpression)">
+            <summary>
+            Visits a constant filter expression.
+            </summary>
+            <param name="constant">The constant filter expression to visit.</param>
+            <returns>A new <see cref="T:Deveel.Filters.ConstantFilterExpression"/> with the same value.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionVisitor.VisitVariable(Deveel.Filters.VariableFilterExpression)">
+            <summary>
+            Visits a variable filter expression.
+            </summary>
+            <param name="variable">The variable filter expression to visit.</param>
+            <returns>A new <see cref="T:Deveel.Filters.VariableFilterExpression"/> with the same variable name.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionVisitor.VisitUnary(Deveel.Filters.UnaryFilterExpression)">
+            <summary>
+            Visits a unary filter expression.
+            </summary>
+            <param name="filterExpression">The unary filter expression to visit.</param>
+            <returns>The resulting <see cref="T:Deveel.Filters.FilterExpression"/> after visiting the operand.</returns>
+        </member>
+        <member name="M:Deveel.Filters.FilterExpressionVisitor.VisitBinary(Deveel.Filters.BinaryFilterExpression)">
+            <summary>
+            Visits a binary filter expression.
+            </summary>
+            <param name="filterExpression">The binary filter expression to visit.</param>
+            <returns>The resulting <see cref="T:Deveel.Filters.FilterExpression"/> after visiting both operands.</returns>
+        </member>
+        <member name="T:Deveel.Filters.FilterExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:Deveel.Filters.FilterExpression"/> to build
+            lambda expressions, evaluate filters, and perform asynchronous evaluation.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.AsLambda``1(Deveel.Filters.FilterExpression,System.String)">
+            <summary>
+            Produces a lambda expression that represents the filter.
             </summary>
             <typeparam name="T">
             The type of the parameter of the expression.
             </typeparam>
+            <param name="filter">
+            The filter expression to convert to a lambda.
+            </param>
             <param name="parameterName">
             The name of the parameter to use in the expression. 
             <strong>Note</strong>: this name must match the variable references
@@ -150,7 +484,7 @@
             Thrown when <paramref name="parameterName"/> is <c>null</c> or empty.
             </exception>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsLambda(Deveel.Filters.Filter,System.Type,System.String)">
+        <member name="M:Deveel.Filters.FilterExtensions.AsLambda(Deveel.Filters.FilterExpression,System.Type,System.String)">
             <summary>
             Produces a lambda expression that represents the filter
             </summary>
@@ -176,7 +510,7 @@
             Thrown when <paramref name="parameterType"/> is <c>null</c>.
             </exception>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda(Deveel.Filters.Filter,System.Type,System.String)">
+        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda(Deveel.Filters.FilterExpression,System.Type,System.String)">
             <summary>
             Produces an asynchrounous lambda expression that represents the filter
             </summary>
@@ -193,7 +527,7 @@
             expression tree of the filter, that can be used to compile an asynchrouns delegate.
             </returns>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda``1(Deveel.Filters.Filter,System.String)">
+        <member name="M:Deveel.Filters.FilterExtensions.AsAsyncLambda``1(Deveel.Filters.FilterExpression,System.String)">
             <summary>
             Produces an asynchrounous lambda expression that represents the filter
             </summary>
@@ -210,7 +544,7 @@
             expression tree of the filter, that can be used to compile an asynchrouns delegate.
             </returns>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.Filter,System.Type,System.String,System.Object)">
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.FilterExpression,System.Type,System.String,System.Object)">
             <summary>
             Compiles and evaluates the filter against the given parameter value.
             </summary>
@@ -238,7 +572,7 @@
             unhandled error.
             </exception>
         </member>
-        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.Filter,System.Type,System.Object)">
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate(Deveel.Filters.FilterExpression,System.Type,System.Object)">
             <summary>
             Compiles and evaluates the filter against the given parameter value.
             </summary>
@@ -252,110 +586,217 @@
             Returns <c>true</c> if the given value matches the filter, otherwise
             </returns>
         </member>
-        <member name="T:Deveel.Filters.FilterType">
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate``1(Deveel.Filters.FilterExpression,System.String,``0)">
             <summary>
-            Enumerates the types of filters that are known
+            Compiles and evaluates the filter against the given typed parameter value.
             </summary>
+            <typeparam name="T">The type of the parameter.</typeparam>
+            <param name="filter">The filter expression to evaluate.</param>
+            <param name="parameterName">The name of the parameter used in the filter.</param>
+            <param name="parameterValue">The value to evaluate against the filter.</param>
+            <returns>
+            Returns <c>true</c> if the value matches the filter; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:Deveel.Filters.FilterEvaluationException">
+            Thrown when the filter cannot be evaluated.
+            </exception>
         </member>
-        <member name="F:Deveel.Filters.FilterType.Equal">
+        <member name="M:Deveel.Filters.FilterExtensions.Evaluate``1(Deveel.Filters.FilterExpression,``0)">
             <summary>
-            A filter that compares two parties for equality
+            Compiles and evaluates the filter against the given typed parameter value,
+            using the default parameter name "x".
             </summary>
+            <typeparam name="T">The type of the parameter.</typeparam>
+            <param name="filter">The filter expression to evaluate.</param>
+            <param name="parameterValue">The value to evaluate against the filter.</param>
+            <returns>
+            Returns <c>true</c> if the value matches the filter; otherwise <c>false</c>.
+            </returns>
         </member>
-        <member name="F:Deveel.Filters.FilterType.NotEqual">
+        <member name="M:Deveel.Filters.FilterExtensions.EvaluateAsync(Deveel.Filters.FilterExpression,System.Type,System.String,System.Object)">
             <summary>
-            A filter that compares two parties for inequality
+            Asynchronously compiles and evaluates the filter against the given parameter value.
             </summary>
+            <param name="filter">The filter expression to evaluate.</param>
+            <param name="parameterType">The type of the parameter.</param>
+            <param name="parameterName">The name of the parameter used in the filter.</param>
+            <param name="parameterValue">The value to evaluate against the filter.</param>
+            <returns>
+            A <see cref="T:System.Threading.Tasks.Task`1"/> that resolves to <c>true</c> if the value matches; otherwise <c>false</c>.
+            </returns>
         </member>
-        <member name="F:Deveel.Filters.FilterType.GreaterThan">
+        <member name="M:Deveel.Filters.FilterExtensions.EvaluateAsync``1(Deveel.Filters.FilterExpression,System.String,``0)">
             <summary>
-            Compares two parties to determine if the first part is greater 
-            than the second one.
+            Asynchronously compiles and evaluates the filter against the given typed parameter value.
             </summary>
+            <typeparam name="T">The type of the parameter.</typeparam>
+            <param name="filter">The filter expression to evaluate.</param>
+            <param name="parameterName">The name of the parameter used in the filter.</param>
+            <param name="parameterValue">The value to evaluate against the filter.</param>
+            <returns>
+            A <see cref="T:System.Threading.Tasks.Task`1"/> that resolves to <c>true</c> if the value matches; otherwise <c>false</c>.
+            </returns>
         </member>
-        <member name="F:Deveel.Filters.FilterType.GreaterThanOrEqual">
+        <member name="M:Deveel.Filters.FilterExtensions.EvaluateAsync``1(Deveel.Filters.FilterExpression,``0)">
             <summary>
-            Compares two parties to determine if the first part is greater
-            or equal to the second one.
+            Asynchronously compiles and evaluates the filter against the given typed parameter value,
+            using the default parameter name "x".
             </summary>
+            <typeparam name="T">The type of the parameter.</typeparam>
+            <param name="filter">The filter expression to evaluate.</param>
+            <param name="parameterValue">The value to evaluate against the filter.</param>
+            <returns>
+            A <see cref="T:System.Threading.Tasks.Task`1"/> that resolves to <c>true</c> if the value matches; otherwise <c>false</c>.
+            </returns>
         </member>
-        <member name="F:Deveel.Filters.FilterType.LessThan">
-            <summary>
-            Compares two parties to determine if the first part is less than
-            the second one.
-            </summary>
-        </member>
-        <member name="F:Deveel.Filters.FilterType.LessThanOrEqual">
-            <summary>
-            Compares two parties to determine if the first part is less than
-            or equal to the second one.
-            </summary>
-        </member>
-        <member name="F:Deveel.Filters.FilterType.And">
-            <summary>
-            A logical AND between two filters
-            </summary>
-        </member>
-        <member name="F:Deveel.Filters.FilterType.Or">
-            <summary>
-            A logical OR between two filters
-            </summary>
-        </member>
-        <member name="F:Deveel.Filters.FilterType.Not">
-            <summary>
-            An unary filter that negates the result of another filter
-            </summary>
-        </member>
-        <member name="F:Deveel.Filters.FilterType.Function">
-            <summary>
-            The invocation of a function that returns a boolean value
-            </summary>
-        </member>
-        <member name="F:Deveel.Filters.FilterType.Constant">
-            <summary>
-            A constant and immutable value.
-            </summary>
-        </member>
-        <member name="F:Deveel.Filters.FilterType.Variable">
-            <summary>
-            The reference to a variable in the filter context.
-            </summary>
-        </member>
-        <member name="T:Deveel.Filters.FunctionFilter">
+        <member name="T:Deveel.Filters.FunctionFilterExpression">
             <summary>
             The invocation to a function that returns a
             boolean for filtering
             </summary>
         </member>
-        <member name="P:Deveel.Filters.FunctionFilter.FunctionName">
+        <member name="M:Deveel.Filters.FunctionFilterExpression.#ctor(Deveel.Filters.VariableFilterExpression,System.String,Deveel.Filters.FilterExpression[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Deveel.Filters.FunctionFilterExpression"/> class.
+            </summary>
+            <param name="variable">The variable that defines the function to invoke.</param>
+            <param name="functionName">The name of the function to invoke.</param>
+            <param name="arguments">
+            An optional array of arguments to pass to the function. Each argument must be
+            either a <see cref="T:Deveel.Filters.ConstantFilterExpression"/> or a <see cref="T:Deveel.Filters.VariableFilterExpression"/>.
+            </param>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="functionName"/> is <c>null</c> or empty, or when
+            any argument is not a constant or variable expression.
+            </exception>
+        </member>
+        <member name="P:Deveel.Filters.FunctionFilterExpression.FunctionName">
             <summary>
             Gets the name of the function to invoke, that is
-            defined by the object refereced by <see cref="P:Deveel.Filters.FunctionFilter.Variable"/>
+            defined by the object refereced by <see cref="P:Deveel.Filters.FunctionFilterExpression.Variable"/>
             </summary>
         </member>
-        <member name="P:Deveel.Filters.FunctionFilter.Variable">
+        <member name="P:Deveel.Filters.FunctionFilterExpression.Variable">
             <summary>
             Gets the variable that references the object that
             defines the function to invoke
             </summary>
         </member>
-        <member name="P:Deveel.Filters.FunctionFilter.Arguments">
+        <member name="P:Deveel.Filters.FunctionFilterExpression.Arguments">
             <summary>
             Gets the arguments to pass to the function.
             </summary>
         </member>
-        <member name="P:Deveel.Filters.FunctionFilter.FilterType">
+        <member name="P:Deveel.Filters.FunctionFilterExpression.ExpressionType">
             <inheritdoc/>
         </member>
-        <member name="T:Deveel.Filters.IFilter">
+        <member name="T:Deveel.Filters.JsonElementUtil">
             <summary>
-            Defines the contract for a filter that can be applied to a
-            set to select a subset of.
+            Provides utility methods for converting values to and from <see cref="T:System.Text.Json.JsonElement"/>
+            and for building filter expressions from JSON data.
             </summary>
         </member>
-        <member name="P:Deveel.Filters.IFilter.FilterType">
+        <member name="M:Deveel.Filters.JsonElementUtil.ToElement(System.Object)">
             <summary>
-            Gets the type of the filter.
+            Converts the specified value to a <see cref="T:System.Text.Json.JsonElement"/>.
+            </summary>
+            <param name="value">The value to convert, or <c>null</c>.</param>
+            <returns>A <see cref="T:System.Text.Json.JsonElement"/> representing the given value.</returns>
+        </member>
+        <member name="M:Deveel.Filters.JsonElementUtil.BuildFilter(System.Collections.Generic.IDictionary{System.String,System.Text.Json.JsonElement},Deveel.Filters.FilterExpressionType,Deveel.Filters.FilterExpressionType)">
+            <summary>
+            Builds a composite <see cref="T:Deveel.Filters.BinaryFilterExpression"/> from a dictionary of
+            JSON key-value pairs, combining them with the specified logical operator.
+            </summary>
+            <param name="jsonData">A dictionary of field names to JSON values.</param>
+            <param name="expressionType">The comparison type to apply to each key-value pair.</param>
+            <param name="defaultLogical">
+            The logical operator used to combine multiple comparisons (default is <see cref="F:Deveel.Filters.FilterExpressionType.And"/>).
+            </param>
+            <returns>A <see cref="T:Deveel.Filters.BinaryFilterExpression"/> representing the combined filter.</returns>
+            <exception cref="T:System.ArgumentException">
+            Thrown when <paramref name="defaultLogical"/> is not a logical type, or
+            <paramref name="expressionType"/> is not a comparison type.
+            </exception>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="jsonData"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:Deveel.Filters.FilterException">
+            Thrown when no filter can be built from the given data.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.JsonElementUtil.InferValue(System.Nullable{System.Text.Json.JsonElement})">
+            <summary>
+            Infers a CLR value from the specified <see cref="T:System.Text.Json.JsonElement"/>.
+            </summary>
+            <param name="json">The JSON element to infer the value from, or <c>null</c>.</param>
+            <returns>
+            The inferred CLR value, or <c>null</c> if the element is <c>null</c>,
+            <see cref="F:System.Text.Json.JsonValueKind.Null"/>, or <see cref="F:System.Text.Json.JsonValueKind.Undefined"/>.
+            </returns>
+            <exception cref="T:Deveel.Filters.FilterException">
+            Thrown when the JSON element contains an unsupported value kind.
+            </exception>
+        </member>
+        <member name="T:Deveel.Filters.JsonFilterConverter">
+            <summary>
+            A <see cref="T:System.Text.Json.Serialization.JsonConverter`1"/> that serializes and deserializes
+            <see cref="T:Deveel.Filters.FilterExpression"/> instances to and from JSON.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.JsonFilterConverter.CanConvert(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Deveel.Filters.JsonFilterConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Deveel.Filters.JsonFilterConverter.Write(System.Text.Json.Utf8JsonWriter,Deveel.Filters.FilterExpression,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Deveel.Filters.UnaryFilterExpression">
+            <summary>
+            Represents a unary filter expression that applies an operator
+            to a single operand (e.g., logical negation).
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.UnaryFilterExpression.#ctor(Deveel.Filters.FilterExpression,Deveel.Filters.FilterExpressionType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Deveel.Filters.UnaryFilterExpression"/> class
+            with the specified operand and expression type.
+            </summary>
+            <param name="operand">The operand of the unary expression.</param>
+            <param name="expressionType">The type of the unary expression.</param>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="operand"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="P:Deveel.Filters.UnaryFilterExpression.ExpressionType">
+            <inheritdoc/>
+        </member>
+        <member name="P:Deveel.Filters.UnaryFilterExpression.Operand">
+            <summary>
+            Gets the operand of the unary expression.
+            </summary>
+        </member>
+        <member name="T:Deveel.Filters.VariableFilterExpression">
+            <summary>
+            Represents a variable reference expression within a filter tree,
+            pointing to a named field or property of the filtered object.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.VariableFilterExpression.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Deveel.Filters.VariableFilterExpression"/> class
+            with the specified variable name.
+            </summary>
+            <param name="variableName">The name of the variable referenced by this expression.</param>
+        </member>
+        <member name="P:Deveel.Filters.VariableFilterExpression.ExpressionType">
+            <inheritdoc/>
+        </member>
+        <member name="P:Deveel.Filters.VariableFilterExpression.VariableName">
+            <summary>
+            Gets the name of the variable referenced by this expression.
             </summary>
         </member>
     </members>

@@ -1,8 +1,12 @@
-﻿namespace Deveel.Filters {
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+namespace Deveel.Filters {
 	/// <summary>
 	/// Enumerates the types of filters that are known
 	/// </summary>
-	public enum FilterType {
+	public enum FilterExpressionType {
 		/// <summary>
 		/// A filter that compares two parties for equality
 		/// </summary>

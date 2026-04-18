@@ -1,19 +1,23 @@
-﻿using System.Text;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Text;
 
 namespace Deveel.Filters {
-	class FilterStringBuilder : FilterVisitor {
+	class FilterStringBuilder : FilterExpressionVisitor {
 		private readonly StringBuilder builder;
 
 		public FilterStringBuilder(StringBuilder builder) {
 			this.builder = builder;
 		}
 
-		public override Filter VisitVariable(VariableFilter variable) {
+		public override FilterExpression VisitVariable(VariableFilterExpression variable) {
 			builder.Append(variable.VariableName);
-			return Filter.Variable(variable.VariableName);
+			return FilterExpression.Variable(variable.VariableName);
 		}
 
-		public override Filter VisitConstant(ConstantFilter constant) {
+		public override FilterExpression VisitConstant(ConstantFilterExpression constant) {
 			if (constant.Value == null) {
 				builder.Append("null");
 			} else if (constant.Value is string s) {
@@ -31,97 +35,97 @@ namespace Deveel.Filters {
 				builder.Append(constant.Value.ToString());
 			}
 
-			return Filter.Constant(constant.Value);
+			return FilterExpression.Constant(constant.Value);
 		}
 
-		public override Filter VisitBinary(BinaryFilter filter) {
-			if (filter.Left.IsEmpty &&
-				filter.Right.IsEmpty)
+		public override FilterExpression VisitBinary(BinaryFilterExpression filterExpression) {
+			if (filterExpression.Left.IsEmpty &&
+				filterExpression.Right.IsEmpty)
 				throw new FilterException("Both left and right operands are empty");
 
-			if (filter.FilterType == FilterType.And ||
-				filter.FilterType == FilterType.Or) {
-				if (!filter.Left.IsEmpty && filter.Right.IsEmpty)
-					return Visit(filter.Left);
-				if (filter.Left.IsEmpty && !filter.Right.IsEmpty)
-					return Visit(filter.Right);
+			if (filterExpression.ExpressionType == FilterExpressionType.And ||
+				filterExpression.ExpressionType == FilterExpressionType.Or) {
+				if (!filterExpression.Left.IsEmpty && filterExpression.Right.IsEmpty)
+					return Visit(filterExpression.Left);
+				if (filterExpression.Left.IsEmpty && !filterExpression.Right.IsEmpty)
+					return Visit(filterExpression.Right);
 			}
 
-			if (filter.Left.FilterType != FilterType.Constant &&
-				filter.Left.FilterType != FilterType.Variable)
+			if (filterExpression.Left.ExpressionType != FilterExpressionType.Constant &&
+				filterExpression.Left.ExpressionType != FilterExpressionType.Variable)
 				builder.Append('(');
 
-			var left = Visit(filter.Left);
+			var left = Visit(filterExpression.Left);
 
-			if (filter.Left.FilterType != FilterType.Constant &&
-				filter.Left.FilterType != FilterType.Variable)
+			if (filterExpression.Left.ExpressionType != FilterExpressionType.Constant &&
+				filterExpression.Left.ExpressionType != FilterExpressionType.Variable)
 				builder.Append(')');
 
 			builder.Append(' ');
 
-			switch (filter.FilterType) {
-				case FilterType.Equal:
+			switch (filterExpression.ExpressionType) {
+				case FilterExpressionType.Equal:
 					builder.Append("==");
 					break;
-				case FilterType.NotEqual:
+				case FilterExpressionType.NotEqual:
 					builder.Append("!=");
 					break;
-				case FilterType.GreaterThan:
+				case FilterExpressionType.GreaterThan:
 					builder.Append(">");
 					break;
-				case FilterType.GreaterThanOrEqual:
+				case FilterExpressionType.GreaterThanOrEqual:
 					builder.Append(">=");
 					break;
-				case FilterType.LessThan:
+				case FilterExpressionType.LessThan:
 					builder.Append("<");
 					break;
-				case FilterType.LessThanOrEqual:
+				case FilterExpressionType.LessThanOrEqual:
 					builder.Append("<=");
 					break;
-				case FilterType.And:
+				case FilterExpressionType.And:
 					builder.Append("&&");
 					break;
-				case FilterType.Or:
+				case FilterExpressionType.Or:
 					builder.Append("||");
 					break;
 			}
 
 			builder.Append(' ');
 
-			if (filter.Right.FilterType != FilterType.Constant &&
-				filter.Right.FilterType != FilterType.Variable)
+			if (filterExpression.Right.ExpressionType != FilterExpressionType.Constant &&
+				filterExpression.Right.ExpressionType != FilterExpressionType.Variable)
 				builder.Append('(');
 
-			var right = Visit(filter.Right);
+			var right = Visit(filterExpression.Right);
 
-			if (filter.Right.FilterType != FilterType.Constant &&
-				filter.Right.FilterType != FilterType.Variable)
+			if (filterExpression.Right.ExpressionType != FilterExpressionType.Constant &&
+				filterExpression.Right.ExpressionType != FilterExpressionType.Variable)
 				builder.Append(')');
 
-			return Filter.Binary(left, right, filter.FilterType);
+			return FilterExpression.Binary(left, right, filterExpression.ExpressionType);
 		}
 
-		public override Filter VisitUnary(UnaryFilter filter) {
-			if (filter.Operand.IsEmpty)
+		public override FilterExpression VisitUnary(UnaryFilterExpression filterExpression) {
+			if (filterExpression.Operand.IsEmpty)
 				throw new FilterException("The operand of the unary filter is empty");
 
-			switch (filter.FilterType) {
-				case FilterType.Not:
+			switch (filterExpression.ExpressionType) {
+				case FilterExpressionType.Not:
 					builder.Append("!");
 					break;
 			}
 
 			builder.Append("(");
 
-			var operand = Visit(filter.Operand);
+			var operand = Visit(filterExpression.Operand);
 
 			builder.Append(")");
 
-			return Filter.Unary(operand, filter.FilterType);
+			return FilterExpression.Unary(operand, filterExpression.ExpressionType);
 		}
 
-		public override IList<Filter> VisitFunctionArguments(IList<Filter>? arguments) {
-			var args = new List<Filter>(arguments?.Count ?? 0);
+		public override IList<FilterExpression> VisitFunctionArguments(IList<FilterExpression>? arguments) {
+			var args = new List<FilterExpression>(arguments?.Count ?? 0);
 
 			builder.Append('(');
 
@@ -139,22 +143,22 @@ namespace Deveel.Filters {
 			return args;
 		}
 
-		public override Filter VisitFunction(FunctionFilter filter) {
-			var variable = VisitVariable(filter.Variable);
+		public override FilterExpression VisitFunction(FunctionFilterExpression filterExpression) {
+			var variable = VisitVariable(filterExpression.Variable);
 
 			builder.Append('.');
-			builder.Append(filter.FunctionName);
-			var args = VisitFunctionArguments(filter.Arguments);
+			builder.Append(filterExpression.FunctionName);
+			var args = VisitFunctionArguments(filterExpression.Arguments);
 
-			var arguments = new Filter[args.Count];
+			var arguments = new FilterExpression[args.Count];
 			for (int i = 0; i < args.Count; i++) {
 				arguments[i] = args[i];
 			}
 
-			if (!(variable is VariableFilter variableFilter))
+			if (!(variable is VariableFilterExpression variableFilter))
 				throw new InvalidOperationException($"The variable '{variable}' is not a valid function variable.");
 
-			return Filter.Function(variableFilter, filter.FunctionName, arguments);
+			return FilterExpression.Function(variableFilter, filterExpression.FunctionName, arguments);
 		}
 	}
 }

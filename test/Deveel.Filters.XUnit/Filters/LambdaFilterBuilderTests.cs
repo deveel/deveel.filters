@@ -14,7 +14,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_NestedProperty() {
-			var filter = Filter.Binary(Filter.Variable("x.Inner.Label"), Filter.Constant("test"), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x.Inner.Label"), FilterExpression.Constant("test"), FilterExpressionType.Equal);
 			var lambda = filter.AsLambda<TestObj>();
 			var compiled = lambda.Compile();
 			Assert.True(compiled(new TestObj { Inner = new Inner { Label = "test" } }));
@@ -28,7 +28,7 @@ namespace Deveel.Filters {
 		[Fact]
 		public static void AsLambda_FunctionOnParameter() {
 			// x.StartsWith("foo") where x is string
-			var filter = Filter.Function(Filter.Variable("x"), "StartsWith", new Filter[] { Filter.Constant("foo") });
+			var filter = FilterExpression.Function(FilterExpression.Variable("x"), "StartsWith", new FilterExpression[] { FilterExpression.Constant("foo") });
 			var lambda = filter.AsLambda<string>();
 			var compiled = lambda.Compile();
 			Assert.True(compiled("foobar"));
@@ -41,7 +41,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_FunctionOnMember() {
-			var filter = Filter.Function(Filter.Variable("x.Name"), "Contains", new Filter[] { Filter.Constant("oo") });
+			var filter = FilterExpression.Function(FilterExpression.Variable("x.Name"), "Contains", new FilterExpression[] { FilterExpression.Constant("oo") });
 			var lambda = filter.AsLambda<TestObj>();
 			var compiled = lambda.Compile();
 			Assert.True(compiled(new TestObj { Name = "foobar" }));
@@ -54,7 +54,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_FunctionNotFound_Throws() {
-			var filter = Filter.Function(Filter.Variable("x"), "NonExistentMethod", new Filter[] { Filter.Constant("a") });
+			var filter = FilterExpression.Function(FilterExpression.Variable("x"), "NonExistentMethod", new FilterExpression[] { FilterExpression.Constant("a") });
 			Assert.Throws<FilterException>(() => filter.AsLambda<string>());
 		}
 
@@ -64,13 +64,13 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_NonLogicalBinaryWithEmptyLeft_Throws() {
-			var filter = Filter.Binary(Filter.Empty, Filter.Constant(1), FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Empty, FilterExpression.Constant(1), FilterExpressionType.Equal);
 			Assert.Throws<FilterException>(() => filter.AsLambda<int>());
 		}
 
 		[Fact]
 		public static void AsLambda_NonLogicalBinaryWithEmptyRight_Throws() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Empty, FilterType.Equal);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Empty, FilterExpressionType.Equal);
 			Assert.Throws<FilterException>(() => filter.AsLambda<int>());
 		}
 
@@ -80,7 +80,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_UnaryWithEmptyOperand_Throws() {
-			var filter = Filter.Unary(Filter.Empty, FilterType.Not);
+			var filter = FilterExpression.Unary(FilterExpression.Empty, FilterExpressionType.Not);
 			Assert.Throws<FilterException>(() => filter.AsLambda<int>());
 		}
 
@@ -90,7 +90,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static async Task BuildAsyncLambda_Simple() {
-			var filter = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
+			var filter = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
 			var lambda = filter.AsAsyncLambda<int>();
 			var compiled = lambda.Compile();
 			Assert.True(await compiled(20));
@@ -103,7 +103,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_AndWithLeftEmpty() {
-			var filter = Filter.Binary(Filter.Empty, Filter.Binary(Filter.Variable("x"), Filter.Constant(5), FilterType.GreaterThan), FilterType.And);
+			var filter = FilterExpression.Binary(FilterExpression.Empty, FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(5), FilterExpressionType.GreaterThan), FilterExpressionType.And);
 			var lambda = filter.AsLambda<int>();
 			var compiled = lambda.Compile();
 			Assert.True(compiled(10));
@@ -112,7 +112,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_OrWithRightEmpty() {
-			var filter = Filter.Binary(Filter.Binary(Filter.Variable("x"), Filter.Constant(5), FilterType.GreaterThan), Filter.Empty, FilterType.Or);
+			var filter = FilterExpression.Binary(FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(5), FilterExpressionType.GreaterThan), FilterExpression.Empty, FilterExpressionType.Or);
 			var lambda = filter.AsLambda<int>();
 			var compiled = lambda.Compile();
 			Assert.True(compiled(10));
@@ -121,7 +121,7 @@ namespace Deveel.Filters {
 
 		[Fact]
 		public static void AsLambda_AndWithBothEmpty_Throws() {
-			var filter = Filter.Binary(Filter.Empty, Filter.Empty, FilterType.And);
+			var filter = FilterExpression.Binary(FilterExpression.Empty, FilterExpression.Empty, FilterExpressionType.And);
 			Assert.Throws<FilterException>(() => filter.AsLambda<int>());
 		}
 

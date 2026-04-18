@@ -16,14 +16,14 @@ namespace Deveel.Filters
 			return options;
 		}
 
-		private static string Serialize(Filter filter)
+		private static string Serialize(FilterExpression filter)
 		{
 			return JsonSerializer.Serialize(filter, CreateOptions());
 		}
 
-		private static Filter? Deserialize(string json)
+		private static FilterExpression? Deserialize(string json)
 		{
-			return JsonSerializer.Deserialize<Filter>(json, CreateOptions());
+			return JsonSerializer.Deserialize<FilterExpression>(json, CreateOptions());
 		}
 
 		#region Constant Filter Tests
@@ -37,7 +37,7 @@ namespace Deveel.Filters
 		[InlineData(123.456f, "{\"filterType\":\"Constant\",\"value\":123.456}")]
 		public static void SerializeConstantFilter(object value, string expectedJson)
 		{
-			var filter = Filter.Constant(value);
+			var filter = FilterExpression.Constant(value);
 			var json = Serialize(filter);
 			Assert.Equal(expectedJson, json);
 		}
@@ -45,7 +45,7 @@ namespace Deveel.Filters
 		[Fact]
 		public static void SerializeConstantFilterWithNull()
 		{
-			var filter = Filter.Constant(null);
+			var filter = FilterExpression.Constant(null);
 			var json = Serialize(filter);
 			Assert.Equal("{\"filterType\":\"Constant\",\"value\":null}", json);
 		}
@@ -61,7 +61,7 @@ namespace Deveel.Filters
 		{
 			var filter = Deserialize(json);
 			Assert.NotNull(filter);
-			var constant = Assert.IsType<ConstantFilter>(filter);
+			var constant = Assert.IsType<ConstantFilterExpression>(filter);
 			Assert.Equal(expectedValue, constant.Value);
 		}
 
@@ -75,7 +75,7 @@ namespace Deveel.Filters
 		[InlineData("_private", "{\"filterType\":\"Variable\",\"variableName\":\"_private\"}")]
 		public static void SerializeVariableFilter(string variableName, string expectedJson)
 		{
-			var filter = Filter.Variable(variableName);
+			var filter = FilterExpression.Variable(variableName);
 			var json = Serialize(filter);
 			Assert.Equal(expectedJson, json);
 		}
@@ -88,7 +88,7 @@ namespace Deveel.Filters
 		{
 			var filter = Deserialize(json);
 			Assert.NotNull(filter);
-			var variable = Assert.IsType<VariableFilter>(filter);
+			var variable = Assert.IsType<VariableFilterExpression>(filter);
 			Assert.Equal(expectedVariableName, variable.VariableName);
 		}
 
@@ -97,57 +97,57 @@ namespace Deveel.Filters
 		#region Binary Filter Tests
 
 		[Theory]
-		[InlineData(FilterType.Equal)]
-		[InlineData(FilterType.NotEqual)]
-		[InlineData(FilterType.GreaterThan)]
-		[InlineData(FilterType.GreaterThanOrEqual)]
-		[InlineData(FilterType.LessThan)]
-		[InlineData(FilterType.LessThanOrEqual)]
-		[InlineData(FilterType.And)]
-		[InlineData(FilterType.Or)]
-		public static void SerializeBinaryFilter(FilterType filterType)
+		[InlineData(FilterExpressionType.Equal)]
+		[InlineData(FilterExpressionType.NotEqual)]
+		[InlineData(FilterExpressionType.GreaterThan)]
+		[InlineData(FilterExpressionType.GreaterThanOrEqual)]
+		[InlineData(FilterExpressionType.LessThan)]
+		[InlineData(FilterExpressionType.LessThanOrEqual)]
+		[InlineData(FilterExpressionType.And)]
+		[InlineData(FilterExpressionType.Or)]
+		public static void SerializeBinaryFilter(FilterExpressionType expressionType)
 		{
-			var left = Filter.Variable("x");
-			var right = Filter.Constant(123);
-			var filter = Filter.Binary(left, right, filterType);
+			var left = FilterExpression.Variable("x");
+			var right = FilterExpression.Constant(123);
+			var filter = FilterExpression.Binary(left, right, expressionType);
 
 			var json = Serialize(filter);
-			var expectedJson = $"{{\"filterType\":\"{filterType}\",\"left\":{{\"filterType\":\"Variable\",\"variableName\":\"x\"}},\"right\":{{\"filterType\":\"Constant\",\"value\":123}}}}";
+			var expectedJson = $"{{\"filterType\":\"{expressionType}\",\"left\":{{\"filterType\":\"Variable\",\"variableName\":\"x\"}},\"right\":{{\"filterType\":\"Constant\",\"value\":123}}}}";
 			
 			Assert.Equal(expectedJson, json);
 		}
 
 		[Theory]
-		[InlineData(FilterType.Equal)]
-		[InlineData(FilterType.NotEqual)]
-		[InlineData(FilterType.GreaterThan)]
-		[InlineData(FilterType.GreaterThanOrEqual)]
-		[InlineData(FilterType.LessThan)]
-		[InlineData(FilterType.LessThanOrEqual)]
-		[InlineData(FilterType.And)]
-		[InlineData(FilterType.Or)]
-		public static void DeserializeBinaryFilter(FilterType filterType)
+		[InlineData(FilterExpressionType.Equal)]
+		[InlineData(FilterExpressionType.NotEqual)]
+		[InlineData(FilterExpressionType.GreaterThan)]
+		[InlineData(FilterExpressionType.GreaterThanOrEqual)]
+		[InlineData(FilterExpressionType.LessThan)]
+		[InlineData(FilterExpressionType.LessThanOrEqual)]
+		[InlineData(FilterExpressionType.And)]
+		[InlineData(FilterExpressionType.Or)]
+		public static void DeserializeBinaryFilter(FilterExpressionType expressionType)
 		{
-			var json = $"{{\"filterType\":\"{filterType}\",\"left\":{{\"filterType\":\"Variable\",\"variableName\":\"x\"}},\"right\":{{\"filterType\":\"Constant\",\"value\":123}}}}";
+			var json = $"{{\"filterType\":\"{expressionType}\",\"left\":{{\"filterType\":\"Variable\",\"variableName\":\"x\"}},\"right\":{{\"filterType\":\"Constant\",\"value\":123}}}}";
 			
 			var filter = Deserialize(json);
 			Assert.NotNull(filter);
-			var binary = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(filterType, binary.FilterType);
+			var binary = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(expressionType, binary.ExpressionType);
 
-			var left = Assert.IsType<VariableFilter>(binary.Left);
+			var left = Assert.IsType<VariableFilterExpression>(binary.Left);
 			Assert.Equal("x", left.VariableName);
 
-			var right = Assert.IsType<ConstantFilter>(binary.Right);
+			var right = Assert.IsType<ConstantFilterExpression>(binary.Right);
 			Assert.Equal(123, right.Value);
 		}
 
 		[Fact]
 		public static void SerializeNestedBinaryFilter()
 		{
-			var innerLeft = Filter.Binary(Filter.Variable("x"), Filter.Constant(10), FilterType.GreaterThan);
-			var innerRight = Filter.Binary(Filter.Variable("y"), Filter.Constant(20), FilterType.LessThan);
-			var filter = Filter.Binary(innerLeft, innerRight, FilterType.And);
+			var innerLeft = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(10), FilterExpressionType.GreaterThan);
+			var innerRight = FilterExpression.Binary(FilterExpression.Variable("y"), FilterExpression.Constant(20), FilterExpressionType.LessThan);
+			var filter = FilterExpression.Binary(innerLeft, innerRight, FilterExpressionType.And);
 
 			var json = Serialize(filter);
 			var expectedJson = "{\"filterType\":\"And\",\"left\":{\"filterType\":\"GreaterThan\",\"left\":{\"filterType\":\"Variable\",\"variableName\":\"x\"},\"right\":{\"filterType\":\"Constant\",\"value\":10}},\"right\":{\"filterType\":\"LessThan\",\"left\":{\"filterType\":\"Variable\",\"variableName\":\"y\"},\"right\":{\"filterType\":\"Constant\",\"value\":20}}}";
@@ -162,14 +162,14 @@ namespace Deveel.Filters
 			
 			var filter = Deserialize(json);
 			Assert.NotNull(filter);
-			var binary = Assert.IsType<BinaryFilter>(filter);
-			Assert.Equal(FilterType.And, binary.FilterType);
+			var binary = Assert.IsType<BinaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.And, binary.ExpressionType);
 
-			var leftBinary = Assert.IsType<BinaryFilter>(binary.Left);
-			Assert.Equal(FilterType.GreaterThan, leftBinary.FilterType);
+			var leftBinary = Assert.IsType<BinaryFilterExpression>(binary.Left);
+			Assert.Equal(FilterExpressionType.GreaterThan, leftBinary.ExpressionType);
 
-			var rightBinary = Assert.IsType<BinaryFilter>(binary.Right);
-			Assert.Equal(FilterType.LessThan, rightBinary.FilterType);
+			var rightBinary = Assert.IsType<BinaryFilterExpression>(binary.Right);
+			Assert.Equal(FilterExpressionType.LessThan, rightBinary.ExpressionType);
 		}
 
 		#endregion
@@ -179,8 +179,8 @@ namespace Deveel.Filters
 		[Fact]
 		public static void SerializeUnaryFilter()
 		{
-			var operand = Filter.Binary(Filter.Variable("x"), Filter.Constant(123), FilterType.Equal);
-			var filter = Filter.Not(operand);
+			var operand = FilterExpression.Binary(FilterExpression.Variable("x"), FilterExpression.Constant(123), FilterExpressionType.Equal);
+			var filter = FilterExpression.Not(operand);
 
 			var json = Serialize(filter);
 			var expectedJson = "{\"filterType\":\"Not\",\"operand\":{\"filterType\":\"Equal\",\"left\":{\"filterType\":\"Variable\",\"variableName\":\"x\"},\"right\":{\"filterType\":\"Constant\",\"value\":123}}}";
@@ -195,19 +195,19 @@ namespace Deveel.Filters
 			
 			var filter = Deserialize(json);
 			Assert.NotNull(filter);
-			var unary = Assert.IsType<UnaryFilter>(filter);
-			Assert.Equal(FilterType.Not, unary.FilterType);
+			var unary = Assert.IsType<UnaryFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Not, unary.ExpressionType);
 
-			var operand = Assert.IsType<BinaryFilter>(unary.Operand);
-			Assert.Equal(FilterType.Equal, operand.FilterType);
+			var operand = Assert.IsType<BinaryFilterExpression>(unary.Operand);
+			Assert.Equal(FilterExpressionType.Equal, operand.ExpressionType);
 		}
 
 		[Fact]
 		public static void SerializeNestedUnaryFilter()
 		{
-			var innerOperand = Filter.Variable("x");
-			var innerUnary = Filter.Not(innerOperand);
-			var filter = Filter.Not(innerUnary);
+			var innerOperand = FilterExpression.Variable("x");
+			var innerUnary = FilterExpression.Not(innerOperand);
+			var filter = FilterExpression.Not(innerUnary);
 
 			var json = Serialize(filter);
 			var expectedJson = "{\"filterType\":\"Not\",\"operand\":{\"filterType\":\"Not\",\"operand\":{\"filterType\":\"Variable\",\"variableName\":\"x\"}}}";
@@ -222,8 +222,8 @@ namespace Deveel.Filters
 		[Fact]
 		public static void SerializeFunctionFilterWithoutArguments()
 		{
-			var variable = Filter.Variable("user");
-			var filter = Filter.Function(variable, "isActive");
+			var variable = FilterExpression.Variable("user");
+			var filter = FilterExpression.Function(variable, "isActive");
 
 			var json = Serialize(filter);
 			var expectedJson = "{\"filterType\":\"Function\",\"variable\":{\"filterType\":\"Variable\",\"variableName\":\"user\"},\"functionName\":\"isActive\"}";
@@ -234,9 +234,9 @@ namespace Deveel.Filters
 		[Fact]
 		public static void SerializeFunctionFilterWithArguments()
 		{
-			var variable = Filter.Variable("user");
-			var args = new Filter[] { Filter.Constant("admin"), Filter.Variable("role") };
-			var filter = Filter.Function(variable, "hasRole", args);
+			var variable = FilterExpression.Variable("user");
+			var args = new FilterExpression[] { FilterExpression.Constant("admin"), FilterExpression.Variable("role") };
+			var filter = FilterExpression.Function(variable, "hasRole", args);
 
 			var json = Serialize(filter);
 			var expectedJson = "{\"filterType\":\"Function\",\"variable\":{\"filterType\":\"Variable\",\"variableName\":\"user\"},\"functionName\":\"hasRole\",\"arguments\":[{\"filterType\":\"Constant\",\"value\":\"admin\"},{\"filterType\":\"Variable\",\"variableName\":\"role\"}]}";
@@ -251,11 +251,11 @@ namespace Deveel.Filters
 			
 			var filter = Deserialize(json);
 			Assert.NotNull(filter);
-			var function = Assert.IsType<FunctionFilter>(filter);
-			Assert.Equal(FilterType.Function, function.FilterType);
+			var function = Assert.IsType<FunctionFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Function, function.ExpressionType);
 			Assert.Equal("isActive", function.FunctionName);
 
-			var variable = Assert.IsType<VariableFilter>(function.Variable);
+			var variable = Assert.IsType<VariableFilterExpression>(function.Variable);
 			Assert.Equal("user", variable.VariableName);
 
 			Assert.Empty(function.Arguments);
@@ -268,20 +268,20 @@ namespace Deveel.Filters
 			
 			var filter = Deserialize(json);
 			Assert.NotNull(filter);
-			var function = Assert.IsType<FunctionFilter>(filter);
-			Assert.Equal(FilterType.Function, function.FilterType);
+			var function = Assert.IsType<FunctionFilterExpression>(filter);
+			Assert.Equal(FilterExpressionType.Function, function.ExpressionType);
 			Assert.Equal("hasRole", function.FunctionName);
 
-			var variable = Assert.IsType<VariableFilter>(function.Variable);
+			var variable = Assert.IsType<VariableFilterExpression>(function.Variable);
 			Assert.Equal("user", variable.VariableName);
 
 			Assert.NotNull(function.Arguments);
 			Assert.Equal(2, function.Arguments.Length);
 
-			var firstArg = Assert.IsType<ConstantFilter>(function.Arguments[0]);
+			var firstArg = Assert.IsType<ConstantFilterExpression>(function.Arguments[0]);
 			Assert.Equal("admin", firstArg.Value);
 
-			var secondArg = Assert.IsType<VariableFilter>(function.Arguments[1]);
+			var secondArg = Assert.IsType<VariableFilterExpression>(function.Arguments[1]);
 			Assert.Equal("role", secondArg.VariableName);
 		}
 
@@ -292,35 +292,35 @@ namespace Deveel.Filters
 		[Fact]
 		public static void RoundTripConstantFilter()
 		{
-			var original = Filter.Constant("test value");
+			var original = FilterExpression.Constant("test value");
 			var json = Serialize(original);
 			var deserialized = Deserialize(json);
 
 			Assert.NotNull(deserialized);
-			var constant = Assert.IsType<ConstantFilter>(deserialized);
+			var constant = Assert.IsType<ConstantFilterExpression>(deserialized);
 			Assert.Equal(original.Value, constant.Value);
 		}
 
 		[Fact]
 		public static void RoundTripVariableFilter()
 		{
-			var original = Filter.Variable("test.variable");
+			var original = FilterExpression.Variable("test.variable");
 			var json = Serialize(original);
 			var deserialized = Deserialize(json);
 
 			Assert.NotNull(deserialized);
-			var variable = Assert.IsType<VariableFilter>(deserialized);
+			var variable = Assert.IsType<VariableFilterExpression>(deserialized);
 			Assert.Equal(original.VariableName, variable.VariableName);
 		}
 
 		[Fact]
 		public static void RoundTripComplexFilter()
 		{
-			var original = Filter.And(
-				Filter.Binary(Filter.Variable("age"), Filter.Constant(18), FilterType.GreaterThanOrEqual),
-				Filter.Or(
-					Filter.Binary(Filter.Variable("status"), Filter.Constant("active"), FilterType.Equal),
-					Filter.Not(Filter.Binary(Filter.Variable("blocked"), Filter.Constant(true), FilterType.Equal))
+			var original = FilterExpression.And(
+				FilterExpression.Binary(FilterExpression.Variable("age"), FilterExpression.Constant(18), FilterExpressionType.GreaterThanOrEqual),
+				FilterExpression.Or(
+					FilterExpression.Binary(FilterExpression.Variable("status"), FilterExpression.Constant("active"), FilterExpressionType.Equal),
+					FilterExpression.Not(FilterExpression.Binary(FilterExpression.Variable("blocked"), FilterExpression.Constant(true), FilterExpressionType.Equal))
 				)
 			);
 
@@ -328,8 +328,8 @@ namespace Deveel.Filters
 			var deserialized = Deserialize(json);
 
 			Assert.NotNull(deserialized);
-			Assert.IsType<BinaryFilter>(deserialized);
-			Assert.Equal(FilterType.And, deserialized.FilterType);
+			Assert.IsType<BinaryFilterExpression>(deserialized);
+			Assert.Equal(FilterExpressionType.And, deserialized.ExpressionType);
 		}
 
 		#endregion
@@ -461,7 +461,7 @@ namespace Deveel.Filters
 		[InlineData(float.NaN)]
 		public static void SerializeSpecialNumericValues(object value)
 		{
-			var filter = Filter.Constant(value);
+			var filter = FilterExpression.Constant(value);
 			var json = Serialize(filter);
 			Assert.Contains("filterType", json);
 			Assert.Contains("Constant", json);
@@ -471,7 +471,7 @@ namespace Deveel.Filters
 		public static void SerializeFilterWithDateTime()
 		{
 			var dateTime = new DateTime(2023, 12, 25, 10, 30, 0, DateTimeKind.Utc);
-			var filter = Filter.Constant(dateTime);
+			var filter = FilterExpression.Constant(dateTime);
 			var json = Serialize(filter);
 			
 			Assert.Contains("filterType", json);
@@ -482,12 +482,12 @@ namespace Deveel.Filters
 		public static void RoundTripFilterWithDateTime()
 		{
 			var original = new DateTime(2023, 12, 25, 10, 30, 0, DateTimeKind.Utc);
-			var filter = Filter.Constant(original);
+			var filter = FilterExpression.Constant(original);
 			var json = Serialize(filter);
 			var deserialized = Deserialize(json);
 
 			Assert.NotNull(deserialized);
-			var constant = Assert.IsType<ConstantFilter>(deserialized);
+			var constant = Assert.IsType<ConstantFilterExpression>(deserialized);
 			Assert.IsType<DateTime>(constant.Value);
 		}
 
@@ -495,11 +495,11 @@ namespace Deveel.Filters
 		public static void FilterWithDateTimeOffsetConvertsToDateTime()
 		{
 			var original = new DateTimeOffset(2023, 12, 25, 10, 30, 0, TimeSpan.FromHours(2));
-			var filter = Filter.Constant(original);
+			var filter = FilterExpression.Constant(original);
 			var json = Serialize(filter);
 			var deserialized = Deserialize(json);
 			Assert.NotNull(deserialized);
-			var constant = Assert.IsType<ConstantFilter>(deserialized);
+			var constant = Assert.IsType<ConstantFilterExpression>(deserialized);
 			// TODO: Handle DateTimeOffset if needed (this is a limitation of System.Text.Json)
 			Assert.IsType<DateTime>(constant.Value);
 		}
@@ -507,7 +507,7 @@ namespace Deveel.Filters
 		[Fact]
 		public static void SerializeFilterWithNullValue()
 		{
-			var filter = Filter.Constant(null);
+			var filter = FilterExpression.Constant(null);
 			var json = Serialize(filter);
 			Assert.Equal("{\"filterType\":\"Constant\",\"value\":null}", json);
 		}

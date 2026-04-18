@@ -24,6 +24,40 @@
             Extension data for the dynamic properties of the filter.
             </summary>
         </member>
+        <member name="T:Deveel.Filters.FilterBuilderOptions">
+            <summary>
+            Options that control how a <see cref="T:Deveel.Filters.FilterExpression"/> is converted
+            to a <see cref="T:Deveel.Filters.FilterModel"/>.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterBuilderOptions.PreferBinaryData">
+            <summary>
+            Gets or sets a value indicating whether binary filter models should prefer
+            the compact key-value data representation over explicit left/right operands.
+            The default is <c>true</c>.
+            </summary>
+        </member>
+        <member name="T:Deveel.Filters.FilterExtensions">
+            <summary>
+            Provides extension methods for converting <see cref="T:Deveel.Filters.FilterExpression"/> instances
+            to <see cref="T:Deveel.Filters.FilterModel"/> web model representations.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterExtensions.ToFilterModel(Deveel.Filters.FilterExpression,Deveel.Filters.FilterBuilderOptions)">
+            <summary>
+            Converts the specified <see cref="T:Deveel.Filters.FilterExpression"/> to a <see cref="T:Deveel.Filters.FilterModel"/>
+            suitable for web serialization and exchange.
+            </summary>
+            <param name="filter">The filter expression to convert.</param>
+            <param name="binaryOptions">
+            Optional options controlling how binary filters are represented in the model.
+            If <c>null</c>, default options are used.
+            </param>
+            <returns>A <see cref="T:Deveel.Filters.FilterModel"/> representing the filter.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="filter"/> is <c>null</c>.
+            </exception>
+        </member>
         <member name="T:Deveel.Filters.FilterModel">
             <summary>
             A model that describes a filter that is used to
@@ -33,6 +67,88 @@
             This object defines a model that can be exchanged between
             services and clients and be serialized and deserialized safely.
             </remarks>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.Equal">
+            <summary>
+            Gets or sets the equality binary filter model (JSON: "eq").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.NotEqual">
+            <summary>
+            Gets or sets the inequality binary filter model (JSON: "neq").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.GreaterThan">
+            <summary>
+            Gets or sets the greater-than binary filter model (JSON: "gt").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.GreaterThanOrEqual">
+            <summary>
+            Gets or sets the greater-than-or-equal binary filter model (JSON: "gte").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.LessThan">
+            <summary>
+            Gets or sets the less-than binary filter model (JSON: "lt").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.LessThanOrEqual">
+            <summary>
+            Gets or sets the less-than-or-equal binary filter model (JSON: "lte").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.And">
+            <summary>
+            Gets or sets the logical AND binary filter model (JSON: "and").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.Or">
+            <summary>
+            Gets or sets the logical OR binary filter model (JSON: "or").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.BinaryData">
+            <summary>
+            Gets or sets the extension data containing simple key-value pairs
+            that represent an equality filter in a compact form.
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.Not">
+            <summary>
+            Gets or sets the negation (NOT) filter model (JSON: "not").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.Value">
+            <summary>
+            Gets or sets a constant value for this filter (JSON: "value").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.Ref">
+            <summary>
+            Gets or sets the variable reference name for this filter (JSON: "ref").
+            </summary>
+        </member>
+        <member name="P:Deveel.Filters.FilterModel.Function">
+            <summary>
+            Gets or sets the function filter model for this filter (JSON: "func").
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.FilterModel.BuildFilter">
+            <summary>
+            Builds a <see cref="T:Deveel.Filters.FilterExpression"/> from this model.
+            </summary>
+            <returns>The constructed <see cref="T:Deveel.Filters.FilterExpression"/>.</returns>
+            <exception cref="T:Deveel.Filters.FilterException">
+            Thrown when the model is invalid or incomplete.
+            </exception>
+        </member>
+        <member name="M:Deveel.Filters.FilterModel.ValidateModel(System.ComponentModel.DataAnnotations.ValidationContext)">
+            <summary>
+            Provides a hook for subclasses to add additional validation logic.
+            </summary>
+            <param name="validationContext">The validation context.</param>
+            <returns>A collection of validation results, empty if valid.</returns>
         </member>
         <member name="T:Deveel.Filters.FunctionFilterModel">
             <summary>
@@ -55,6 +171,16 @@
             <summary>
             An optional array of arguments to pass to the function.
             </summary>
+        </member>
+        <member name="T:Deveel.Filters.SimpleValueAttribute">
+            <summary>
+            A validation attribute that ensures the annotated value is a simple (scalar) type,
+            such as a string, number, boolean, date, or a dictionary of simple values.
+            Complex objects and arrays are not considered valid.
+            </summary>
+        </member>
+        <member name="M:Deveel.Filters.SimpleValueAttribute.IsValid(System.Object)">
+            <inheritdoc/>
         </member>
         <member name="T:Deveel.Filters.VariableNameAttribute">
             <summary>

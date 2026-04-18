@@ -1,4 +1,8 @@
-﻿using System.Text.Json.Nodes;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Text.Json.Nodes;
 
 using MongoDB.Bson;
 

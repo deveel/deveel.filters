@@ -1,4 +1,8 @@
-﻿using System.Linq.Dynamic.Core;
+﻿// Copyright 2023-2026 Antonello Provenzano
+// 
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -24,7 +28,9 @@ namespace Deveel.Filters {
 		/// without a name in the LambdaExpression, and the string representation of the filter will not include a parameter name.
 		/// This can be useful in cases where the parameter name is not relevant or should be inferred from context.
 		/// </param>
-		/// <param name="config"></param>
+		/// <param name="config">
+	/// An optional <see cref="ParsingConfig"/> to configure the DynamicLinq parser behavior.
+	/// </param>
 		/// <returns>
 		/// Returns a <see cref="LambdaExpression"/> that represents the filter, which can be used to filter an
 		/// <see cref="IQueryable"/> using DynamicLinq. The resulting LambdaExpression will have a single parameter
@@ -37,7 +43,7 @@ namespace Deveel.Filters {
 		/// Thrown if the filter cannot be converted into a valid LambdaExpression, which can occur if the filter contains
 		/// unsupported operations or if the resulting string representation is not compatible with DynamicLinq parsing.
 		/// </exception>
-		public static LambdaExpression AsDynamicLambda(this Filter filter, Type parameterType, string parameterName = "x", ParsingConfig? config = null) {
+		public static LambdaExpression AsDynamicLambda(this FilterExpression filter, Type parameterType, string parameterName = "x", ParsingConfig? config = null) {
 			ArgumentNullException.ThrowIfNull(filter, nameof(filter));
 			ArgumentNullException.ThrowIfNull(parameterType, nameof(parameterType));
 
@@ -60,7 +66,18 @@ namespace Deveel.Filters {
 			}
 		}
 
-		public static Expression<Func<T, bool>> AsDynamicLambda<T>(this Filter filter, string parameterName = "x", ParsingConfig? config = null) 
+		/// <summary>
+		/// Converts a Filter object into a strongly-typed <see cref="Expression{TDelegate}"/>
+		/// that can be used with DynamicLinq for filtering.
+		/// </summary>
+		/// <typeparam name="T">The type of the parameter in the expression.</typeparam>
+		/// <param name="filter">The filter to convert.</param>
+		/// <param name="parameterName">The name of the parameter (default: "x").</param>
+		/// <param name="config">Optional parsing configuration.</param>
+		/// <returns>
+		/// Returns an <see cref="Expression{TDelegate}"/> representing the filter.
+		/// </returns>
+		public static Expression<Func<T, bool>> AsDynamicLambda<T>(this FilterExpression filter, string parameterName = "x", ParsingConfig? config = null) 
 			=>	(Expression<Func<T, bool>>)AsDynamicLambda(filter, typeof(T), parameterName, config);
 
 		/// <summary>
@@ -68,7 +85,7 @@ namespace Deveel.Filters {
 		/// </summary>
 		/// <param name="filter">The filter to convert to a DynamicLinq-compatible string.</param>
 		/// <returns>A string representation of the filter that can be parsed by DynamicLinq.</returns>
-		public static string ToDynamicString(this Filter filter) {
+		public static string ToDynamicString(this FilterExpression filter) {
 			var builder = new StringBuilder();
 			var visitor = new DynamicLinqFilterStringBuilder(builder);
 			visitor.Visit(filter);
@@ -79,19 +96,19 @@ namespace Deveel.Filters {
 	/// <summary>
 	/// A specialized filter visitor that formats filters in a way compatible with DynamicLinq parsing.
 	/// </summary>
-	internal class DynamicLinqFilterStringBuilder : FilterVisitor {
+	internal class DynamicLinqFilterStringBuilder : FilterExpressionVisitor {
 		private readonly StringBuilder builder;
 
 		public DynamicLinqFilterStringBuilder(StringBuilder builder) {
 			this.builder = builder;
 		}
 
-		public override Filter VisitVariable(VariableFilter variable) {
+		public override FilterExpression VisitVariable(VariableFilterExpression variable) {
 			builder.Append(variable.VariableName);
-			return Filter.Variable(variable.VariableName);
+			return FilterExpression.Variable(variable.VariableName);
 		}
 
-		public override Filter VisitConstant(ConstantFilter constant) {
+		public override FilterExpression VisitConstant(ConstantFilterExpression constant) {
 			if (constant.Value == null) {
 				builder.Append("null");
 			} else if (constant.Value is string s) {
@@ -133,57 +150,57 @@ namespace Deveel.Filters {
 				builder.Append(constant.Value.ToString());
 			}
 
-			return Filter.Constant(constant.Value);
+			return FilterExpression.Constant(constant.Value);
 		}
 
-		public override Filter VisitBinary(BinaryFilter filter) {
-			if (filter.Left.IsEmpty && filter.Right.IsEmpty)
+		public override FilterExpression VisitBinary(BinaryFilterExpression filterExpression) {
+			if (filterExpression.Left.IsEmpty && filterExpression.Right.IsEmpty)
 				throw new FilterException("Both left and right operands are empty");
 
-			if (filter.FilterType == FilterType.And || filter.FilterType == FilterType.Or) {
-				if (!filter.Left.IsEmpty && filter.Right.IsEmpty)
-					return Visit(filter.Left);
-				if (filter.Left.IsEmpty && !filter.Right.IsEmpty)
-					return Visit(filter.Right);
+			if (filterExpression.ExpressionType == FilterExpressionType.And || filterExpression.ExpressionType == FilterExpressionType.Or) {
+				if (!filterExpression.Left.IsEmpty && filterExpression.Right.IsEmpty)
+					return Visit(filterExpression.Left);
+				if (filterExpression.Left.IsEmpty && !filterExpression.Right.IsEmpty)
+					return Visit(filterExpression.Right);
 			}
 
 			// Add parentheses for complex expressions
-			bool needsLeftParens = NeedsParentheses(filter.Left);
-			bool needsRightParens = NeedsParentheses(filter.Right);
+			bool needsLeftParens = NeedsParentheses(filterExpression.Left);
+			bool needsRightParens = NeedsParentheses(filterExpression.Right);
 
 			if (needsLeftParens)
 				builder.Append('(');
 
-			var left = Visit(filter.Left);
+			var left = Visit(filterExpression.Left);
 
 			if (needsLeftParens)
 				builder.Append(')');
 
 			builder.Append(' ');
 
-			switch (filter.FilterType) {
-				case FilterType.Equal:
+			switch (filterExpression.ExpressionType) {
+				case FilterExpressionType.Equal:
 					builder.Append("==");
 					break;
-				case FilterType.NotEqual:
+				case FilterExpressionType.NotEqual:
 					builder.Append("!=");
 					break;
-				case FilterType.GreaterThan:
+				case FilterExpressionType.GreaterThan:
 					builder.Append(">");
 					break;
-				case FilterType.GreaterThanOrEqual:
+				case FilterExpressionType.GreaterThanOrEqual:
 					builder.Append(">=");
 					break;
-				case FilterType.LessThan:
+				case FilterExpressionType.LessThan:
 					builder.Append("<");
 					break;
-				case FilterType.LessThanOrEqual:
+				case FilterExpressionType.LessThanOrEqual:
 					builder.Append("<=");
 					break;
-				case FilterType.And:
+				case FilterExpressionType.And:
 					builder.Append("&&");
 					break;
-				case FilterType.Or:
+				case FilterExpressionType.Or:
 					builder.Append("||");
 					break;
 			}
@@ -193,38 +210,38 @@ namespace Deveel.Filters {
 			if (needsRightParens)
 				builder.Append('(');
 
-			var right = Visit(filter.Right);
+			var right = Visit(filterExpression.Right);
 
 			if (needsRightParens)
 				builder.Append(')');
 
-			return Filter.Binary(left, right, filter.FilterType);
+			return FilterExpression.Binary(left, right, filterExpression.ExpressionType);
 		}
 
-		public override Filter VisitUnary(UnaryFilter filter) {
-			if (filter.Operand.IsEmpty)
+		public override FilterExpression VisitUnary(UnaryFilterExpression filterExpression) {
+			if (filterExpression.Operand.IsEmpty)
 				throw new FilterException("The operand of the unary filter is empty");
 
-			switch (filter.FilterType) {
-				case FilterType.Not:
+			switch (filterExpression.ExpressionType) {
+				case FilterExpressionType.Not:
 					builder.Append("!");
 					break;
 			}
 
-			bool needsParens = NeedsParentheses(filter.Operand);
+			bool needsParens = NeedsParentheses(filterExpression.Operand);
 			if (needsParens)
 				builder.Append("(");
 
-			var operand = Visit(filter.Operand);
+			var operand = Visit(filterExpression.Operand);
 
 			if (needsParens)
 				builder.Append(")");
 
-			return Filter.Unary(operand, filter.FilterType);
+			return FilterExpression.Unary(operand, filterExpression.ExpressionType);
 		}
 
-		public override IList<Filter> VisitFunctionArguments(IList<Filter>? arguments) {
-			var args = new List<Filter>(arguments?.Count ?? 0);
+		public override IList<FilterExpression> VisitFunctionArguments(IList<FilterExpression>? arguments) {
+			var args = new List<FilterExpression>(arguments?.Count ?? 0);
 
 			builder.Append('(');
 
@@ -242,28 +259,28 @@ namespace Deveel.Filters {
 			return args;
 		}
 
-		public override Filter VisitFunction(FunctionFilter filter) {
-			var variable = VisitVariable(filter.Variable);
+		public override FilterExpression VisitFunction(FunctionFilterExpression filterExpression) {
+			var variable = VisitVariable(filterExpression.Variable);
 
 			builder.Append('.');
-			builder.Append(filter.FunctionName);
-			var args = VisitFunctionArguments(filter.Arguments);
+			builder.Append(filterExpression.FunctionName);
+			var args = VisitFunctionArguments(filterExpression.Arguments);
 
-			var arguments = new Filter[args.Count];
+			var arguments = new FilterExpression[args.Count];
 			for (int i = 0; i < args.Count; i++) {
 				arguments[i] = args[i];
 			}
 
-			if (!(variable is VariableFilter variableFilter))
+			if (!(variable is VariableFilterExpression variableFilter))
 				throw new InvalidOperationException($"The variable '{variable}' is not a valid function variable.");
 
-			return Filter.Function(variableFilter, filter.FunctionName, arguments);
+			return FilterExpression.Function(variableFilter, filterExpression.FunctionName, arguments);
 		}
 
-		private static bool NeedsParentheses(Filter filter) {
-			return filter.FilterType != FilterType.Constant && 
-			       filter.FilterType != FilterType.Variable &&
-			       filter.FilterType != FilterType.Function;
+		private static bool NeedsParentheses(FilterExpression filter) {
+			return filter.ExpressionType != FilterExpressionType.Constant && 
+			       filter.ExpressionType != FilterExpressionType.Variable &&
+			       filter.ExpressionType != FilterExpressionType.Function;
 		}
 	}
 }
