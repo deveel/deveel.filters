@@ -38,9 +38,14 @@ namespace Deveel.Filters
 			{
 				FilterExpressionType.Constant => DeserializeConstant(root),
 				FilterExpressionType.Variable => DeserializeVariable(root),
-				FilterExpressionType.Equal or FilterExpressionType.NotEqual or FilterExpressionType.GreaterThan or 
-				FilterExpressionType.GreaterThanOrEqual or FilterExpressionType.LessThan or FilterExpressionType.LessThanOrEqual or
-				FilterExpressionType.And or FilterExpressionType.Or => DeserializeBinary(root, filterType, options),
+				FilterExpressionType.Equal 
+					or FilterExpressionType.NotEqual 
+					or FilterExpressionType.GreaterThan 
+					or FilterExpressionType.GreaterThanOrEqual 
+					or FilterExpressionType.LessThan 
+					or FilterExpressionType.LessThanOrEqual 
+					or FilterExpressionType.And 
+					or FilterExpressionType.Or => DeserializeBinary(root, filterType, options),
 				FilterExpressionType.Not => DeserializeUnary(root, filterType, options),
 				FilterExpressionType.Function => DeserializeFunction(root, options),
 				_ => throw new JsonException($"Unsupported filter type: {filterType}")
