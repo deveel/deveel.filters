@@ -21,14 +21,14 @@ jobs:
       is-pre-release: ${{ steps.gitversion.outputs.PreReleaseTag != '' }}
       
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # GitVersion needs full history
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4
         with:
-          versionSpec: '6.x'
+          versionSpec: '5.x'
 
       - name: Determine Version
         id: gitversion
